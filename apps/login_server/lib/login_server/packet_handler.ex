@@ -1,11 +1,11 @@
 defmodule LoginServer.PacketHandler do
   @moduledoc """
-  Reveived packet handler.
+  Received packet handler.
   """
 
   use HeavensStrike.General.Packet
 
-  packet "NoS0575" do
+  halt_packet "NoS0575" do
     field :session, :integer
     field :username, :string
     field :password, :string

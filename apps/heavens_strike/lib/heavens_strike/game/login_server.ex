@@ -10,10 +10,7 @@ defmodule HeavensStrike.Game.LoginServer do
   @callback handle_init(args :: list) :: no_return
   @callback handle_connection(client :: Client.t()) :: no_return
   @callback handle_disconnection(client :: Client.t(), reason :: term) :: no_return
-  @callback handle_message(from :: Client.t(), msg :: binary) ::
-              {:cont}
-              | {:halt, {:ok, term}}
-              | {:halt, {:error, conn_error}}
+  @callback handle_message(client :: Client.t(), message :: binary) :: no_return
   @callback handle_client_accepted(client :: Client.t(), args :: term) :: no_return
   @callback handle_client_refused(client :: Client.t(), error :: conn_error) :: no_return
 
@@ -22,16 +19,27 @@ defmodule HeavensStrike.Game.LoginServer do
   """
   defmacro __using__(opts) do
     parent = __MODULE__
+    caller = __CALLER__.module
     port = get_in(opts, [:port]) || 3000
+    resolver = get_in(opts, [:packet_resolver])
     use_opts = put_in(opts, [:port], port)
 
-    quote bind_quoted: [use_opts: use_opts, port: port, parent: parent] do
+    # Check is there is any resolver
+    case resolver do
+      nil -> raise "Please, specify a packet_resolver for #{caller}"
+      _ -> :ok
+    end
+
+    quote bind_quoted: [
+            use_opts: use_opts,
+            port: port,
+            parent: parent,
+            resolver: resolver
+          ] do
       alias HeavensStrike.Game.Client
 
       @behaviour parent
       @behaviour :ranch_protocol
-      # TODO: Remove this on Elixir v2.0
-      @before_compile parent
 
       @response_timeout 3000
 
@@ -95,7 +103,8 @@ defmodule HeavensStrike.Game.LoginServer do
         tmp = transport.recv(socket, 0, @response_timeout)
 
         with {:ok, data} <- tmp do
-          case handle_message(client, data) do
+          handle_message(client, data)
+          case unquote(resolver).resolve(client, data) do
             {:cont} ->
               recv_loop(client)
 
@@ -107,7 +116,7 @@ defmodule HeavensStrike.Game.LoginServer do
 
             _ ->
               raise """
-               	#{__MODULE__}.handle_message/2 have to return `{:cont}`, \
+               	#{__MODULE__}.resolve/2 have to return `{:cont}`, \
                 `{:halt, {:ok, :some_args}}`, or `{:halt, {:error, reason}}`.
               """
           end
@@ -155,41 +164,16 @@ defmodule HeavensStrike.Game.LoginServer do
       def handle_init(_args), do: :unimplemented_function
       def handle_connection(_client), do: :unimplemented_function
       def handle_disconnection(_client, _reason), do: :unimplemented_function
+      def handle_message(_client, _message), do: :unimplemented_function
       def handle_client_accepted(_client, _args), do: :unimplemented_function
       def handle_client_refused(_client, _reason), do: :unimplemented_function
 
       defoverridable handle_init: 1,
                      handle_connection: 1,
                      handle_disconnection: 2,
+                     handle_message: 2,
                      handle_client_accepted: 2,
                      handle_client_refused: 2
-    end
-  end
-
-  defmacro __before_compile__(env) do
-    unless Module.defines?(env.module, {:handle_message, 2}) do
-      message = """
-      function handle_message/2 required by behaviour #{__MODULE__} is not implemented \
-      (in module #{inspect(env.module)}).
-
-      Example:
-
-      	def handle_message(%Client{} = from, message) do
-      		# Decrypt packet and/or do some things
-      		Logger.info("New message from \#{inspect(from)}: \#{message}")
-
-      		# If need to handle some other messages :
-      		# {:cont}
-
-      		# If any problem with client (wrong credentials, game not up to date etc...)
-      		# {:halt, {:error, :some_error}}
-
-      		# If everything is ok
-      		{:halt, {:ok, :some_args}}
-      	end
-      """
-
-      raise message
     end
   end
 end

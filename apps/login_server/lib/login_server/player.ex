@@ -1,5 +1,7 @@
 defmodule LoginServer.Player do
-  @moduledoc false
+  @moduledoc """
+  TODO: Too much changes on this Module....
+  """
 
   alias LoginServer.Crypto
 
@@ -7,9 +9,9 @@ defmodule LoginServer.Player do
 
   def player_connect(_ctx, params) do
     with %{
-            username: user,
-            password: enc_password,
-            version: version
+           username: user,
+           password: enc_password,
+           version: version
          } <- params,
          :ok <- check_version(version),
          {:ok, password} <- decrypt_password(enc_password),
