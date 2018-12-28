@@ -104,6 +104,7 @@ defmodule HeavensStrike.Game.LoginServer do
 
         with {:ok, data} <- tmp do
           handle_message(client, data)
+
           case unquote(resolver).resolve(client, data) do
             {:cont} ->
               recv_loop(client)

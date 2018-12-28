@@ -18,7 +18,7 @@ defmodule LoginServer.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {LoginServer.Application, []},
+      mod: {LoginServer, []},
       extra_applications: [:logger]
     ]
   end
