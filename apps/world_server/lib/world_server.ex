@@ -1,6 +1,6 @@
-defmodule LoginServer do
+defmodule WorldServer do
   @moduledoc """
-  Documentation for LoginServer.
+  Documentation for WorldServer.
   """
 
   use Application
@@ -8,10 +8,10 @@ defmodule LoginServer do
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
-      {LoginServer.Frontend, name: LoginServer}
+      {WorldServer.Frontend, name: WorldServer}
     ]
 
-    opts = [strategy: :one_for_one, name: LoginServer.Supervisor]
+    opts = [strategy: :one_for_one, name: WorldServer.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end
