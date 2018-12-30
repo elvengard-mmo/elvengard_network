@@ -1,13 +1,33 @@
 defmodule HeavensStrike.General.Packet do
   @moduledoc """
   Documentation for HeavensStrike.General.Packet.
+
+  TODO: Doccument all macros and functions.
   """
 
   defmacro __using__(_) do
     parent = __MODULE__
+    caller = __CALLER__.module
+    Module.put_attribute(caller, :elven_default_function, false)
 
     quote do
+      require Logger
       import unquote(parent)
+
+      @before_compile unquote(parent)
+    end
+  end
+
+  defmacro __before_compile__(env) do
+    default? = Module.get_attribute(env.module, :elven_default_function)
+
+    case default? do
+      true ->
+        # Same than `quote do end`
+        {:__block__, [], []}
+
+      false ->
+        create_default_handle()
     end
   end
 
@@ -29,15 +49,29 @@ defmodule HeavensStrike.General.Packet do
     end
   end
 
+  defmacro default_packet(do: exp) do
+    caller = __CALLER__.module
+    Module.put_attribute(caller, :elven_default_function, true)
+
+    quote do
+      def handle_packet([var!(packet_type) | var!(args)], var!(ctx)) do
+        unquote(exp)
+      end
+    end
+  end
+
   defmacro field(name, type \\ :string) do
     caller = __CALLER__.module
     Module.put_attribute(caller, :elven_params, {name, type})
-    {:__block__, [], []} # Same than `quote do end`
+
+    # Same than `quote do end`
+    {:__block__, [], []}
   end
 
   defmacro resolve(fun) do
     caller = __CALLER__.module
     packet_type = Module.get_attribute(caller, :elven_packet_type)
+
     params =
       Module.get_attribute(caller, :elven_params)
       |> Enum.reverse()
@@ -86,6 +120,16 @@ defmodule HeavensStrike.General.Packet do
 
     # Remove Dialyzer warning
     :ok
+  end
+
+  @spec create_default_handle() :: term
+  defp create_default_handle() do
+    quote do
+      def handle_packet([packet_type | args], _ctx) do
+        Logger.warn("Unknown packet header #{inspect(packet_type)} with args: #{inspect(args)}")
+        {:halt, {:error, {:unknown_header, packet_type}}}
+      end
+    end
   end
 
   @doc false

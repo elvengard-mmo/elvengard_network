@@ -1,6 +1,6 @@
-defmodule HeavensStrike.Game.LoginServer do
+defmodule HeavensStrike.Game.Frontend do
   @moduledoc """
-  Documentation for HeavensStrike.Game.LoginServer.
+  Documentation for HeavensStrike.Game.Frontend.
   """
 
   alias HeavensStrike.Game.Client
@@ -11,11 +11,11 @@ defmodule HeavensStrike.Game.LoginServer do
   @callback handle_connection(client :: Client.t()) :: no_return
   @callback handle_disconnection(client :: Client.t(), reason :: term) :: no_return
   @callback handle_message(client :: Client.t(), message :: binary) :: no_return
-  @callback handle_client_accepted(client :: Client.t(), args :: term) :: no_return
-  @callback handle_client_refused(client :: Client.t(), error :: conn_error) :: no_return
+  @callback handle_halt_ok(client :: Client.t(), args :: term) :: no_return
+  @callback handle_halt_error(client :: Client.t(), error :: conn_error) :: no_return
 
   @doc """
-  Use HeavensStrike.Game.LoginServer behaviour.
+  Use HeavensStrike.Game.Frontend behaviour.
   """
   defmacro __using__(opts) do
     parent = __MODULE__
@@ -41,7 +41,8 @@ defmodule HeavensStrike.Game.LoginServer do
       @behaviour parent
       @behaviour :ranch_protocol
 
-      @response_timeout 3000
+      # TODO: Use `Application.get_env` inside function for a live update
+      @timeout Application.get_env(:heavens_strike, :response_timeout, 2000)
 
       @doc false
       def child_spec(opts) do
@@ -94,13 +95,14 @@ defmodule HeavensStrike.Game.LoginServer do
       # Private function
       #
 
+      @spec recv_loop(Client.t()) :: no_return
       defp recv_loop(%Client{} = client) do
         %Client{
           socket: socket,
           transport: transport
         } = client
 
-        tmp = transport.recv(socket, 0, @response_timeout)
+        tmp = transport.recv(socket, 0, @timeout)
 
         with {:ok, data} <- tmp do
           handle_message(client, data)
@@ -110,10 +112,10 @@ defmodule HeavensStrike.Game.LoginServer do
               recv_loop(client)
 
             {:halt, {:ok, args}} ->
-              accept_socket(client, args)
+              do_halt_ok(client, args)
 
             {:halt, {:error, reason}} ->
-              refuse_socket(client, reason)
+              do_halt_error(client, reason)
 
             _ ->
               raise """
@@ -122,33 +124,34 @@ defmodule HeavensStrike.Game.LoginServer do
               """
           end
         else
-          {:error, reason} -> error_socket(client, reason)
+          {:error, reason} -> close_socket(client, reason)
         end
       end
 
-      defp accept_socket(%Client{} = client, args) do
+      @spec do_halt_ok(Client.t(), term) :: no_return
+      defp do_halt_ok(%Client{} = client, args) do
         %Client{
           socket: socket,
           transport: transport
         } = client
 
-        client |> handle_client_accepted(args)
-        client |> handle_disconnection(:normal)
-        socket |> transport.close()
+        client |> handle_halt_ok(args)
+        client |> close_socket(:normal)
       end
 
-      defp refuse_socket(%Client{} = client, reason) do
+      @spec do_halt_error(Client.t(), term) :: no_return
+      defp do_halt_error(%Client{} = client, reason) do
         %Client{
           socket: socket,
           transport: transport
         } = client
 
-        client |> handle_client_refused(reason)
-        client |> handle_disconnection(:normal)
-        socket |> transport.close()
+        client |> handle_halt_error(reason)
+        client |> close_socket(reason)
       end
 
-      defp error_socket(%Client{} = client, reason) do
+      @spec close_socket(Client.t(), term) :: no_return
+      defp close_socket(%Client{} = client, reason) do
         %Client{
           socket: socket,
           transport: transport
@@ -166,15 +169,15 @@ defmodule HeavensStrike.Game.LoginServer do
       def handle_connection(_client), do: :unimplemented_function
       def handle_disconnection(_client, _reason), do: :unimplemented_function
       def handle_message(_client, _message), do: :unimplemented_function
-      def handle_client_accepted(_client, _args), do: :unimplemented_function
-      def handle_client_refused(_client, _reason), do: :unimplemented_function
+      def handle_halt_ok(_client, _args), do: :unimplemented_function
+      def handle_halt_error(_client, _reason), do: :unimplemented_function
 
       defoverridable handle_init: 1,
                      handle_connection: 1,
                      handle_disconnection: 2,
                      handle_message: 2,
-                     handle_client_accepted: 2,
-                     handle_client_refused: 2
+                     handle_halt_ok: 2,
+                     handle_halt_error: 2
     end
   end
 end

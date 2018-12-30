@@ -5,10 +5,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.18.4">
-    <title>HeavensStrike.Game.LoginServer – ElvenGard vdev</title>
+    <title>HeavensStrike.Game.Frontend – ElvenGard vdev</title>
     <link rel="stylesheet" href="dist/app-480ffdc169.css" />
     
-    <script src="dist/sidebar_items-3ceb1b857d.js"></script>
+    <script src="dist/sidebar_items-a4d40e0e5a.js"></script>
     
     
     
@@ -70,9 +70,9 @@
 
       <h1>
         <small class="visible-xs">ElvenGard vdev</small>
-        HeavensStrike.Game.LoginServer <small>behaviour</small>
+        HeavensStrike.Game.Frontend <small>behaviour</small>
         
-          <a href="https://github.com/USER/PROJECT/blob/master/apps/heavens_strike/lib/heavens_strike/game/login_server.ex#L1" title="View Source" class="view-source" rel="help">
+          <a href="https://github.com/USER/PROJECT/blob/master/apps/heavens_strike/lib/heavens_strike/game/frontend.ex#L1" title="View Source" class="view-source" rel="help">
             <span class="icon-code" aria-hidden="true"></span>
             <span class="sr-only">View Source</span>
           </a>
@@ -81,7 +81,7 @@
 
       
         <section id="moduledoc">
-          <p>Documentation for HeavensStrike.Game.LoginServer.</p>
+          <p>Documentation for HeavensStrike.Game.Frontend.</p>
 
         </section>
       
@@ -120,7 +120,7 @@
     <a href="#__using__/1">__using__(opts)</a>
   </div>
   
-    <div class="summary-synopsis"><p>Use HeavensStrike.Game.LoginServer behaviour</p>
+    <div class="summary-synopsis"><p>Use HeavensStrike.Game.Frontend behaviour</p>
 </div>
   
 </div>
@@ -135,18 +135,6 @@
     </h2>
     <div class="summary-row">
   <div class="summary-signature">
-    <a href="#c:handle_client_accepted/2">handle_client_accepted(client, args)</a>
-  </div>
-  
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#c:handle_client_refused/2">handle_client_refused(client, error)</a>
-  </div>
-  
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
     <a href="#c:handle_connection/1">handle_connection(client)</a>
   </div>
   
@@ -154,6 +142,18 @@
 <div class="summary-row">
   <div class="summary-signature">
     <a href="#c:handle_disconnection/2">handle_disconnection(client, reason)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:handle_halt_error/2">handle_halt_error(client, error)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#c:handle_halt_ok/2">handle_halt_ok(client, args)</a>
   </div>
   
 </div>
@@ -196,7 +196,7 @@
     </a>
     <span class="signature">conn_error()</span>
     
-      <a href="https://github.com/USER/PROJECT/blob/master/apps/heavens_strike/lib/heavens_strike/game/login_server.ex#L8" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/USER/PROJECT/blob/master/apps/heavens_strike/lib/heavens_strike/game/frontend.ex#L8" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -238,7 +238,7 @@
     </a>
     <span class="signature">__using__(opts)</span>
     
-      <a href="https://github.com/USER/PROJECT/blob/master/apps/heavens_strike/lib/heavens_strike/game/login_server.ex#L20" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/USER/PROJECT/blob/master/apps/heavens_strike/lib/heavens_strike/game/frontend.ex#L20" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -249,7 +249,7 @@
     
   </div>
   <section class="docstring">
-    <p>Use HeavensStrike.Game.LoginServer behaviour.</p>
+    <p>Use HeavensStrike.Game.Frontend behaviour.</p>
 
   </section>
 </div>
@@ -266,67 +266,7 @@
             </a>
             Callbacks
           </h1>
-          <div class="detail" id="c:handle_client_accepted/2">
-  
-  
-  <div class="detail-header">
-    <a href="#c:handle_client_accepted/2" class="detail-link" title="Link to this callback">
-      <span class="icon-link" aria-hidden="true"></span>
-      <span class="sr-only">Link to this callback</span>
-    </a>
-    <span class="signature">handle_client_accepted(client, args)</span>
-    
-      <a href="https://github.com/USER/PROJECT/blob/master/apps/heavens_strike/lib/heavens_strike/game/login_server.ex#L14" class="view-source" rel="help" title="View Source">
-       <span class="icon-code" aria-hidden="true"></span>
-       <span class="sr-only">View Source</span>
-     </a>
-    
-    
-    
-      <div class="specs">
-        
-          <pre>handle_client_accepted(client :: <a href="HeavensStrike.Game.Client.html#t:t/0">HeavensStrike.Game.Client.t</a>(), args :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) ::
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">no_return</a>()</pre>
-        
-      </div>
-    
-  </div>
-  <section class="docstring">
-    
-  </section>
-</div>
-<div class="detail" id="c:handle_client_refused/2">
-  
-  
-  <div class="detail-header">
-    <a href="#c:handle_client_refused/2" class="detail-link" title="Link to this callback">
-      <span class="icon-link" aria-hidden="true"></span>
-      <span class="sr-only">Link to this callback</span>
-    </a>
-    <span class="signature">handle_client_refused(client, error)</span>
-    
-      <a href="https://github.com/USER/PROJECT/blob/master/apps/heavens_strike/lib/heavens_strike/game/login_server.ex#L15" class="view-source" rel="help" title="View Source">
-       <span class="icon-code" aria-hidden="true"></span>
-       <span class="sr-only">View Source</span>
-     </a>
-    
-    
-    
-      <div class="specs">
-        
-          <pre>handle_client_refused(
-  client :: <a href="HeavensStrike.Game.Client.html#t:t/0">HeavensStrike.Game.Client.t</a>(),
-  error :: <a href="#t:conn_error/0">conn_error</a>()
-) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">no_return</a>()</pre>
-        
-      </div>
-    
-  </div>
-  <section class="docstring">
-    
-  </section>
-</div>
-<div class="detail" id="c:handle_connection/1">
+          <div class="detail" id="c:handle_connection/1">
   
   
   <div class="detail-header">
@@ -336,7 +276,7 @@
     </a>
     <span class="signature">handle_connection(client)</span>
     
-      <a href="https://github.com/USER/PROJECT/blob/master/apps/heavens_strike/lib/heavens_strike/game/login_server.ex#L11" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/USER/PROJECT/blob/master/apps/heavens_strike/lib/heavens_strike/game/frontend.ex#L11" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -364,7 +304,7 @@
     </a>
     <span class="signature">handle_disconnection(client, reason)</span>
     
-      <a href="https://github.com/USER/PROJECT/blob/master/apps/heavens_strike/lib/heavens_strike/game/login_server.ex#L12" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/USER/PROJECT/blob/master/apps/heavens_strike/lib/heavens_strike/game/frontend.ex#L12" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -374,6 +314,66 @@
       <div class="specs">
         
           <pre>handle_disconnection(client :: <a href="HeavensStrike.Game.Client.html#t:t/0">HeavensStrike.Game.Client.t</a>(), reason :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) ::
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">no_return</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="c:handle_halt_error/2">
+  
+  
+  <div class="detail-header">
+    <a href="#c:handle_halt_error/2" class="detail-link" title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">handle_halt_error(client, error)</span>
+    
+      <a href="https://github.com/USER/PROJECT/blob/master/apps/heavens_strike/lib/heavens_strike/game/frontend.ex#L15" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>handle_halt_error(
+  client :: <a href="HeavensStrike.Game.Client.html#t:t/0">HeavensStrike.Game.Client.t</a>(),
+  error :: <a href="#t:conn_error/0">conn_error</a>()
+) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">no_return</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="c:handle_halt_ok/2">
+  
+  
+  <div class="detail-header">
+    <a href="#c:handle_halt_ok/2" class="detail-link" title="Link to this callback">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <span class="signature">handle_halt_ok(client, args)</span>
+    
+      <a href="https://github.com/USER/PROJECT/blob/master/apps/heavens_strike/lib/heavens_strike/game/frontend.ex#L14" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>handle_halt_ok(client :: <a href="HeavensStrike.Game.Client.html#t:t/0">HeavensStrike.Game.Client.t</a>(), args :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) ::
   <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">no_return</a>()</pre>
         
       </div>
@@ -393,7 +393,7 @@
     </a>
     <span class="signature">handle_init(args)</span>
     
-      <a href="https://github.com/USER/PROJECT/blob/master/apps/heavens_strike/lib/heavens_strike/game/login_server.ex#L10" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/USER/PROJECT/blob/master/apps/heavens_strike/lib/heavens_strike/game/frontend.ex#L10" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -421,7 +421,7 @@
     </a>
     <span class="signature">handle_message(client, message)</span>
     
-      <a href="https://github.com/USER/PROJECT/blob/master/apps/heavens_strike/lib/heavens_strike/game/login_server.ex#L13" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/USER/PROJECT/blob/master/apps/heavens_strike/lib/heavens_strike/game/frontend.ex#L13" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>

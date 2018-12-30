@@ -8,7 +8,7 @@
     <title>LoginServer.Frontend – ElvenGard vdev</title>
     <link rel="stylesheet" href="dist/app-480ffdc169.css" />
     
-    <script src="dist/sidebar_items-3ceb1b857d.js"></script>
+    <script src="dist/sidebar_items-a4d40e0e5a.js"></script>
     
     
     
@@ -72,7 +72,7 @@
         <small class="visible-xs">ElvenGard vdev</small>
         LoginServer.Frontend
         
-          <a href="https://github.com/USER/PROJECT/blob/master/apps/login_server/lib/login_server/endpoint.ex#L1" title="View Source" class="view-source" rel="help">
+          <a href="https://github.com/USER/PROJECT/blob/master/apps/login_server/lib/login_server/frontend.ex#L1" title="View Source" class="view-source" rel="help">
             <span class="icon-code" aria-hidden="true"></span>
             <span class="sr-only">View Source</span>
           </a>
@@ -104,28 +104,10 @@
     </h2>
     <div class="summary-row">
   <div class="summary-signature">
-    <a href="#handle_client_accepted/2">handle_client_accepted(client, args)</a>
-  </div>
-  
-    <div class="summary-synopsis"><p>Callback implementation for <a href="HeavensStrike.Game.LoginServer.html#c:handle_client_accepted/2"><code class="inline">HeavensStrike.Game.LoginServer.handle_client_accepted/2</code></a></p>
-</div>
-  
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#handle_client_refused/2">handle_client_refused(client, reason)</a>
-  </div>
-  
-    <div class="summary-synopsis"><p>Callback implementation for <a href="HeavensStrike.Game.LoginServer.html#c:handle_client_refused/2"><code class="inline">HeavensStrike.Game.LoginServer.handle_client_refused/2</code></a></p>
-</div>
-  
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
     <a href="#handle_connection/1">handle_connection(client)</a>
   </div>
   
-    <div class="summary-synopsis"><p>Callback implementation for <a href="HeavensStrike.Game.LoginServer.html#c:handle_connection/1"><code class="inline">HeavensStrike.Game.LoginServer.handle_connection/1</code></a></p>
+    <div class="summary-synopsis"><p>Callback implementation for <a href="HeavensStrike.Game.Frontend.html#c:handle_connection/1"><code class="inline">HeavensStrike.Game.Frontend.handle_connection/1</code></a></p>
 </div>
   
 </div>
@@ -134,7 +116,25 @@
     <a href="#handle_disconnection/2">handle_disconnection(client, reason)</a>
   </div>
   
-    <div class="summary-synopsis"><p>Callback implementation for <a href="HeavensStrike.Game.LoginServer.html#c:handle_disconnection/2"><code class="inline">HeavensStrike.Game.LoginServer.handle_disconnection/2</code></a></p>
+    <div class="summary-synopsis"><p>Callback implementation for <a href="HeavensStrike.Game.Frontend.html#c:handle_disconnection/2"><code class="inline">HeavensStrike.Game.Frontend.handle_disconnection/2</code></a></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#handle_halt_error/2">handle_halt_error(client, reason)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Callback implementation for <a href="HeavensStrike.Game.Frontend.html#c:handle_halt_error/2"><code class="inline">HeavensStrike.Game.Frontend.handle_halt_error/2</code></a></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#handle_halt_ok/2">handle_halt_ok(client, args)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Callback implementation for <a href="HeavensStrike.Game.Frontend.html#c:handle_halt_ok/2"><code class="inline">HeavensStrike.Game.Frontend.handle_halt_ok/2</code></a></p>
 </div>
   
 </div>
@@ -143,7 +143,7 @@
     <a href="#handle_init/1">handle_init(args)</a>
   </div>
   
-    <div class="summary-synopsis"><p>Callback implementation for <a href="HeavensStrike.Game.LoginServer.html#c:handle_init/1"><code class="inline">HeavensStrike.Game.LoginServer.handle_init/1</code></a></p>
+    <div class="summary-synopsis"><p>Callback implementation for <a href="HeavensStrike.Game.Frontend.html#c:handle_init/1"><code class="inline">HeavensStrike.Game.Frontend.handle_init/1</code></a></p>
 </div>
   
 </div>
@@ -152,7 +152,7 @@
     <a href="#handle_message/2">handle_message(client, message)</a>
   </div>
   
-    <div class="summary-synopsis"><p>Callback implementation for <a href="HeavensStrike.Game.LoginServer.html#c:handle_message/2"><code class="inline">HeavensStrike.Game.LoginServer.handle_message/2</code></a></p>
+    <div class="summary-synopsis"><p>Callback implementation for <a href="HeavensStrike.Game.Frontend.html#c:handle_message/2"><code class="inline">HeavensStrike.Game.Frontend.handle_message/2</code></a></p>
 </div>
   
 </div>
@@ -185,53 +185,7 @@
             </a>
             Functions
           </h1>
-          <div class="detail" id="handle_client_accepted/2">
-  
-  
-  <div class="detail-header">
-    <a href="#handle_client_accepted/2" class="detail-link" title="Link to this function">
-      <span class="icon-link" aria-hidden="true"></span>
-      <span class="sr-only">Link to this function</span>
-    </a>
-    <span class="signature">handle_client_accepted(client, args)</span>
-    
-      <a href="https://github.com/USER/PROJECT/blob/master/apps/login_server/lib/login_server/endpoint.ex#L32" class="view-source" rel="help" title="View Source">
-       <span class="icon-code" aria-hidden="true"></span>
-       <span class="sr-only">View Source</span>
-     </a>
-    
-    
-    
-  </div>
-  <section class="docstring">
-    <p>Callback implementation for <a href="HeavensStrike.Game.LoginServer.html#c:handle_client_accepted/2"><code class="inline">HeavensStrike.Game.LoginServer.handle_client_accepted/2</code></a>.</p>
-
-  </section>
-</div>
-<div class="detail" id="handle_client_refused/2">
-  
-  
-  <div class="detail-header">
-    <a href="#handle_client_refused/2" class="detail-link" title="Link to this function">
-      <span class="icon-link" aria-hidden="true"></span>
-      <span class="sr-only">Link to this function</span>
-    </a>
-    <span class="signature">handle_client_refused(client, reason)</span>
-    
-      <a href="https://github.com/USER/PROJECT/blob/master/apps/login_server/lib/login_server/endpoint.ex#L40" class="view-source" rel="help" title="View Source">
-       <span class="icon-code" aria-hidden="true"></span>
-       <span class="sr-only">View Source</span>
-     </a>
-    
-    
-    
-  </div>
-  <section class="docstring">
-    <p>Callback implementation for <a href="HeavensStrike.Game.LoginServer.html#c:handle_client_refused/2"><code class="inline">HeavensStrike.Game.LoginServer.handle_client_refused/2</code></a>.</p>
-
-  </section>
-</div>
-<div class="detail" id="handle_connection/1">
+          <div class="detail" id="handle_connection/1">
   
   
   <div class="detail-header">
@@ -241,7 +195,7 @@
     </a>
     <span class="signature">handle_connection(client)</span>
     
-      <a href="https://github.com/USER/PROJECT/blob/master/apps/login_server/lib/login_server/endpoint.ex#L18" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/USER/PROJECT/blob/master/apps/login_server/lib/login_server/frontend.ex#L18" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -250,7 +204,7 @@
     
   </div>
   <section class="docstring">
-    <p>Callback implementation for <a href="HeavensStrike.Game.LoginServer.html#c:handle_connection/1"><code class="inline">HeavensStrike.Game.LoginServer.handle_connection/1</code></a>.</p>
+    <p>Callback implementation for <a href="HeavensStrike.Game.Frontend.html#c:handle_connection/1"><code class="inline">HeavensStrike.Game.Frontend.handle_connection/1</code></a>.</p>
 
   </section>
 </div>
@@ -264,7 +218,7 @@
     </a>
     <span class="signature">handle_disconnection(client, reason)</span>
     
-      <a href="https://github.com/USER/PROJECT/blob/master/apps/login_server/lib/login_server/endpoint.ex#L22" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/USER/PROJECT/blob/master/apps/login_server/lib/login_server/frontend.ex#L22" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -273,7 +227,53 @@
     
   </div>
   <section class="docstring">
-    <p>Callback implementation for <a href="HeavensStrike.Game.LoginServer.html#c:handle_disconnection/2"><code class="inline">HeavensStrike.Game.LoginServer.handle_disconnection/2</code></a>.</p>
+    <p>Callback implementation for <a href="HeavensStrike.Game.Frontend.html#c:handle_disconnection/2"><code class="inline">HeavensStrike.Game.Frontend.handle_disconnection/2</code></a>.</p>
+
+  </section>
+</div>
+<div class="detail" id="handle_halt_error/2">
+  
+  
+  <div class="detail-header">
+    <a href="#handle_halt_error/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">handle_halt_error(client, reason)</span>
+    
+      <a href="https://github.com/USER/PROJECT/blob/master/apps/login_server/lib/login_server/frontend.ex#L40" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Callback implementation for <a href="HeavensStrike.Game.Frontend.html#c:handle_halt_error/2"><code class="inline">HeavensStrike.Game.Frontend.handle_halt_error/2</code></a>.</p>
+
+  </section>
+</div>
+<div class="detail" id="handle_halt_ok/2">
+  
+  
+  <div class="detail-header">
+    <a href="#handle_halt_ok/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">handle_halt_ok(client, args)</span>
+    
+      <a href="https://github.com/USER/PROJECT/blob/master/apps/login_server/lib/login_server/frontend.ex#L32" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Callback implementation for <a href="HeavensStrike.Game.Frontend.html#c:handle_halt_ok/2"><code class="inline">HeavensStrike.Game.Frontend.handle_halt_ok/2</code></a>.</p>
 
   </section>
 </div>
@@ -287,7 +287,7 @@
     </a>
     <span class="signature">handle_init(args)</span>
     
-      <a href="https://github.com/USER/PROJECT/blob/master/apps/login_server/lib/login_server/endpoint.ex#L13" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/USER/PROJECT/blob/master/apps/login_server/lib/login_server/frontend.ex#L13" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -296,7 +296,7 @@
     
   </div>
   <section class="docstring">
-    <p>Callback implementation for <a href="HeavensStrike.Game.LoginServer.html#c:handle_init/1"><code class="inline">HeavensStrike.Game.LoginServer.handle_init/1</code></a>.</p>
+    <p>Callback implementation for <a href="HeavensStrike.Game.Frontend.html#c:handle_init/1"><code class="inline">HeavensStrike.Game.Frontend.handle_init/1</code></a>.</p>
 
   </section>
 </div>
@@ -310,7 +310,7 @@
     </a>
     <span class="signature">handle_message(client, message)</span>
     
-      <a href="https://github.com/USER/PROJECT/blob/master/apps/login_server/lib/login_server/endpoint.ex#L26" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/USER/PROJECT/blob/master/apps/login_server/lib/login_server/frontend.ex#L26" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -319,7 +319,7 @@
     
   </div>
   <section class="docstring">
-    <p>Callback implementation for <a href="HeavensStrike.Game.LoginServer.html#c:handle_message/2"><code class="inline">HeavensStrike.Game.LoginServer.handle_message/2</code></a>.</p>
+    <p>Callback implementation for <a href="HeavensStrike.Game.Frontend.html#c:handle_message/2"><code class="inline">HeavensStrike.Game.Frontend.handle_message/2</code></a>.</p>
 
   </section>
 </div>
@@ -333,7 +333,7 @@
     </a>
     <span class="signature">init(ref, socket, transport, _)</span>
     
-      <a href="https://github.com/USER/PROJECT/blob/master/apps/login_server/lib/login_server/endpoint.ex#L6" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/USER/PROJECT/blob/master/apps/login_server/lib/login_server/frontend.ex#L6" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>

@@ -3,7 +3,7 @@ defmodule LoginServer.Frontend do
   Documentation for LoginServer.Frontend.
   """
 
-  use HeavensStrike.Game.LoginServer,
+  use HeavensStrike.Game.Frontend,
     packet_resolver: LoginServer.PacketResolver,
     port: 4002
 
@@ -29,7 +29,7 @@ defmodule LoginServer.Frontend do
 
   # TODO: Change this function and remove `LoginServer.Crypto.encrypt` call.
   # Use the resolver instead
-  def handle_client_accepted(%Client{id: id} = client, args) do
+  def handle_halt_ok(%Client{id: id} = client, args) do
     e_packet = LoginServer.Crypto.encrypt(args)
     Logger.info("Client accepted: #{id}")
     Client.send(client, e_packet)
@@ -37,9 +37,9 @@ defmodule LoginServer.Frontend do
 
   # TODO: Change this function and remove `LoginServer.Crypto.encrypt` call.
   # Use the resolver instead
-  def handle_client_refused(%Client{id: id} = client, reason) do
-    e_reason = LoginServer.Crypto.encrypt("fail #{reason}")
-    Logger.info("Client refused: #{id} - #{reason}")
+  def handle_halt_error(%Client{id: id} = client, reason) do
+    e_reason = LoginServer.Crypto.encrypt("fail #{inspect reason}")
+    Logger.info("Client refused: #{id} - #{inspect reason}")
     Client.send(client, e_reason)
   end
 end

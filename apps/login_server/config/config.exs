@@ -29,5 +29,8 @@ use Mix.Config
 #
 #     import_config "#{Mix.env}.exs"
 
-config :heavens_strike, num_acceptors: 5
+config :heavens_strike,
+  num_acceptors: 5,
+  response_timeout: 3000
+
 config :login_server, client_version: "0.9.3.3086"
