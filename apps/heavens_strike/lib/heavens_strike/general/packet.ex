@@ -32,16 +32,12 @@ defmodule HeavensStrike.General.Packet do
   defmacro field(name, type \\ :string) do
     caller = __CALLER__.module
     Module.put_attribute(caller, :elven_params, {name, type})
-
-    quote do
-    end
+    {:__block__, [], []} # Same than `quote do end`
   end
 
   defmacro resolve(fun) do
     caller = __CALLER__.module
-
     packet_type = Module.get_attribute(caller, :elven_packet_type)
-
     params =
       Module.get_attribute(caller, :elven_params)
       |> Enum.reverse()
