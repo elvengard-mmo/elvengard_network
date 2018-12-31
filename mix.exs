@@ -9,7 +9,7 @@ defmodule ElvenGard.MixProject do
 
       # Docs
       name: "ElvenGard",
-      source_url: "https://github.com/USER/PROJECT",
+      source_url: "https://github.com/ImNotAVirus/ElvenGard_V2",
       homepage_url: "http://YOUR_PROJECT_HOMEPAGE",
       docs: [
         # The main page in the docs
@@ -27,7 +27,7 @@ defmodule ElvenGard.MixProject do
   # Run "mix help deps" for examples and options.
   defp deps do
     [
-      {:ex_doc, "~> 0.18.0", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.19.0", only: :dev, runtime: false}
     ]
   end
 end

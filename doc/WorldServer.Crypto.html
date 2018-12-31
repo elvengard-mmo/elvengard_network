@@ -5,7 +5,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.19.2">
-    <title>HeavensStrike.General.Packet — ElvenGard vdev</title>
+    <title>WorldServer.Crypto — ElvenGard vdev</title>
     <link rel="stylesheet" href="dist/html-c1666276880c0f8e3769.css" />
     <script src="dist/sidebar_items-5d4aee6efd.js"></script>
     
@@ -58,8 +58,8 @@ ElvenGard      </h1>
 
       <h1>
         <small class="visible-xs">ElvenGard vdev</small>
-HeavensStrike.General.Packet        
-          <a href="https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/apps/heavens_strike/lib/heavens_strike/general/packet.ex#L1" title="View Source" class="view-source" rel="help">
+WorldServer.Crypto        
+          <a href="https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/apps/world_server/lib/world_server/crypto.ex#L1" title="View Source" class="view-source" rel="help">
             <span class="icon-code" aria-hidden="true"></span>
             <span class="sr-only">View Source</span>
           </a>
@@ -67,8 +67,7 @@ HeavensStrike.General.Packet
 
 
         <section id="moduledoc">
-<p>Documentation for HeavensStrike.General.Packet.</p>
-<p>TODO: Doccument all macros and functions.</p>
+<p>Cryptography for a Nostale login server.</p>
         </section>
 
         <section id="summary" class="details-list">
@@ -85,28 +84,24 @@ HeavensStrike.General.Packet
     </h2>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#default_packet/1">default_packet(list)</a>
+    <a href="#decrypt/3">decrypt(binary, session_id, keepalive? \\ false)</a>
   </div>
+    <div class="summary-synopsis"><p>Decrypt a world packet</p>
+</div>
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#field/2">field(name, type \\ :string)</a>
+    <a href="#decrypt_session/1">decrypt_session(arg)</a>
   </div>
+    <div class="summary-synopsis"><p>Decrypt the first packet who contains the session_id</p>
+</div>
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#halt_packet/2">halt_packet(packet_type, list)</a>
+    <a href="#encrypt/1">encrypt(packet)</a>
   </div>
+    <div class="summary-synopsis"><p>Encrypt a world packet</p>
 </div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#packet/2">packet(packet_type, list)</a>
-  </div>
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#resolve/1">resolve(fun)</a>
-  </div>
 </div>
   </div>
         </section>
@@ -119,91 +114,76 @@ HeavensStrike.General.Packet
             </a>
 Functions          </h1>
           <div class="functions-list">
-<section class="detail" id="default_packet/1">
-    <div class="detail-header">
-    <a href="#default_packet/1" class="detail-link" title="Link to this macro">
-      <span class="icon-link" aria-hidden="true"></span>
-      <span class="sr-only">Link to this macro</span>
-    </a>
-    <h1 class="signature">default_packet(list)</span>
-      <a href="https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/apps/heavens_strike/lib/heavens_strike/general/packet.ex#L52" class="view-source" rel="help" title="View Source">
-       <span class="icon-code" aria-hidden="true"></span>
-       <span class="sr-only">View Source</span>
-     </a>
-    
-      <span class="note">(macro)</span>
-      </div>
-  <section class="docstring">
-  </section>
-</section>
-<section class="detail" id="field/2">
+<section class="detail" id="decrypt/3">
   
-    <span id="field/1"></span>
+    <span id="decrypt/2"></span>
   <div class="detail-header">
-    <a href="#field/2" class="detail-link" title="Link to this macro">
+    <a href="#decrypt/3" class="detail-link" title="Link to this function">
       <span class="icon-link" aria-hidden="true"></span>
-      <span class="sr-only">Link to this macro</span>
+      <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">field(name, type \\ :string)</span>
-      <a href="https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/apps/heavens_strike/lib/heavens_strike/general/packet.ex#L63" class="view-source" rel="help" title="View Source">
+    <h1 class="signature">decrypt(binary, session_id, keepalive? \\ false)</span>
+      <a href="https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/apps/world_server/lib/world_server/crypto.ex#L48" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
-    
-      <span class="note">(macro)</span>
+        
+      <div class="specs">
+          <pre>decrypt(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()) :: [<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>() | {<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>()}]</pre>
       </div>
+  </div>
   <section class="docstring">
+<p>Decrypt a world packet.</p>
+<h2 id="decrypt/3-examples" class="section-heading">
+  <a href="#decrypt/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
   </section>
 </section>
-<section class="detail" id="halt_packet/2">
+<section class="detail" id="decrypt_session/1">
     <div class="detail-header">
-    <a href="#halt_packet/2" class="detail-link" title="Link to this macro">
+    <a href="#decrypt_session/1" class="detail-link" title="Link to this function">
       <span class="icon-link" aria-hidden="true"></span>
-      <span class="sr-only">Link to this macro</span>
+      <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">halt_packet(packet_type, list)</span>
-      <a href="https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/apps/heavens_strike/lib/heavens_strike/general/packet.ex#L43" class="view-source" rel="help" title="View Source">
+    <h1 class="signature">decrypt_session(arg)</span>
+      <a href="https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/apps/world_server/lib/world_server/crypto.ex#L34" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
-    
-      <span class="note">(macro)</span>
+        
+      <div class="specs">
+          <pre>decrypt_session(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>()) :: {<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()}</pre>
       </div>
+  </div>
   <section class="docstring">
+<p>Decrypt the first packet who contains the session_id.</p>
   </section>
 </section>
-<section class="detail" id="packet/2">
+<section class="detail" id="encrypt/1">
     <div class="detail-header">
-    <a href="#packet/2" class="detail-link" title="Link to this macro">
+    <a href="#encrypt/1" class="detail-link" title="Link to this function">
       <span class="icon-link" aria-hidden="true"></span>
-      <span class="sr-only">Link to this macro</span>
+      <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">packet(packet_type, list)</span>
-      <a href="https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/apps/heavens_strike/lib/heavens_strike/general/packet.ex#L34" class="view-source" rel="help" title="View Source">
+    <h1 class="signature">encrypt(packet)</span>
+      <a href="https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/apps/world_server/lib/world_server/crypto.ex#L21" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
-    
-      <span class="note">(macro)</span>
+        
+      <div class="specs">
+          <pre>encrypt(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>()</pre>
       </div>
+  </div>
   <section class="docstring">
-  </section>
-</section>
-<section class="detail" id="resolve/1">
-    <div class="detail-header">
-    <a href="#resolve/1" class="detail-link" title="Link to this macro">
-      <span class="icon-link" aria-hidden="true"></span>
-      <span class="sr-only">Link to this macro</span>
-    </a>
-    <h1 class="signature">resolve(fun)</span>
-      <a href="https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/apps/heavens_strike/lib/heavens_strike/general/packet.ex#L71" class="view-source" rel="help" title="View Source">
-       <span class="icon-code" aria-hidden="true"></span>
-       <span class="sr-only">View Source</span>
-     </a>
-    
-      <span class="note">(macro)</span>
-      </div>
-  <section class="docstring">
+<p>Encrypt a world packet.</p>
+<h2 id="encrypt/1-examples" class="section-heading">
+  <a href="#encrypt/1-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
   </section>
 </section>
           </div>
