@@ -1,6 +1,6 @@
-defmodule HeavensStrike.General.Packet do
+defmodule ElvenGard.General.Packet do
   @moduledoc """
-  Documentation for HeavensStrike.General.Packet.
+  Documentation for ElvenGard.General.Packet.
 
   TODO: Doccument all macros and functions.
   """

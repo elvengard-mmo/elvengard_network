@@ -1,4 +1,4 @@
-defmodule ElvenGard.MixProject do
+defmodule ElvenGardV2.MixProject do
   use Mix.Project
 
   def project do
@@ -13,7 +13,7 @@ defmodule ElvenGard.MixProject do
       homepage_url: "http://YOUR_PROJECT_HOMEPAGE",
       docs: [
         # The main page in the docs
-        main: "HeavensStrike",
+        main: "ElvenGard",
         # logo: "path/to/logo.png",
         extras: ["README.md"]
       ]

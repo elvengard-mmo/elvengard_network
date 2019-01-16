@@ -5,9 +5,9 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.19.2">
-    <title>HeavensStrike.Game.PacketResolver — ElvenGard vdev</title>
+    <title>ElvenGard.Game.PacketResolver — ElvenGard vdev</title>
     <link rel="stylesheet" href="dist/html-c1666276880c0f8e3769.css" />
-    <script src="dist/sidebar_items-5d4aee6efd.js"></script>
+    <script src="dist/sidebar_items-eaa7f642cf.js"></script>
     
   </head>
   <body data-type="modules">
@@ -58,8 +58,8 @@ ElvenGard      </h1>
 
       <h1>
         <small class="visible-xs">ElvenGard vdev</small>
-HeavensStrike.Game.PacketResolver <small>behaviour</small>        
-          <a href="https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/apps/heavens_strike/lib/heavens_strike/game/packet_resolver.ex#L1" title="View Source" class="view-source" rel="help">
+ElvenGard.Game.PacketResolver <small>behaviour</small>        
+          <a href="https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/apps/elven_gard/lib/elven_gard/game/packet_resolver.ex#L1" title="View Source" class="view-source" rel="help">
             <span class="icon-code" aria-hidden="true"></span>
             <span class="sr-only">View Source</span>
           </a>
@@ -67,7 +67,7 @@ HeavensStrike.Game.PacketResolver <small>behaviour</small>
 
 
         <section id="moduledoc">
-<p>Documentation for HeavensStrike.Game.LoginServer.</p>
+<p>Documentation for ElvenGard.Game.LoginServer.</p>
         </section>
 
         <section id="summary" class="details-list">
@@ -86,7 +86,7 @@ HeavensStrike.Game.PacketResolver <small>behaviour</small>
   <div class="summary-signature">
     <a href="#__using__/1">__using__(opts)</a>
   </div>
-    <div class="summary-synopsis"><p>Use HeavensStrike.Game.PacketResolver behaviour</p>
+    <div class="summary-synopsis"><p>Use ElvenGard.Game.PacketResolver behaviour</p>
 </div>
 </div>
   </div>
@@ -128,7 +128,7 @@ Functions          </h1>
       <span class="sr-only">Link to this macro</span>
     </a>
     <h1 class="signature">__using__(opts)</span>
-      <a href="https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/apps/heavens_strike/lib/heavens_strike/game/packet_resolver.ex#L27" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/apps/elven_gard/lib/elven_gard/game/packet_resolver.ex#L27" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -136,7 +136,7 @@ Functions          </h1>
       <span class="note">(macro)</span>
       </div>
   <section class="docstring">
-<p>Use HeavensStrike.Game.PacketResolver behaviour.</p>
+<p>Use ElvenGard.Game.PacketResolver behaviour.</p>
   </section>
 </section>
           </div>
@@ -156,7 +156,7 @@ Callbacks          </h1>
       <span class="sr-only">Link to this callback</span>
     </a>
     <h1 class="signature">deserialize(data)</span>
-      <a href="https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/apps/heavens_strike/lib/heavens_strike/game/packet_resolver.ex#L22" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/apps/elven_gard/lib/elven_gard/game/packet_resolver.ex#L22" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -178,16 +178,16 @@ This function must return a list starting with your packet header followed by pa
       <span class="sr-only">Link to this callback</span>
     </a>
     <h1 class="signature">resolve(client, data)</span>
-      <a href="https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/apps/heavens_strike/lib/heavens_strike/game/packet_resolver.ex#L12" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/apps/elven_gard/lib/elven_gard/game/packet_resolver.ex#L12" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
         
       <div class="specs">
-          <pre>resolve(client :: <a href="HeavensStrike.Game.Client.html#t:t/0">HeavensStrike.Game.Client.t</a>(), data :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>()) ::
+          <pre>resolve(client :: <a href="ElvenGard.Game.Client.html#t:t/0">ElvenGard.Game.Client.t</a>(), data :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>()) ::
   {:cont}
   | {:halt, {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}}
-  | {:halt, {:error, HeavensStrike.Game.LoginServer.conn_error()}}</pre>
+  | {:halt, {:error, ElvenGard.Game.LoginServer.conn_error()}}</pre>
       </div>
   </div>
   <section class="docstring">

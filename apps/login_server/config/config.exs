@@ -29,7 +29,7 @@ use Mix.Config
 #
 #     import_config "#{Mix.env}.exs"
 
-config :heavens_strike,
+config :elven_gard,
   num_acceptors: 5,
   response_timeout: 3000
 

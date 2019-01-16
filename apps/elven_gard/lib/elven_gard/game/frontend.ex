@@ -1,9 +1,9 @@
-defmodule HeavensStrike.Game.Frontend do
+defmodule ElvenGard.Game.Frontend do
   @moduledoc """
-  Documentation for HeavensStrike.Game.Frontend.
+  Documentation for ElvenGard.Game.Frontend.
   """
 
-  alias HeavensStrike.Game.Client
+  alias ElvenGard.Game.Client
 
   @type conn_error :: atom | binary | bitstring
 
@@ -15,7 +15,7 @@ defmodule HeavensStrike.Game.Frontend do
   @callback handle_halt_error(client :: Client.t(), error :: conn_error) :: no_return
 
   @doc """
-  Use HeavensStrike.Game.Frontend behaviour.
+  Use ElvenGard.Game.Frontend behaviour.
   """
   defmacro __using__(opts) do
     parent = __MODULE__
@@ -36,18 +36,18 @@ defmodule HeavensStrike.Game.Frontend do
             parent: parent,
             resolver: resolver
           ] do
-      alias HeavensStrike.Game.Client
+      alias ElvenGard.Game.Client
 
       @behaviour parent
       @behaviour :ranch_protocol
 
       # TODO: Use `Application.get_env` inside function for a live update
-      @timeout Application.get_env(:heavens_strike, :response_timeout, 2000)
+      @timeout Application.get_env(:elven_gard, :response_timeout, 2000)
 
       @doc false
       def child_spec(opts) do
         listener_name = __MODULE__
-        num_acceptors = Application.get_env(:heavens_strike, :num_acceptors, 10)
+        num_acceptors = Application.get_env(:elven_gard, :num_acceptors, 10)
         transport = :ranch_tcp
         transport_opts = [port: unquote(port)]
         protocol = __MODULE__

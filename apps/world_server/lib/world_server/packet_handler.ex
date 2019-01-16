@@ -3,6 +3,6 @@ defmodule WorldServer.PacketHandler do
   Received packet handler.
   """
 
-  use HeavensStrike.General.Packet
+  use ElvenGard.General.Packet
 
 end

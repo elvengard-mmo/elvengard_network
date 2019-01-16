@@ -3,12 +3,12 @@ defmodule WorldServer.Frontend do
   Documentation for WorldServer.Frontend.
   """
 
-  use HeavensStrike.Game.Frontend,
+  use ElvenGard.Game.Frontend,
     packet_resolver: WorldServer.PacketResolver,
     port: 5000
 
   require Logger
-  alias HeavensStrike.Game.Client
+  alias ElvenGard.Game.Client
 
   def handle_init(args) do
     port = get_in(args, [:port])

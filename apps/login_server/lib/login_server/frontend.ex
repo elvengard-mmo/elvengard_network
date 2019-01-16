@@ -3,12 +3,12 @@ defmodule LoginServer.Frontend do
   Documentation for LoginServer.Frontend.
   """
 
-  use HeavensStrike.Game.Frontend,
+  use ElvenGard.Game.Frontend,
     packet_resolver: LoginServer.PacketResolver,
     port: 4002
 
   require Logger
-  alias HeavensStrike.Game.Client
+  alias ElvenGard.Game.Client
 
   def handle_init(args) do
     port = get_in(args, [:port])

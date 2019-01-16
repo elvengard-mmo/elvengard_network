@@ -3,7 +3,7 @@ defmodule LoginServer.PacketHandler do
   Received packet handler.
   """
 
-  use HeavensStrike.General.Packet
+  use ElvenGard.General.Packet
 
   halt_packet "NoS0575" do
     field :session, :integer

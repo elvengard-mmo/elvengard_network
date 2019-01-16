@@ -1,10 +1,10 @@
-defmodule HeavensStrike.Game.PacketResolver do
+defmodule ElvenGard.Game.PacketResolver do
   @moduledoc """
-  Documentation for HeavensStrike.Game.LoginServer.
+  Documentation for ElvenGard.Game.LoginServer.
   """
 
-  alias HeavensStrike.Game.Client
-  alias HeavensStrike.Game.LoginServer
+  alias ElvenGard.Game.Client
+  alias ElvenGard.Game.LoginServer
 
   @doc """
   Just split a packet and call his packet handler
@@ -22,7 +22,7 @@ defmodule HeavensStrike.Game.PacketResolver do
   @callback deserialize(data :: binary) :: list
 
   @doc """
-  Use HeavensStrike.Game.PacketResolver behaviour.
+  Use ElvenGard.Game.PacketResolver behaviour.
   """
   defmacro __using__(opts) do
     parent = __MODULE__

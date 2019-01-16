@@ -1,6 +1,6 @@
-defmodule HeavensStrike.Game.Client do
+defmodule ElvenGard.Game.Client do
   @moduledoc """
-  Documentation for HeavensStrike.Game.Client.
+  Documentation for ElvenGard.Game.Client.
   """
 
   @keys [:id, :socket, :transport]
