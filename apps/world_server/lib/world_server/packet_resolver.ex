@@ -9,6 +9,7 @@ defmodule WorldServer.PacketResolver do
   require Logger
   alias WorldServer.Crypto
 
+  @impl true
   def deserialize(data) do
     data
     # |> Crypto.decrypt()

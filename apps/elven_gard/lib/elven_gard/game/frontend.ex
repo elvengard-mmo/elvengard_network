@@ -68,6 +68,7 @@ defmodule ElvenGard.Game.Frontend do
       end
 
       @doc false
+      @impl true
       def start_link(ref, socket, transport, protocol_options) do
         opts = [
           ref,

@@ -9,6 +9,7 @@ defmodule LoginServer.PacketResolver do
   require Logger
   alias LoginServer.Crypto
 
+  @impl true
   def deserialize(data) do
     data
     |> Crypto.decrypt()
