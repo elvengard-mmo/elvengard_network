@@ -8,7 +8,7 @@ defmodule ElvenGard.Game.Frontend do
   @type conn_error :: atom | binary | bitstring
 
   @callback handle_init(args :: list) :: no_return
-  @callback handle_connection(client :: Client.t()) :: no_return
+  @callback handle_connection(socket :: identifier, transport :: atom) :: Client.t()
   @callback handle_disconnection(client :: Client.t(), reason :: term) :: no_return
   @callback handle_message(client :: Client.t(), message :: binary) :: no_return
   @callback handle_halt_ok(client :: Client.t(), args :: term) :: no_return
@@ -86,8 +86,7 @@ defmodule ElvenGard.Game.Frontend do
       """
       def init(ref, socket, transport, _) do
         with :ok <- :ranch.accept_ack(ref) do
-          client = Client.new(socket, transport)
-          handle_connection(client)
+          client = handle_connection(socket, transport)
           recv_loop(client)
         end
       end
@@ -167,14 +166,14 @@ defmodule ElvenGard.Game.Frontend do
       #
 
       def handle_init(_args), do: :unimplemented_function
-      def handle_connection(_client), do: :unimplemented_function
+      def handle_connection(socket, transport), do: Client.new(socket, transport)
       def handle_disconnection(_client, _reason), do: :unimplemented_function
       def handle_message(_client, _message), do: :unimplemented_function
       def handle_halt_ok(_client, _args), do: :unimplemented_function
       def handle_halt_error(_client, _reason), do: :unimplemented_function
 
       defoverridable handle_init: 1,
-                     handle_connection: 1,
+                     handle_connection: 2,
                      handle_disconnection: 2,
                      handle_message: 2,
                      handle_halt_ok: 2,

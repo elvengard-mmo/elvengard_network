@@ -17,8 +17,11 @@ defmodule LoginServer.Frontend do
   end
 
   @impl true
-  def handle_connection(%Client{id: id} = _client) do
-    Logger.info("New connection: #{id}")
+  def handle_connection(socket, transport) do
+    client = Client.new(socket, transport)
+    Logger.info("New connection: #{client.id}")
+    Logger.info("#{inspect client.metadata}")
+    client
   end
 
   @impl true
