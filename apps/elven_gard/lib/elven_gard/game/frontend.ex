@@ -9,10 +9,11 @@ defmodule ElvenGard.Game.Frontend do
 
   @callback handle_init(args :: list) :: no_return
   @callback handle_connection(socket :: identifier, transport :: atom) :: Client.t()
-  @callback handle_disconnection(client :: Client.t(), reason :: term) :: no_return
-  @callback handle_message(client :: Client.t(), message :: binary) :: no_return
-  @callback handle_halt_ok(client :: Client.t(), args :: term) :: no_return
-  @callback handle_halt_error(client :: Client.t(), error :: conn_error) :: no_return
+  @callback handle_disconnection(client :: Client.t(), reason :: term) :: Client.t()
+  @callback handle_message(client :: Client.t(), message :: binary) :: Client.t()
+  @callback handle_error(client :: Client.t(), error :: conn_error) :: Client.t()
+  @callback handle_halt_ok(client :: Client.t(), args :: term) :: Client.t()
+  @callback handle_halt_error(client :: Client.t(), error :: conn_error) :: Client.t()
 
   @doc """
   Use ElvenGard.Game.Frontend behaviour.
@@ -85,97 +86,106 @@ defmodule ElvenGard.Game.Frontend do
       Accept Ranch ack and handle packets
       """
       def init(ref, socket, transport, _) do
-        with :ok <- :ranch.accept_ack(ref) do
+        with :ok <- :ranch.accept_ack(ref),
+             :ok = transport.setopts(socket, [{:active, true}]) do
           client = handle_connection(socket, transport)
-          recv_loop(client)
+          :gen_server.enter_loop(__MODULE__, [], client, 10_000)
         end
+      end
+
+      #
+      # All GenServer handles
+      #
+
+      def handle_info({:tcp, socket, data}, %Client{} = state) do
+        tmp_state = handle_message(state, data)
+
+        case unquote(resolver).resolve(tmp_state, data) do
+          {:cont, final_client} ->
+            {:noreply, final_client}
+
+          {:halt, {:ok, args}, final_client} ->
+            do_halt_ok(final_client, args)
+
+          {:halt, {:error, reason}, final_client} ->
+            do_halt_error(final_client, reason)
+
+          _ ->
+            raise """
+               #{__MODULE__}.resolve/2 have to return `{:cont, state}`, \
+              `{:halt, {:ok, :some_args}, state}`, or `{:halt, {:error, reason}, state}`.
+            """
+        end
+      end
+
+      def handle_info({:tcp_closed, _socket}, %Client{} = state) do
+        new_state = handle_disconnection(state, :normal)
+        {:stop, :normal, new_state}
+      end
+
+      def handle_info({:tcp_error, _socket, reason}, %Client{} = state) do
+        new_state = handle_error(state, reason)
+        {:stop, reason, new_state}
+      end
+
+      def handle_info(:timeout, %Client{} = state) do
+        new_state = handle_error(state, :timeout)
+        {:stop, :normal, new_state}
       end
 
       #
       # Private function
       #
 
-      @spec recv_loop(Client.t()) :: no_return
-      defp recv_loop(%Client{} = client) do
-        %Client{
-          socket: socket,
-          transport: transport
-        } = client
-
-        tmp = transport.recv(socket, 0, @timeout)
-
-        with {:ok, data} <- tmp do
-          handle_message(client, data)
-
-          case unquote(resolver).resolve(client, data) do
-            {:cont} ->
-              recv_loop(client)
-
-            {:halt, {:ok, args}} ->
-              do_halt_ok(client, args)
-
-            {:halt, {:error, reason}} ->
-              do_halt_error(client, reason)
-
-            _ ->
-              raise """
-               	#{__MODULE__}.resolve/2 have to return `{:cont}`, \
-                `{:halt, {:ok, :some_args}}`, or `{:halt, {:error, reason}}`.
-              """
-          end
-        else
-          {:error, reason} -> close_socket(client, reason)
-        end
-      end
-
-      @spec do_halt_ok(Client.t(), term) :: no_return
+      @spec do_halt_ok(Client.t(), term) :: {:stop, :normal, Client.t()}
       defp do_halt_ok(%Client{} = client, args) do
-        %Client{
-          socket: socket,
-          transport: transport
-        } = client
+        final_client =
+          client
+          |> handle_halt_ok(args)
+          |> close_socket(:normal)
 
-        client |> handle_halt_ok(args)
-        client |> close_socket(:normal)
+        {:stop, :normal, final_client}
       end
 
-      @spec do_halt_error(Client.t(), term) :: no_return
+      @spec do_halt_error(Client.t(), term) :: {:stop, :normal, Client.t()}
       defp do_halt_error(%Client{} = client, reason) do
-        %Client{
-          socket: socket,
-          transport: transport
-        } = client
+        final_client =
+          client
+          |> handle_halt_error(reason)
+          |> close_socket(reason)
 
-        client |> handle_halt_error(reason)
-        client |> close_socket(reason)
+        {:stop, :normal, final_client}
       end
 
-      @spec close_socket(Client.t(), term) :: no_return
+      @spec close_socket(Client.t(), term) :: Client.t()
       defp close_socket(%Client{} = client, reason) do
         %Client{
           socket: socket,
           transport: transport
         } = client
 
-        client |> handle_disconnection(reason)
-        socket |> transport.close()
+        final_client = handle_disconnection(client, reason)
+        transport.close(socket)
+        final_client
       end
 
       #
       # Default implementations
       #
 
-      def handle_init(_args), do: :unimplemented_function
+      def handle_init(_args), do: :ok
       def handle_connection(socket, transport), do: Client.new(socket, transport)
-      def handle_disconnection(_client, _reason), do: :unimplemented_function
-      def handle_message(_client, _message), do: :unimplemented_function
-      def handle_halt_ok(_client, _args), do: :unimplemented_function
-      def handle_halt_error(_client, _reason), do: :unimplemented_function
+      def handle_disconnection(client, _reason), do: client
+      def handle_message(client, _message), do: client
+      def handle_error(client, _reason), do: client
+      def handle_halt_ok(client, _args), do: client
+      def handle_halt_error(client, _reason), do: client
 
       defoverridable handle_init: 1,
                      handle_connection: 2,
                      handle_disconnection: 2,
                      handle_message: 2,
+                     handle_error: 2,
                      handle_halt_ok: 2,
                      handle_halt_error: 2
     end

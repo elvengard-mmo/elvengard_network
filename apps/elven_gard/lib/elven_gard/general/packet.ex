@@ -36,18 +36,28 @@ defmodule ElvenGard.General.Packet do
 
     quote do
       unquote(exp)
-      {:cont}
     end
   end
 
-  defmacro halt_packet(packet_type, do: exp) do
-    def_packet(__CALLER__.module, packet_type)
+  # TODO: Check how to get the client instance or remove this macro
+  # defmacro cont_packet(packet_type, do: exp) do
+  #   def_packet(__CALLER__.module, packet_type)
+  #
+  #   quote do
+  #     res = unquote(exp)
+  #     {:cont, state}
+  #   end
+  # end
 
-    quote do
-      res = unquote(exp)
-      {:halt, res}
-    end
-  end
+  # TODO: Check how to get the client instance or remove this macro
+  # defmacro halt_packet(packet_type, do: exp) do
+  #   def_packet(__CALLER__.module, packet_type)
+  #
+  #   quote do
+  #     res = unquote(exp)
+  #     {:halt, res}
+  #   end
+  # end
 
   defmacro default_packet(do: exp) do
     caller = __CALLER__.module
@@ -125,9 +135,9 @@ defmodule ElvenGard.General.Packet do
   @spec create_default_handle() :: term
   defp create_default_handle() do
     quote do
-      def handle_packet([packet_type | args], _ctx) do
+      def handle_packet([packet_type | args], ctx) do
         Logger.warn("Unknown packet header #{inspect(packet_type)} with args: #{inspect(args)}")
-        {:halt, {:error, {:unknown_header, packet_type}}}
+        {:halt, {:error, {:unknown_header, packet_type}}, ctx}
       end
     end
   end

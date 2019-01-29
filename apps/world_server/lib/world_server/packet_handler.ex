@@ -4,5 +4,4 @@ defmodule WorldServer.PacketHandler do
   """
 
   use ElvenGard.General.Packet
-
 end

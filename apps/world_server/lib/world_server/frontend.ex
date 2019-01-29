@@ -18,20 +18,27 @@ defmodule WorldServer.Frontend do
 
   @impl true
   def handle_connection(socket, transport) do
-    client = Client.new(socket, transport, %{auth_step: nil})
+    client = Client.new(socket, transport, %{auth_step: :waiting_session})
     Logger.info("New connection: #{client.id}")
-    Logger.info("#{inspect client.metadata}")
     client
   end
 
   @impl true
-  def handle_disconnection(%Client{id: id} = _client, reason) do
+  def handle_disconnection(%Client{id: id} = client, reason) do
     Logger.info("#{id} is now disconnected (reason: #{inspect(reason)})")
+    client
   end
 
   @impl true
-  def handle_message(%Client{id: id} = _client, message) do
+  def handle_message(%Client{id: id} = client, message) do
     Logger.info("New message from #{id} (len: #{byte_size(message)})")
+    client
+  end
+
+  @impl true
+  def handle_error(%Client{id: id} = client, reason) do
+    Logger.error("An error occured with client #{id}: #{inspect(reason)}")
+    client
   end
 
   # TODO: Change this function and remove `WorldServer.Crypto.encrypt` call.
@@ -41,14 +48,16 @@ defmodule WorldServer.Frontend do
     e_packet = WorldServer.Crypto.encrypt(args)
     Logger.info("Client accepted: #{id}")
     Client.send(client, e_packet)
+    client
   end
 
   # TODO: Change this function and remove `WorldServer.Crypto.encrypt` call.
   # Use the resolver instead
   @impl true
   def handle_halt_error(%Client{id: id} = client, reason) do
-    e_reason = WorldServer.Crypto.encrypt("fail #{inspect reason}")
-    Logger.info("Client refused: #{id} - #{inspect reason}")
+    e_reason = WorldServer.Crypto.encrypt("fail #{inspect(reason)}")
+    Logger.info("Client refused: #{id} - #{inspect(reason)}")
     Client.send(client, e_reason)
+    client
   end
 end

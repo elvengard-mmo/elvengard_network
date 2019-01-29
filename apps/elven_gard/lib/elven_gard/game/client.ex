@@ -42,7 +42,7 @@ defmodule ElvenGard.Game.Client do
     } = client
 
     new_meta = put_in(metadata, key, value)
-    %__MODULE__{ client | metadata: new_meta }
+    %__MODULE__{client | metadata: new_meta}
   end
 
   def set_metadata(client, key, value) do
@@ -51,6 +51,6 @@ defmodule ElvenGard.Game.Client do
     } = client
 
     new_meta = Map.put(metadata, key, value)
-    %__MODULE__{ client | metadata: new_meta }
+    %__MODULE__{client | metadata: new_meta}
   end
 end

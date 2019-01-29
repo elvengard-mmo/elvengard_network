@@ -5,7 +5,7 @@ defmodule LoginServer.PacketHandler do
 
   use ElvenGard.General.Packet
 
-  halt_packet "NoS0575" do
+  packet "NoS0575" do
     field :session, :integer
     field :username, :string
     field :password, :string
