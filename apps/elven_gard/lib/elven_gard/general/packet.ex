@@ -39,26 +39,6 @@ defmodule ElvenGard.General.Packet do
     end
   end
 
-  # TODO: Check how to get the client instance or remove this macro
-  # defmacro cont_packet(packet_type, do: exp) do
-  #   def_packet(__CALLER__.module, packet_type)
-  #
-  #   quote do
-  #     res = unquote(exp)
-  #     {:cont, state}
-  #   end
-  # end
-
-  # TODO: Check how to get the client instance or remove this macro
-  # defmacro halt_packet(packet_type, do: exp) do
-  #   def_packet(__CALLER__.module, packet_type)
-  #
-  #   quote do
-  #     res = unquote(exp)
-  #     {:halt, res}
-  #   end
-  # end
-
   defmacro default_packet(do: exp) do
     caller = __CALLER__.module
     Module.put_attribute(caller, :elven_default_function, true)

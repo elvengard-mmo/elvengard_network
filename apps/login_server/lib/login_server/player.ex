@@ -7,7 +7,7 @@ defmodule LoginServer.Player do
 
   @client_version Application.get_env(:login_server, :client_version)
 
-  def player_connect(_ctx, params) do
+  def player_connect(ctx, params) do
     with %{
            username: user,
            password: enc_password,
@@ -19,10 +19,10 @@ defmodule LoginServer.Player do
          {:ok, server_list} <- get_server_list(),
          {:ok, session} <- create_session(account_id, user, password),
          packet <- create_res_packet(session, server_list) do
-      {:halt, {:ok, packet}}
+      {:halt, {:ok, packet}, ctx}
     else
       err ->
-        {:halt, err}
+        {:halt, err, ctx}
     end
   end
 

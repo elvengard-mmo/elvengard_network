@@ -32,12 +32,11 @@ defmodule WorldServer.Crypto do
   @doc """
   Decrypt the first packet who contains the session_id.
   """
-  @spec decrypt_session(binary) :: {integer, integer}
+  @spec decrypt_session(binary) :: String.t()
   def decrypt_session(<<_::size(8), payload::binary>>) do
     do_decrypt_session(payload)
     |> String.split()
-    |> Enum.map(&String.to_integer/1)
-    |> List.to_tuple()
+    |> Enum.at(1)
   end
 
   @doc """

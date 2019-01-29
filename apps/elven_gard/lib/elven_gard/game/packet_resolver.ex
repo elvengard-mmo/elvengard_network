@@ -6,20 +6,22 @@ defmodule ElvenGard.Game.PacketResolver do
   alias ElvenGard.Game.Client
   alias ElvenGard.Game.LoginServer
 
+  @type state :: Client.t()
+
   @doc """
   Just split a packet and call his packet handler
   """
   @callback resolve(client :: Client.t(), data :: binary) ::
-              {:cont}
-              | {:halt, {:ok, term}}
-              | {:halt, {:error, LoginServer.conn_error()}}
+              {:cont, state}
+              | {:halt, {:ok, term}, state}
+              | {:halt, {:error, LoginServer.conn_error()}, state}
 
   @doc """
   Transform a raw packet to an understandable packet.
   You can, for example, apply your cryptographic algorithm and split your packet.
   This function must return a list starting with your packet header followed by params.
   """
-  @callback deserialize(data :: binary) :: list
+  @callback deserialize(data :: term) :: list
 
   @doc """
   Use ElvenGard.Game.PacketResolver behaviour.
@@ -39,10 +41,16 @@ defmodule ElvenGard.Game.PacketResolver do
       @behaviour parent
       @before_compile parent
 
+      alias ElvenGard.Game.Client
+
       def resolve(%Client{} = client, data) do
         data
         |> deserialize()
         |> unquote(handler).handle_packet(client)
+      end
+
+      defp handle_packet(packet, %Client{} = client) do
+        unquote(handler).handle_packet(packet, client)
       end
 
       defoverridable resolve: 2
