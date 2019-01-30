@@ -1,9 +1,9 @@
-defmodule ElvenGard.Game.PacketResolver do
+defmodule ElvenGard.Helpers.PacketResolver do
   @moduledoc """
-  Documentation for ElvenGard.Game.LoginServer.
+  TODO: Documentation for ElvenGard.Game.LoginServer
   """
 
-  alias ElvenGard.Game.Client
+  alias ElvenGard.Structures.Client
   alias ElvenGard.Game.LoginServer
 
   @type state :: Client.t()
@@ -24,7 +24,7 @@ defmodule ElvenGard.Game.PacketResolver do
   @callback deserialize(data :: term) :: list
 
   @doc """
-  Use ElvenGard.Game.PacketResolver behaviour.
+  Use ElvenGard.Helpers.PacketResolver behaviour
   """
   defmacro __using__(opts) do
     parent = __MODULE__
@@ -41,7 +41,7 @@ defmodule ElvenGard.Game.PacketResolver do
       @behaviour parent
       @before_compile parent
 
-      alias ElvenGard.Game.Client
+      alias ElvenGard.Structures.Client
 
       def resolve(%Client{} = client, data) do
         data

@@ -3,12 +3,12 @@ defmodule WorldServer.Frontend do
   Documentation for WorldServer.Frontend
   """
 
-  use ElvenGard.Game.Frontend,
+  use ElvenGard.Helpers.Frontend,
     packet_resolver: WorldServer.PacketResolver,
     port: 5000
 
   require Logger
-  alias ElvenGard.Game.Client
+  alias ElvenGard.Structures.Client
 
   @impl true
   def handle_init(args) do

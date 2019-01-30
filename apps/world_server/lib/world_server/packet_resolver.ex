@@ -3,12 +3,12 @@ defmodule WorldServer.PacketResolver do
   Parse a packet and call the right PacketHandler
   """
 
-  use ElvenGard.Game.PacketResolver,
+  use ElvenGard.Helpers.PacketResolver,
     packet_handler: WorldServer.PacketHandler
 
   require Logger
   alias WorldServer.Crypto
-  alias ElvenGard.Game.Client
+  alias ElvenGard.Structures.Client
 
   @impl true
   def resolve(%Client{} = client, data) do

@@ -3,7 +3,7 @@ defmodule LoginServer.PacketHandler do
   Received packet handler.
   """
 
-  use ElvenGard.General.Packet
+  use ElvenGard.Helpers.Packet
 
   packet "NoS0575" do
     field :session, :integer
@@ -11,6 +11,6 @@ defmodule LoginServer.PacketHandler do
     field :password, :string
     field :unknown, :string
     field :version, :string
-    resolve &LoginServer.Player.player_connect/2
+    resolve &LoginServer.Actions.Auth.player_connect/2
   end
 end

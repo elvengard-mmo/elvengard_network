@@ -1,9 +1,9 @@
-defmodule ElvenGard.Game.Frontend do
+defmodule ElvenGard.Helpers.Frontend do
   @moduledoc """
-  Documentation for ElvenGard.Game.Frontend.
+  TODO: Documentation for ElvenGard.Helpers.Frontend
   """
 
-  alias ElvenGard.Game.Client
+  alias ElvenGard.Structures.Client
 
   @type conn_error :: atom | binary | bitstring
   @type handle_ok :: {:ok, Client.t()}
@@ -19,7 +19,7 @@ defmodule ElvenGard.Game.Frontend do
   @callback handle_halt_error(client :: Client.t(), error :: conn_error) :: handle_return
 
   @doc """
-  Use ElvenGard.Game.Frontend behaviour.
+  Use ElvenGard.Helpers.Frontend behaviour
   """
   defmacro __using__(opts) do
     parent = __MODULE__
@@ -40,8 +40,8 @@ defmodule ElvenGard.Game.Frontend do
             parent: parent,
             resolver: resolver
           ] do
-      alias ElvenGard.Game.Client
-      alias ElvenGard.Game.Frontend, as: ElvenFE
+      alias ElvenGard.Structures.Client
+      alias ElvenGard.Helpers.Frontend, as: ElvenFE
 
       @behaviour parent
       @behaviour :ranch_protocol

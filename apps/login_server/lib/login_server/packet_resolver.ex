@@ -3,7 +3,7 @@ defmodule LoginServer.PacketResolver do
   Parse a packet and call the right PacketHandler
   """
 
-  use ElvenGard.Game.PacketResolver,
+  use ElvenGard.Helpers.PacketResolver,
     packet_handler: LoginServer.PacketHandler
 
   require Logger

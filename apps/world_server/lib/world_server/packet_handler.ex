@@ -3,5 +3,5 @@ defmodule WorldServer.PacketHandler do
   Received packet handler.
   """
 
-  use ElvenGard.General.Packet
+  use ElvenGard.Helpers.Packet
 end

@@ -1,6 +1,6 @@
-defmodule ElvenGard.Game.Client do
+defmodule ElvenGard.Structures.Client do
   @moduledoc """
-  Documentation for ElvenGard.Game.Client.
+  TODO: Documentation for ElvenGard.Structures.Client
   """
 
   @keys [:id, :socket, :transport, :metadata]

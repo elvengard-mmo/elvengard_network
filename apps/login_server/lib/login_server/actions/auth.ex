@@ -1,4 +1,4 @@
-defmodule LoginServer.Player do
+defmodule LoginServer.Actions.Auth do
   @moduledoc """
   TODO: Too much changes on this Module....
   """

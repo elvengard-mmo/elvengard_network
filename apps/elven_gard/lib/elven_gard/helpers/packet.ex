@@ -1,7 +1,6 @@
-defmodule ElvenGard.General.Packet do
+defmodule ElvenGard.Helpers.Packet do
   @moduledoc """
-  Documentation for ElvenGard.General.Packet.
-
+  TODO: Documentation for ElvenGard.Helpers.Packet
   TODO: Doccument all macros and functions.
   """
 
