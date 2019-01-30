@@ -21,25 +21,25 @@ defmodule LoginServer.Frontend do
   def handle_connection(socket, transport) do
     client = Client.new(socket, transport)
     Logger.info("New connection: #{client.id}")
-    client
+    {:ok, client}
   end
 
   @impl true
   def handle_disconnection(%Client{id: id} = client, reason) do
     Logger.info("#{id} is now disconnected (reason: #{inspect(reason)})")
-    client
+    {:ok, client}
   end
 
   @impl true
   def handle_message(%Client{id: id} = client, message) do
     Logger.info("New message from #{id} (len: #{byte_size(message)})")
-    client
+    {:ok, client}
   end
 
   @impl true
   def handle_error(%Client{id: id} = client, reason) do
     Logger.error("An error occured with client #{id}: #{inspect(reason)}")
-    client
+    {:ok, client}
   end
 
   # TODO: Change this function and remove `LoginServer.Crypto.encrypt` call.
@@ -49,7 +49,7 @@ defmodule LoginServer.Frontend do
     e_packet = LoginServer.Crypto.encrypt(args)
     Logger.info("Client accepted: #{id}")
     Client.send(client, e_packet)
-    client
+    {:ok, client}
   end
 
   # TODO: Change this function and remove `LoginServer.Crypto.encrypt` call.
@@ -59,6 +59,6 @@ defmodule LoginServer.Frontend do
     e_reason = LoginServer.Crypto.encrypt("fail #{inspect(reason)}")
     Logger.info("Client refused: #{id} - #{inspect(reason)}")
     Client.send(client, e_reason)
-    client
+    {:ok, client}
   end
 end

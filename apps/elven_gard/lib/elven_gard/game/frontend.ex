@@ -6,14 +6,17 @@ defmodule ElvenGard.Game.Frontend do
   alias ElvenGard.Game.Client
 
   @type conn_error :: atom | binary | bitstring
+  @type handle_ok :: {:ok, Client.t()}
+  @type handle_error :: {:error, term, Client.t()}
+  @type handle_return :: handle_ok | handle_error
 
   @callback handle_init(args :: list) :: {:ok, term} | {:error, term}
-  @callback handle_connection(socket :: identifier, transport :: atom) :: Client.t()
-  @callback handle_disconnection(client :: Client.t(), reason :: term) :: Client.t()
-  @callback handle_message(client :: Client.t(), message :: binary) :: Client.t()
-  @callback handle_error(client :: Client.t(), error :: conn_error) :: Client.t()
-  @callback handle_halt_ok(client :: Client.t(), args :: term) :: Client.t()
-  @callback handle_halt_error(client :: Client.t(), error :: conn_error) :: Client.t()
+  @callback handle_connection(socket :: identifier, transport :: atom) :: handle_return
+  @callback handle_disconnection(client :: Client.t(), reason :: term) :: handle_return
+  @callback handle_message(client :: Client.t(), message :: binary) :: handle_return
+  @callback handle_error(client :: Client.t(), error :: conn_error) :: handle_return
+  @callback handle_halt_ok(client :: Client.t(), args :: term) :: handle_return
+  @callback handle_halt_error(client :: Client.t(), error :: conn_error) :: handle_return
 
   @doc """
   Use ElvenGard.Game.Frontend behaviour.
@@ -38,6 +41,7 @@ defmodule ElvenGard.Game.Frontend do
             resolver: resolver
           ] do
       alias ElvenGard.Game.Client
+      alias ElvenGard.Game.Frontend, as: ElvenFE
 
       @behaviour parent
       @behaviour :ranch_protocol
@@ -88,8 +92,8 @@ defmodule ElvenGard.Game.Frontend do
       """
       def init(ref, socket, transport, _) do
         with :ok <- :ranch.accept_ack(ref),
-             :ok = transport.setopts(socket, [{:active, true}]) do
-          client = handle_connection(socket, transport)
+             :ok = transport.setopts(socket, [{:active, true}]),
+             {:ok, client} <- handle_connection(socket, transport) do
           :gen_server.enter_loop(__MODULE__, [], client, 10_000)
         end
       end
@@ -99,7 +103,8 @@ defmodule ElvenGard.Game.Frontend do
       #
 
       def handle_info({:tcp, socket, data}, %Client{} = state) do
-        tmp_state = handle_message(state, data)
+        # TODO: Manage errors on `handle_message`: don't execute the resolver
+        {:ok, tmp_state} = handle_message(state, data)
 
         case unquote(resolver).resolve(tmp_state, data) do
           {:cont, final_client} ->
@@ -120,17 +125,17 @@ defmodule ElvenGard.Game.Frontend do
       end
 
       def handle_info({:tcp_closed, _socket}, %Client{} = state) do
-        new_state = handle_disconnection(state, :normal)
+        {:ok, new_state} = handle_disconnection(state, :normal)
         {:stop, :normal, new_state}
       end
 
       def handle_info({:tcp_error, _socket, reason}, %Client{} = state) do
-        new_state = handle_error(state, reason)
+        {:ok, new_state} = handle_error(state, reason)
         {:stop, reason, new_state}
       end
 
       def handle_info(:timeout, %Client{} = state) do
-        new_state = handle_error(state, :timeout)
+        {:ok, new_state} = handle_error(state, :timeout)
         {:stop, :normal, new_state}
       end
 
@@ -158,14 +163,18 @@ defmodule ElvenGard.Game.Frontend do
         {:stop, :normal, final_client}
       end
 
-      @spec close_socket(Client.t(), term) :: Client.t()
-      defp close_socket(%Client{} = client, reason) do
+      @spec close_socket(ElvenFE.handle_return(), term) :: Client.t()
+      defp close_socket({:ok, %Client{} = client}, reason), do: do_close_socket(client, reason)
+      defp close_socket({:error, _, %Client{} = client}, reason), do: do_close_socket(client, reason)
+
+      @spec do_close_socket(Client.t(), term) :: Client.t()
+      defp do_close_socket(%Client{} = client, reason) do
         %Client{
           socket: socket,
           transport: transport
         } = client
 
-        final_client = handle_disconnection(client, reason)
+        {:ok, final_client} = handle_disconnection(client, reason)
         transport.close(socket)
         final_client
       end
