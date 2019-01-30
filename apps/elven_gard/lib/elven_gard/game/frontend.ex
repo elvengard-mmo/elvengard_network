@@ -7,7 +7,7 @@ defmodule ElvenGard.Game.Frontend do
 
   @type conn_error :: atom | binary | bitstring
 
-  @callback handle_init(args :: list) :: no_return
+  @callback handle_init(args :: list) :: {:ok, term} | {:error, term}
   @callback handle_connection(socket :: identifier, transport :: atom) :: Client.t()
   @callback handle_disconnection(client :: Client.t(), reason :: term) :: Client.t()
   @callback handle_message(client :: Client.t(), message :: binary) :: Client.t()
@@ -54,7 +54,8 @@ defmodule ElvenGard.Game.Frontend do
         protocol = __MODULE__
         protocol_opts = []
 
-        opts
+        # TODO: Use args (pass them to ranch opts ?)
+        {:ok, _args} = opts
         |> Enum.concat(unquote(use_opts))
         |> handle_init()
 
@@ -173,7 +174,7 @@ defmodule ElvenGard.Game.Frontend do
       # Default implementations
       #
 
-      def handle_init(_args), do: :ok
+      def handle_init(_args), do: {:ok, nil}
       def handle_connection(socket, transport), do: Client.new(socket, transport)
       def handle_disconnection(client, _reason), do: client
       def handle_message(client, _message), do: client

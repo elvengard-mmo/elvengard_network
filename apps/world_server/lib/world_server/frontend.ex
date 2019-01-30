@@ -1,6 +1,6 @@
 defmodule WorldServer.Frontend do
   @moduledoc """
-  Documentation for WorldServer.Frontend.
+  Documentation for WorldServer.Frontend
   """
 
   use ElvenGard.Game.Frontend,
@@ -14,6 +14,7 @@ defmodule WorldServer.Frontend do
   def handle_init(args) do
     port = get_in(args, [:port])
     Logger.info("World server started on port #{port}")
+    {:ok, nil}
   end
 
   @impl true

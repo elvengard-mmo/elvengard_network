@@ -14,6 +14,7 @@ defmodule LoginServer.Frontend do
   def handle_init(args) do
     port = get_in(args, [:port])
     Logger.info("Login server started on port #{port}")
+    {:ok, nil}
   end
 
   @impl true
