@@ -3,8 +3,8 @@ defmodule ElvenGard.Helpers.PacketResolver do
   TODO: Documentation for ElvenGard.Game.LoginServer
   """
 
-  alias ElvenGard.Structures.Client
   alias ElvenGard.Game.LoginServer
+  alias ElvenGard.Structures.Client
 
   @type state :: Client.t()
 

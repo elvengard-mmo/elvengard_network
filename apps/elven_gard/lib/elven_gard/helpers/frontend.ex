@@ -40,8 +40,8 @@ defmodule ElvenGard.Helpers.Frontend do
             parent: parent,
             resolver: resolver
           ] do
-      alias ElvenGard.Structures.Client
       alias ElvenGard.Helpers.Frontend, as: ElvenFE
+      alias ElvenGard.Structures.Client
 
       @behaviour parent
       @behaviour :ranch_protocol

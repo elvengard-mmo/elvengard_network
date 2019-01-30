@@ -5,12 +5,14 @@ defmodule LoginServer.PacketHandler do
 
   use ElvenGard.Helpers.Packet
 
+  alias LoginServer.Actions.Auth
+
   packet "NoS0575" do
     field :session, :integer
     field :username, :string
     field :password, :string
     field :unknown, :string
     field :version, :string
-    resolve &LoginServer.Actions.Auth.player_connect/2
+    resolve &Auth.player_connect/2
   end
 end

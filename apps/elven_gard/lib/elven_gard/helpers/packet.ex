@@ -62,7 +62,8 @@ defmodule ElvenGard.Helpers.Packet do
     packet_type = Module.get_attribute(caller, :elven_packet_type)
 
     params =
-      Module.get_attribute(caller, :elven_params)
+      caller
+      |> Module.get_attribute(:elven_params)
       |> Enum.reverse()
       |> check_types!(packet_type)
 
@@ -70,7 +71,7 @@ defmodule ElvenGard.Helpers.Packet do
       @doc false
       def handle_packet([unquote(packet_type) | args], ctx) do
         zip_params = Enum.zip(unquote(params), args)
-        fin_params = Enum.map(zip_params, &parse_type!/1) |> Enum.into(%{})
+        fin_params = Enum.into(zip_params, %{}, &parse_type!/1)
         unquote(fun).(ctx, fin_params)
       end
     end

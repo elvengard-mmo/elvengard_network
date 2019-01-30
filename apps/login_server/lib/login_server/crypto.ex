@@ -47,10 +47,13 @@ defmodule LoginServer.Crypto do
   """
   @spec decrypt_pass(String.t()) :: String.t()
   def decrypt_pass(enc_password) do
-    case enc_password |> String.length() |> rem(2) do
-      0 -> String.slice(enc_password, 3..-1)
-      1 -> String.slice(enc_password, 4..-1)
-    end
+    tmp =
+      case enc_password |> String.length() |> rem(2) do
+        0 -> String.slice(enc_password, 3..-1)
+        1 -> String.slice(enc_password, 4..-1)
+      end
+
+    tmp
     |> String.codepoints()
     |> Stream.chunk_every(2)
     |> Stream.map(fn [x | _] -> x end)

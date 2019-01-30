@@ -34,7 +34,8 @@ defmodule WorldServer.Crypto do
   """
   @spec decrypt_session(binary) :: String.t()
   def decrypt_session(<<_::size(8), payload::binary>>) do
-    do_decrypt_session(payload)
+    payload
+    |> do_decrypt_session()
     |> String.split()
     |> Enum.at(1)
   end
@@ -65,7 +66,8 @@ defmodule WorldServer.Crypto do
       end
 
     result =
-      :binary.split(packets, <<0xFF>>, [:global, :trim_all])
+      packets
+      |> :binary.split(<<0xFF>>, [:global, :trim_all])
       |> Enum.map(&do_decrypt/1)
 
     case keepalive? do

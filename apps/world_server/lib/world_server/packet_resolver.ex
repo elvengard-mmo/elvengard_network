@@ -7,8 +7,9 @@ defmodule WorldServer.PacketResolver do
     packet_handler: WorldServer.PacketHandler
 
   require Logger
-  alias WorldServer.Crypto
+
   alias ElvenGard.Structures.Client
+  alias WorldServer.Crypto
 
   @impl true
   def resolve(%Client{} = client, data) do
