@@ -34,16 +34,11 @@ defmodule ElvenGard.Helpers.Frontend do
       _ -> :ok
     end
 
-    quote bind_quoted: [
-            use_opts: use_opts,
-            port: port,
-            parent: parent,
-            resolver: resolver
-          ] do
+    quote do
       alias ElvenGard.Helpers.Frontend, as: ElvenFE
       alias ElvenGard.Structures.Client
 
-      @behaviour parent
+      @behaviour unquote(parent)
       @behaviour :ranch_protocol
 
       # TODO: Use `Application.get_env` inside function for a live update
