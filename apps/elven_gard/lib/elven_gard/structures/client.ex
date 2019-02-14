@@ -35,8 +35,8 @@ defmodule ElvenGard.Structures.Client do
   def get_metadata(client, [_ | _] = key), do: get_in(client.metadata, key)
   def get_metadata(client, key), do: Map.get(client.metadata, key)
 
-  @spec set_metadata(__MODULE__.t(), metadata_key, metadata_value) :: __MODULE__.t()
-  def set_metadata(client, [_ | _] = key, value) do
+  @spec put_metadata(__MODULE__.t(), metadata_key, metadata_value) :: __MODULE__.t()
+  def put_metadata(client, [_ | _] = key, value) do
     %__MODULE__{
       metadata: metadata
     } = client
@@ -45,7 +45,7 @@ defmodule ElvenGard.Structures.Client do
     %__MODULE__{client | metadata: new_meta}
   end
 
-  def set_metadata(client, key, value) do
+  def put_metadata(client, key, value) do
     %__MODULE__{
       metadata: metadata
     } = client

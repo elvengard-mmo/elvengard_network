@@ -46,7 +46,7 @@ defmodule ElvenGard.Helpers.PacketResolver do
       def resolve(%Client{} = client, data) do
         data
         |> deserialize()
-        |> unquote(handler).handle_packet(client)
+        |> handle_packet(client)
       end
 
       defp handle_packet(packet, %Client{} = client) do

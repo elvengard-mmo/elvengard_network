@@ -2,6 +2,7 @@ defmodule ElvenGard.Helpers.Packet do
   @moduledoc """
   TODO: Documentation for ElvenGard.Helpers.Packet
   TODO: Doccument all macros and functions.
+  TODO: Add custom field (like integer bytes/bits length, user custom field etc...)
   """
 
   defmacro __using__(_) do
@@ -49,7 +50,7 @@ defmodule ElvenGard.Helpers.Packet do
     end
   end
 
-  defmacro field(name, type \\ :string) do
+  defmacro field(name, type) do
     caller = __CALLER__.module
     Module.put_attribute(caller, :elven_params, {name, type})
 
@@ -130,7 +131,7 @@ defmodule ElvenGard.Helpers.Packet do
   end
 
   @doc false
-  @spec check_types!(tuple, binary) :: no_return
+  @spec do_check_types!(tuple, binary) :: no_return
   defp do_check_types!({name, type}, packet_type) do
     case type do
       x when x in @available_types -> :ok

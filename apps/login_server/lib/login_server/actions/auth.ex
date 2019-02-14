@@ -4,9 +4,11 @@ defmodule LoginServer.Actions.Auth do
   """
 
   alias LoginServer.Crypto
+  alias ElvenGard.Structures.Client
 
   @client_version Application.get_env(:login_server, :client_version)
 
+  @spec player_connect(Client.t(), map) :: {:halt, any, Client.t()}
   def player_connect(ctx, params) do
     with %{
            username: user,
