@@ -87,7 +87,6 @@ defmodule ElvenGard.Helpers.Packet do
   @doc false
   @spec parse_type!({{atom, atom}, String.t()}) :: {atom, String.t() | integer}
   def parse_type!({{name, :string}, val}), do: {name, val}
-
   def parse_type!({{name, :integer}, val}) do
     {name, String.to_integer(val, 10)}
   end

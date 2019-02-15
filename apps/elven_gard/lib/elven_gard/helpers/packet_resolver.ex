@@ -7,14 +7,15 @@ defmodule ElvenGard.Helpers.PacketResolver do
   alias ElvenGard.Structures.Client
 
   @type state :: Client.t()
+  @type handle_return ::
+          {:cont, state}
+          | {:halt, {:ok, term}, state}
+          | {:halt, {:error, LoginServer.conn_error()}, state}
 
   @doc """
   Just split a packet and call his packet handler
   """
-  @callback resolve(client :: Client.t(), data :: binary) ::
-              {:cont, state}
-              | {:halt, {:ok, term}, state}
-              | {:halt, {:error, LoginServer.conn_error()}, state}
+  @callback resolve(client :: Client.t(), data :: binary) :: handle_return
 
   @doc """
   Transform a raw packet to an understandable packet.
@@ -37,9 +38,9 @@ defmodule ElvenGard.Helpers.PacketResolver do
       _ -> :ok
     end
 
-    quote bind_quoted: [parent: parent, caller: caller, handler: handler] do
-      @behaviour parent
-      @before_compile parent
+    quote do
+      @behaviour unquote(parent)
+      @before_compile unquote(parent)
 
       alias ElvenGard.Structures.Client
 
@@ -49,8 +50,17 @@ defmodule ElvenGard.Helpers.PacketResolver do
         |> handle_packet(client)
       end
 
+      @spec handle_packet(list(term), Client.t()) :: unquote(parent).handle_return
       defp handle_packet(packet, %Client{} = client) do
         unquote(handler).handle_packet(packet, client)
+      end
+
+      @spec handle_packets(list(list(term)), Client.t()) :: unquote(parent).handle_return
+      defp handle_packets(packet_list, %Client{} = client) do
+        Enum.reduce_while(packet_list, {:cont, client}, fn packet, {_, client} ->
+          res = handle_packet(packet, client)
+          {elem(res, 0), res}
+        end)
       end
 
       defoverridable resolve: 2

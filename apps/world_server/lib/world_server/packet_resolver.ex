@@ -16,10 +16,11 @@ defmodule WorldServer.PacketResolver do
     auth_step = Client.get_metadata(client, :auth_step)
     session_id = Client.get_metadata(client, :session_id)
 
-    # Here, the "PacketResolver" helper provide the "handle_packet" function
+    # Here, the "PacketResolver" helper provide the "handle_packet"
+    # and "handle_packet" function
     {auth_step, data, session_id}
     |> deserialize()
-    |> handle_packet(client)
+    |> handle_packets(client)
   end
 
   @impl true
@@ -33,18 +34,18 @@ defmodule WorldServer.PacketResolver do
   @impl true
   def deserialize({:waiting_session, data, nil}) do
     # Place fake packet header
-    ["session_id", Crypto.decrypt_session(data)]
+    [["session_id", Crypto.decrypt_session(data)]]
   end
 
   @impl true
   def deserialize({:waiting_username, data, session_id}) do
     # Place fake packet header
-    ["username", Crypto.decrypt(data, session_id)]
+    [["username", Crypto.decrypt(data, session_id)]]
   end
 
   @impl true
   def deserialize({:waiting_password, data, session_id}) do
     # Place fake packet header
-    ["password", Crypto.decrypt(data, session_id)]
+    [["password", Crypto.decrypt(data, session_id)]]
   end
 end
