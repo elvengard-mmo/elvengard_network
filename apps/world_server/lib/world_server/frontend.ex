@@ -4,7 +4,7 @@ defmodule WorldServer.Frontend do
   """
 
   use ElvenGard.Helpers.Frontend,
-    packet_resolver: WorldServer.PacketResolver,
+    packet_encoder: WorldServer.PacketEncoder,
     port: 5000
 
   require Logger
@@ -39,26 +39,6 @@ defmodule WorldServer.Frontend do
   @impl true
   def handle_error(%Client{id: id} = client, reason) do
     Logger.error("An error occured with client #{id}: #{inspect(reason)}")
-    {:ok, client}
-  end
-
-  # TODO: Change this function and remove `WorldServer.Crypto.encrypt` call.
-  # Use the resolver instead
-  @impl true
-  def handle_halt_ok(%Client{id: id} = client, args) do
-    e_packet = WorldServer.Crypto.encrypt(args)
-    Logger.info("Client accepted: #{id}")
-    Client.send(client, e_packet)
-    {:ok, client}
-  end
-
-  # TODO: Change this function and remove `WorldServer.Crypto.encrypt` call.
-  # Use the resolver instead
-  @impl true
-  def handle_halt_error(%Client{id: id} = client, reason) do
-    e_reason = WorldServer.Crypto.encrypt("fail #{inspect(reason)}")
-    Logger.info("Client refused: #{id} - #{inspect(reason)}")
-    Client.send(client, e_reason)
     {:ok, client}
   end
 end

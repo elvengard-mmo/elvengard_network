@@ -1,16 +1,22 @@
-defmodule LoginServer.PacketResolver do
+defmodule LoginServer.PacketEncoder do
   @moduledoc """
   Parse a packet and call the right PacketHandler
   """
 
-  use ElvenGard.Helpers.PacketResolver,
+  use ElvenGard.Helpers.PacketEncoder,
     packet_handler: LoginServer.PacketHandler
 
   require Logger
   alias LoginServer.Crypto
 
   @impl true
-  def deserialize(data) do
+  def encode(data) do
+    data
+    |> Crypto.encrypt()
+  end
+
+  @impl true
+  def decode(data) do
     data
     |> Crypto.decrypt()
     |> String.replace("\n", "")

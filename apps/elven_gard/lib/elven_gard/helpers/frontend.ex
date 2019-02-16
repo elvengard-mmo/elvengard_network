@@ -25,13 +25,12 @@ defmodule ElvenGard.Helpers.Frontend do
     parent = __MODULE__
     caller = __CALLER__.module
     port = get_in(opts, [:port]) || 3000
-    resolver = get_in(opts, [:packet_resolver])
+    encoder = get_in(opts, [:packet_encoder])
     use_opts = put_in(opts, [:port], port)
 
-    # Check is there is any resolver
-    case resolver do
-      nil -> raise "Please, specify a packet_resolver for #{caller}"
-      _ -> :ok
+    # Check is there is any encoder
+    unless encoder do
+      raise "Please, specify a packet_encoder for #{caller}"
     end
 
     quote do
@@ -89,7 +88,8 @@ defmodule ElvenGard.Helpers.Frontend do
         with :ok <- :ranch.accept_ack(ref),
              :ok = transport.setopts(socket, [{:active, true}]),
              {:ok, client} <- handle_connection(socket, transport) do
-          :gen_server.enter_loop(__MODULE__, [], client, 10_000)
+          final_client = %Client{client | encoder: unquote(encoder)}
+          :gen_server.enter_loop(__MODULE__, [], final_client, 10_000)
         end
       end
 
@@ -98,10 +98,10 @@ defmodule ElvenGard.Helpers.Frontend do
       #
 
       def handle_info({:tcp, socket, data}, %Client{} = state) do
-        # TODO: Manage errors on `handle_message`: don't execute the resolver
+        # TODO: Manage errors on `handle_message`: don't execute the encoder
         {:ok, tmp_state} = handle_message(state, data)
 
-        case unquote(resolver).resolve(tmp_state, data) do
+        case unquote(encoder).decode_and_handle(tmp_state, data) do
           {:cont, final_client} ->
             {:noreply, final_client}
 
@@ -113,7 +113,7 @@ defmodule ElvenGard.Helpers.Frontend do
 
           _ ->
             raise """
-               #{__MODULE__}.resolve/2 have to return `{:cont, state}`, \
+               #{__MODULE__}.decode_and_handle/2 have to return `{:cont, state}`, \
               `{:halt, {:ok, :some_args}, state}`, or `{:halt, {:error, reason}, state}`.
             """
         end

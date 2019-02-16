@@ -4,7 +4,7 @@ defmodule LoginServer.Frontend do
   """
 
   use ElvenGard.Helpers.Frontend,
-    packet_resolver: LoginServer.PacketResolver,
+    packet_encoder: LoginServer.PacketEncoder,
     port: 4002
 
   require Logger
@@ -42,23 +42,17 @@ defmodule LoginServer.Frontend do
     {:ok, client}
   end
 
-  # TODO: Change this function and remove `LoginServer.Crypto.encrypt` call.
-  # Use the resolver instead
   @impl true
   def handle_halt_ok(%Client{id: id} = client, args) do
-    e_packet = LoginServer.Crypto.encrypt(args)
     Logger.info("Client accepted: #{id}")
-    Client.send(client, e_packet)
+    Client.send(client, "#{inspect(args)}")
     {:ok, client}
   end
 
-  # TODO: Change this function and remove `LoginServer.Crypto.encrypt` call.
-  # Use the resolver instead
   @impl true
   def handle_halt_error(%Client{id: id} = client, reason) do
-    e_reason = LoginServer.Crypto.encrypt("fail #{inspect(reason)}")
     Logger.info("Client refused: #{id} - #{inspect(reason)}")
-    Client.send(client, e_reason)
+    Client.send(client, "fail #{inspect(reason)}")
     {:ok, client}
   end
 end
