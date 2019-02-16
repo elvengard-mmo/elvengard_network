@@ -29,7 +29,8 @@ defmodule ElvenGard.Structures.Client do
       encoder: encoder
     } = client
 
-    transport.send(socket, message)
+    encoded_message = encoder.encode(message)
+    transport.send(socket, encoded_message)
   end
 
   @spec get_metadata(__MODULE__.t(), metadata_key) :: metadata_value
