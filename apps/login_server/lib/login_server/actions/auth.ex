@@ -3,8 +3,8 @@ defmodule LoginServer.Actions.Auth do
   TODO: Too much changes on this Module....
   """
 
-  alias LoginServer.Crypto
   alias ElvenGard.Structures.Client
+  alias LoginServer.Crypto
 
   @client_version Application.get_env(:login_server, :client_version)
 
@@ -45,7 +45,8 @@ defmodule LoginServer.Actions.Auth do
   end
 
   @doc false
-  @spec get_account_id(String.t(), String.t()) :: {:ok, integer} | {:error, :BAD_CREDENTIALS}
+  @spec get_account_id(String.t(), String.t()) ::
+          {:ok, integer} | {:error, :BAD_CREDENTIALS}
   defp get_account_id(username, password) do
     # case Accounts.get_account_id(username, password) do
     #   nil -> {:error, :BAD_CREDENTIALS}
