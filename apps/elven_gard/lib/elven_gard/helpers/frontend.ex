@@ -9,6 +9,7 @@ defmodule ElvenGard.Helpers.Frontend do
   @type handle_ok :: {:ok, Client.t()}
   @type handle_error :: {:error, term, Client.t()}
   @type handle_return :: handle_ok | handle_error
+  @type state :: Client.t()
 
   @callback handle_init(args :: list) :: {:ok, term} | {:error, term}
   @callback handle_connection(socket :: identifier, transport :: atom) :: handle_return
@@ -26,6 +27,7 @@ defmodule ElvenGard.Helpers.Frontend do
     caller = __CALLER__.module
     port = get_in(opts, [:port]) || 3000
     encoder = get_in(opts, [:packet_encoder])
+    handler = get_in(opts, [:packet_handler])
     use_opts = put_in(opts, [:port], port)
 
     # Check is there is any encoder
@@ -33,8 +35,12 @@ defmodule ElvenGard.Helpers.Frontend do
       raise "Please, specify a packet_encoder for #{caller}"
     end
 
+    # Check is there is any handler
+    unless handler do
+      raise "Please, specify a packet_handler for #{caller}"
+    end
+
     quote do
-      alias ElvenGard.Helpers.Frontend, as: ElvenFE
       alias ElvenGard.Structures.Client
 
       @behaviour unquote(parent)
@@ -97,11 +103,13 @@ defmodule ElvenGard.Helpers.Frontend do
       # All GenServer handles
       #
 
-      def handle_info({:tcp, socket, data}, %Client{} = state) do
+      def handle_info({:tcp, socket, data}, %Client{} = client) do
         # TODO: Manage errors on `handle_message`: don't execute the encoder
-        {:ok, tmp_state} = handle_message(state, data)
+        {:ok, tmp_state} = handle_message(client, data)
 
-        case unquote(encoder).decode_and_handle(tmp_state, data) do
+        payload = unquote(encoder).complete_decode(data, tmp_state)
+
+        case do_handle_packet(payload, tmp_state) do
           {:cont, final_client} ->
             {:noreply, final_client}
 
@@ -113,30 +121,53 @@ defmodule ElvenGard.Helpers.Frontend do
 
           _ ->
             raise """
-               #{__MODULE__}.decode_and_handle/2 have to return `{:cont, state}`, \
-              `{:halt, {:ok, :some_args}, state}`, or `{:halt, {:error, reason}, state}`.
+               #{unquote(handler)}.handle_packet/2 have to return `{:cont, client}`, \
+              `{:halt, {:ok, :some_args}, client}`, or `{:halt, {:error, reason}, client}`.
             """
         end
       end
 
-      def handle_info({:tcp_closed, _socket}, %Client{} = state) do
-        {:ok, new_state} = handle_disconnection(state, :normal)
+      def handle_info({:tcp_closed, _socket}, %Client{} = client) do
+        {:ok, new_state} = handle_disconnection(client, :normal)
         {:stop, :normal, new_state}
       end
 
-      def handle_info({:tcp_error, _socket, reason}, %Client{} = state) do
-        {:ok, new_state} = handle_error(state, reason)
+      def handle_info({:tcp_error, _socket, reason}, %Client{} = client) do
+        {:ok, new_state} = handle_error(client, reason)
         {:stop, reason, new_state}
       end
 
-      def handle_info(:timeout, %Client{} = state) do
-        {:ok, new_state} = handle_error(state, :timeout)
+      def handle_info(:timeout, %Client{} = client) do
+        {:ok, new_state} = handle_error(client, :timeout)
         {:stop, :normal, new_state}
       end
 
       #
       # Private function
       #
+
+      @spec do_handle_packet(list | list(list), Client.t()) ::
+              {:cont, unquote(parent).state}
+              | {:halt, {:ok, term}, unquote(parent).state}
+              | {:halt, {:error, unquote(parent).conn_error()}, unquote(parent).state}
+      defp do_handle_packet([[_header | _params] | _rest] = packet_list, client) do
+        Enum.reduce_while(packet_list, {:cont, client}, fn packet, {_, client} ->
+          res = do_handle_packet(packet, client)
+          {elem(res, 0), res}
+        end)
+      end
+
+      defp do_handle_packet([_header | _params] = packet, client) do
+        unquote(handler).handle_packet(packet, client)
+      end
+
+      defp do_handle_packet(x, _client) do
+        raise """
+          Unable to handle packet #{inspect(x)}.
+          Please check that your decoder returns a list in the form of [header, \
+          param1, param2, ...]
+        """
+      end
 
       @spec do_halt_ok(Client.t(), term) :: {:stop, :normal, Client.t()}
       defp do_halt_ok(%Client{} = client, args) do
@@ -158,7 +189,7 @@ defmodule ElvenGard.Helpers.Frontend do
         {:stop, :normal, final_client}
       end
 
-      @spec close_socket(ElvenFE.handle_return(), term) :: Client.t()
+      @spec close_socket(unquote(parent).handle_return(), term) :: Client.t()
       defp close_socket({:ok, %Client{} = client}, reason), do: do_close_socket(client, reason)
       defp close_socket({:error, _, %Client{} = client}, reason), do: do_close_socket(client, reason)
 

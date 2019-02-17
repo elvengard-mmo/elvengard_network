@@ -5,6 +5,7 @@ defmodule WorldServer.Frontend do
 
   use ElvenGard.Helpers.Frontend,
     packet_encoder: WorldServer.PacketEncoder,
+    packet_handler: WorldServer.PacketHandler,
     port: 5000
 
   require Logger

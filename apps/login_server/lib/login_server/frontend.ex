@@ -5,6 +5,7 @@ defmodule LoginServer.Frontend do
 
   use ElvenGard.Helpers.Frontend,
     packet_encoder: LoginServer.PacketEncoder,
+    packet_handler: LoginServer.PacketHandler,
     port: 4002
 
   require Logger

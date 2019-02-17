@@ -1,47 +1,52 @@
 defmodule ElvenGard.Helpers.PacketEncoder do
   @moduledoc """
-  TODO: Documentation for ElvenGard.Game.LoginServer
+  TODO: Documentation for ElvenGard.Helpers.PacketEncoder
+
+  /!\ No side effect: Cannot change modify the current `ElvenGard.Structures.Client`
   """
 
-  alias ElvenGard.Game.LoginServer
   alias ElvenGard.Structures.Client
 
-  @type state :: Client.t()
-  @type handle_return ::
-          {:cont, state}
-          | {:halt, {:ok, term}, state}
-          | {:halt, {:error, LoginServer.conn_error()}, state}
-
   @doc """
-  Just split a packet and call his packet handler
+  Prepare the packet to be sent for the encode function
   """
-  @callback decode_and_handle(client :: Client.t(), data :: binary) :: handle_return
-
-  @doc """
-  Transform a raw packet to an understandable packet.
-  You can, for example, apply your cryptographic algorithm and split your packet.
-  This function must return a list starting with your packet header followed by params.
-  """
-  @callback decode(data :: term) :: list
+  @callback pre_encode(data :: term, client :: Client.t()) :: term
 
   @doc """
   Encodes a packet so that it can be sent to a client.
   You can, for example, apply your cryptographic algorithm.
   """
-  @callback encode(data :: term) :: binary
+  @callback encode(data :: term) :: term
+
+  @doc """
+  If not already done by the `encode` function, this function will transform his
+  result into a binary.
+  """
+  @callback post_encode(data :: term, client :: Client.t()) :: binary
+
+  @doc """
+  Prepare the raw packet for the decode function
+  """
+  @callback pre_decode(data :: binary, client :: Client.t()) :: term
+
+  @doc """
+  Transform a raw packet to an understandable packet.
+  You can, for example, apply your cryptographic algorithm and split your packet.
+  """
+  @callback decode(data :: term) :: term
+
+  @doc """
+  If not already done by the `decode` function, this function will transform his
+  result into a list.
+  This function must return a list starting with your packet header followed by params.
+  """
+  @callback post_decode(data :: term, client :: Client.t()) :: list
 
   @doc """
   Use ElvenGard.Helpers.PacketEncoder behaviour
   """
-  defmacro __using__(opts) do
+  defmacro __using__(_) do
     parent = __MODULE__
-    caller = __CALLER__.module
-    handler = get_in(opts, [:packet_handler])
-
-    # Check is there is any handler
-    unless handler do
-      raise "Please, specify a packet_handler for #{caller}"
-    end
 
     quote do
       @behaviour unquote(parent)
@@ -49,35 +54,61 @@ defmodule ElvenGard.Helpers.PacketEncoder do
 
       alias ElvenGard.Structures.Client
 
-      @impl true
-      def decode_and_handle(%Client{} = client, data) do
+      @doc """
+      Successively applies functions `pre_encode`, `encode` and `post_encode`
+      """
+      @spec complete_encode(term, Client.t()) :: binary
+      def complete_encode(data, %Client{} = client) do
         data
+        |> pre_encode(client)
+        |> encode()
+        |> post_encode(client)
+      end
+
+      @doc """
+      Successively applies functions `pre_decode`, `decode` and `post_decode`
+      Can return a packet list
+      """
+      @spec complete_decode(binary, Client.t()) :: list | list(list)
+      def complete_decode(data, %Client{} = client) do
+        data
+        |> pre_decode(client)
         |> decode()
-        |> handle_packet(client)
+        |> post_decode(client)
       end
 
-      #
-      # Some utils functions
-      #
+      @impl true
+      def pre_encode(data, _client), do: data
 
-      @spec handle_packet(list(term), Client.t()) :: unquote(parent).handle_return
-      defp handle_packet(packet, %Client{} = client) do
-        unquote(handler).handle_packet(packet, client)
-      end
+      @impl true
+      def post_encode(data, _client), do: data
 
-      @spec handle_packets(list(list(term)), Client.t()) :: unquote(parent).handle_return
-      defp handle_packets(packet_list, %Client{} = client) do
-        Enum.reduce_while(packet_list, {:cont, client}, fn packet, {_, client} ->
-          res = handle_packet(packet, client)
-          {elem(res, 0), res}
-        end)
-      end
+      @impl true
+      def pre_decode(data, _client), do: data
 
-      defoverridable decode_and_handle: 2
+      @impl true
+      def post_decode(data, _client), do: data
+
+      defoverridable pre_encode: 2
+      defoverridable post_encode: 2
+      defoverridable pre_decode: 2
+      defoverridable post_decode: 2
     end
   end
 
   defmacro __before_compile__(env) do
+    unless Module.defines?(env.module, {:encode, 1}) do
+      raise """
+      function encode/1 required by behaviour #{__MODULE__} is not implemented \
+      (in module #{env.module}).
+
+      Example:
+        def encode(data) do
+          Crypto.encrypt(data)
+        end
+      """
+    end
+
     unless Module.defines?(env.module, {:decode, 1}) do
       raise """
       function decode/1 required by behaviour #{__MODULE__} is not implemented \
@@ -88,18 +119,6 @@ defmodule ElvenGard.Helpers.PacketEncoder do
           data
           |> Crypto.decrypt()
           |> String.split(" ")
-        end
-      """
-    end
-
-    unless Module.defines?(env.module, {:encode, 1}) do
-      raise """
-      function encode/1 required by behaviour #{__MODULE__} is not implemented \
-      (in module #{env.module}).
-
-      Example:
-        def encode(data) do
-          Crypto.encrypt(data)
         end
       """
     end
