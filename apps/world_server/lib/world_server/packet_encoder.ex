@@ -40,7 +40,8 @@ defmodule WorldServer.PacketEncoder do
         ) :: list(list)
   def decode({:done, data, session_id}) do
     data
-    |> Crypto.decrypt(session_id)
+    |> Crypto.decrypt(session_id, true)
+    |> Stream.map(fn {_last_live, packet} -> packet end)
     |> Stream.map(& String.replace(&1, "\n", ""))
     |> Enum.map(& String.split(&1, " "))
   end
@@ -53,13 +54,24 @@ defmodule WorldServer.PacketEncoder do
 
   @impl true
   def decode({:waiting_username, data, session_id}) do
-    # Place fake packet header
-    [["username", Crypto.decrypt(data, session_id)]]
+    data = Crypto.decrypt(data, session_id, true)
+
+    case data do
+      [{_last_live, username}] ->
+        # Place fake packet header
+        [["username", username]]
+
+      [{_last_live, username}, {_last_live2, password}] ->
+        # Place fake packet header
+        [["username", username], ["password", password]]
+    end
   end
 
   @impl true
   def decode({:waiting_password, data, session_id}) do
+    [{_last_live, password}] = Crypto.decrypt(data, session_id, true)
+
     # Place fake packet header
-    [["password", Crypto.decrypt(data, session_id)]]
+    [["password", password]]
   end
 end

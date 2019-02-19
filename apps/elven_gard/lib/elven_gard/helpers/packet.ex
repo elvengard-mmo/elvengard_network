@@ -48,6 +48,20 @@ defmodule ElvenGard.Helpers.Packet do
   end
 
   @doc """
+  Define an useless packet
+
+  ¯\_(ツ)_/¯
+  """
+  defmacro useless_packet(packet_type) do
+    quote do
+      @doc false
+      def handle_packet([unquote(packet_type) | args], client) do
+        {:cont, client}
+      end
+    end
+  end
+
+  @doc """
   Define the default behaviour if no packet's header match
   """
   defmacro default_packet(do: exp) do
@@ -55,7 +69,7 @@ defmodule ElvenGard.Helpers.Packet do
     Module.put_attribute(caller, :elven_default_function, true)
 
     quote do
-      def handle_packet([var!(packet_type) | var!(args)], var!(ctx)) do
+      def handle_packet([var!(packet_type) | var!(args)], var!(client)) do
         unquote(exp)
       end
     end
@@ -87,10 +101,10 @@ defmodule ElvenGard.Helpers.Packet do
 
     quote do
       @doc false
-      def handle_packet([unquote(packet_type) | args], ctx) do
+      def handle_packet([unquote(packet_type) | args], client) do
         zip_params = Enum.zip(unquote(params), args)
         fin_params = Enum.into(zip_params, %{}, &parse_type!/1)
-        unquote(fun).(ctx, fin_params)
+        unquote(fun).(client, fin_params)
       end
     end
   end
@@ -137,9 +151,9 @@ defmodule ElvenGard.Helpers.Packet do
   @spec create_default_handle() :: term
   defp create_default_handle() do
     quote do
-      def handle_packet([packet_type | args], ctx) do
+      def handle_packet([packet_type | args], client) do
         Logger.warn("Unknown packet header #{inspect(packet_type)} with args: #{inspect(args)}")
-        {:halt, {:error, {:unknown_header, packet_type}}, ctx}
+        {:cont, client}
       end
     end
   end

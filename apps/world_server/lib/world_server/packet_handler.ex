@@ -7,6 +7,12 @@ defmodule WorldServer.PacketHandler do
 
   alias WorldServer.Actions.Auth
 
+  # Useless packets
+	useless_packet "0"
+	useless_packet "c_close"
+  useless_packet "f_stash_end"
+
+  # Usefull packets
   packet "session_id" do
     field :session_id, :integer
     resolve &Auth.process_session_id/2

@@ -4,6 +4,7 @@ defmodule WorldServer.Actions.Auth do
   """
 
   alias ElvenGard.Structures.Client
+  alias WorldServer.Actions.CharacterManagement
 
   @spec process_session_id(Client.t(), %{session_id: integer}) :: {:cont, Client.t()}
   def process_session_id(client, params) do
@@ -33,6 +34,9 @@ defmodule WorldServer.Actions.Auth do
       |> Client.put_metadata(:auth_step, :done)
 
     # TODO: Check credentials and session_id here
+
+    CharacterManagement.send_character_list(client, %{})
+
     {:cont, new_client}
   end
 end
