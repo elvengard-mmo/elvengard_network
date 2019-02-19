@@ -8,8 +8,8 @@ defmodule WorldServer.PacketHandler do
   alias WorldServer.Actions.Auth
 
   # Useless packets
-	useless_packet "0"
-	useless_packet "c_close"
+  useless_packet "0"
+  useless_packet "c_close"
   useless_packet "f_stash_end"
 
   # Usefull packets

@@ -39,10 +39,10 @@ defmodule LoginServer.Crypto do
 
   ## Examples
 
-  	iex> LoginServer.Crypto.decrypt_pass("2EB6A196E4B60D96A9267E")
-  	"admin"
-  	iex> LoginServer.Crypto.decrypt_pass("1BE97B527A306B597A2")
-  	"user"
+    iex> LoginServer.Crypto.decrypt_pass("2EB6A196E4B60D96A9267E")
+    "admin"
+    iex> LoginServer.Crypto.decrypt_pass("1BE97B527A306B597A2")
+    "user"
 
   """
   @spec decrypt_pass(String.t()) :: String.t()
