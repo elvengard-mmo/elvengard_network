@@ -1,6 +1,7 @@
 defmodule ElvenGard.Helpers.PacketEncoder do
   @moduledoc """
-  TODO: Documentation for ElvenGard.Helpers.PacketEncoder
+  Transform a raw packet (packet received by a client) into a packet that can be
+  pattern match by a PacketHandler.
 
   /!\ No side effect: Cannot change modify the current `ElvenGard.Structures.Client`
   """

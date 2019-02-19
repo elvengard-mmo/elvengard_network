@@ -1,6 +1,7 @@
 defmodule ElvenGard.Structures.Client do
   @moduledoc """
-  TODO: Documentation for ElvenGard.Structures.Client
+  Manage a socket.
+  You can store some metadata on this structure.
   """
 
   @keys [:id, :socket, :transport, :metadata]
@@ -11,6 +12,9 @@ defmodule ElvenGard.Structures.Client do
   @type metadata_key :: [term, ...] | term
   @type metadata_value :: term | nil
 
+  @doc """
+  Create a new structure
+  """
   @spec new(identifier, atom, map) :: __MODULE__.t()
   def new(socket, transport, metadata \\ %{}) do
     %__MODULE__{
@@ -21,6 +25,9 @@ defmodule ElvenGard.Structures.Client do
     }
   end
 
+  @doc """
+  Send a packet to the client
+  """
   @spec send(__MODULE__.t(), binary) :: :ok | {:error, atom}
   def send(client, message) do
     %__MODULE__{
@@ -33,10 +40,17 @@ defmodule ElvenGard.Structures.Client do
     transport.send(socket, encoded_message)
   end
 
+  @doc """
+  Try to get a metadata embeded in the structure.
+  You can use an array for a deep research.
+  """
   @spec get_metadata(__MODULE__.t(), metadata_key) :: metadata_value
   def get_metadata(client, [_ | _] = key), do: get_in(client.metadata, key)
   def get_metadata(client, key), do: Map.get(client.metadata, key)
 
+  @doc """
+  Put a metadata in the structure.
+  """
   @spec put_metadata(__MODULE__.t(), metadata_key, metadata_value) :: __MODULE__.t()
   def put_metadata(client, [_ | _] = key, value) do
     %__MODULE__{

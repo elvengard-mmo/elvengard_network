@@ -4,7 +4,7 @@
 
 ## Remind list
 
-In the end, will have to support :
+In the end, will have to support at least :
 - Nostale
 - FlyFF
 - WoW ?

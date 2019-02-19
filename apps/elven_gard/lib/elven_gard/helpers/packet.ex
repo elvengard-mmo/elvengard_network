@@ -1,10 +1,12 @@
 defmodule ElvenGard.Helpers.Packet do
   @moduledoc """
-  TODO: Documentation for ElvenGard.Helpers.Packet
-  TODO: Doccument all macros and functions.
-  TODO: Add custom field (like integer bytes/bits length, user custom field etc...)
+  Define some usefull macros for create a packet that can be handled
+  by an `ElvenGard.Helpers.Frontend`
   """
 
+  @doc """
+  Import all macros from this module
+  """
   defmacro __using__(_) do
     parent = __MODULE__
     caller = __CALLER__.module
@@ -18,6 +20,9 @@ defmodule ElvenGard.Helpers.Packet do
     end
   end
 
+  @doc """
+  Create the default handler if not defined by user
+  """
   defmacro __before_compile__(env) do
     default? = Module.get_attribute(env.module, :elven_default_function)
 
@@ -31,6 +36,9 @@ defmodule ElvenGard.Helpers.Packet do
     end
   end
 
+  @doc """
+  Define a new packet
+  """
   defmacro packet(packet_type, do: exp) do
     def_packet(__CALLER__.module, packet_type)
 
@@ -39,6 +47,9 @@ defmodule ElvenGard.Helpers.Packet do
     end
   end
 
+  @doc """
+  Define the default behaviour if no packet's header match
+  """
   defmacro default_packet(do: exp) do
     caller = __CALLER__.module
     Module.put_attribute(caller, :elven_default_function, true)
@@ -50,6 +61,9 @@ defmodule ElvenGard.Helpers.Packet do
     end
   end
 
+  @doc """
+  Define a new field for a packet
+  """
   defmacro field(name, type) do
     caller = __CALLER__.module
     Module.put_attribute(caller, :elven_params, {name, type})
@@ -58,6 +72,9 @@ defmodule ElvenGard.Helpers.Packet do
     {:__block__, [], []}
   end
 
+  @doc """
+  Define the handler function
+  """
   defmacro resolve(fun) do
     caller = __CALLER__.module
     packet_type = Module.get_attribute(caller, :elven_packet_type)
@@ -84,7 +101,12 @@ defmodule ElvenGard.Helpers.Packet do
 
   @available_types [:string, :integer]
 
-  @doc false
+  @doc """
+  Currently, can only parse strings and integers.
+
+  TODO: Add custom field support (like integer bytes/bits length,
+  user custom field etc...)
+  """
   @spec parse_type!({{atom, atom}, String.t()}) :: {atom, String.t() | integer}
   def parse_type!({{name, :string}, val}), do: {name, val}
   def parse_type!({{name, :integer}, val}) do
