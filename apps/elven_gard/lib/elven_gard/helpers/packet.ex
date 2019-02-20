@@ -56,6 +56,7 @@ defmodule ElvenGard.Helpers.Packet do
     quote do
       @doc false
       def handle_packet([unquote(packet_type) | args], client) do
+        Logger.info("Discarded packet header #{inspect(unquote(packet_type))} with args: #{inspect(args)}")
         {:cont, client}
       end
     end
