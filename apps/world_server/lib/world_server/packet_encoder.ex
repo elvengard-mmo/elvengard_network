@@ -49,7 +49,7 @@ defmodule WorldServer.PacketEncoder do
   @impl true
   def decode({:waiting_session, data, nil}) do
     # Place fake packet header
-    [["session_id", Crypto.decrypt_session(data)]]
+    ["session_id", Crypto.decrypt_session(data)]
   end
 
   @impl true
@@ -59,7 +59,7 @@ defmodule WorldServer.PacketEncoder do
     case data do
       [{_last_live, username}] ->
         # Place fake packet header
-        [["username", username]]
+        ["username", username]
 
       [{_last_live, username}, {_last_live2, password}] ->
         # Place fake packet header
@@ -72,6 +72,6 @@ defmodule WorldServer.PacketEncoder do
     [{_last_live, password}] = Crypto.decrypt(data, session_id, true)
 
     # Place fake packet header
-    [["password", password]]
+    ["password", password]
   end
 end
