@@ -25,7 +25,7 @@ defmodule WorldServer.PacketHandler do
   First packet send by a client.
   Nedded for decrypt all following packets.
 
-  /!\ This packet doesn't have any packet header. Here, it't faked by Encoder
+  /!\\ This packet doesn't have any packet header. Here, it't faked by Encoder
   """
   packet "session_id" do
     field :session_id, :integer
@@ -36,7 +36,7 @@ defmodule WorldServer.PacketHandler do
   Second packet send by a client.
   Contains only his username.
 
-  /!\ This packet doesn't have any packet header. Here, it't faked by Encoder
+  /!\\ This packet doesn't have any packet header. Here, it't faked by Encoder
   """
   packet "username" do
     field :username, :string
@@ -47,7 +47,7 @@ defmodule WorldServer.PacketHandler do
   Third packet send by a client.
   Contains only his password in plain text.
 
-  /!\ This packet doesn't have any packet header. Here, it't faked by Encoder
+  /!\\ This packet doesn't have any packet header. Here, it't faked by Encoder
   """
   packet "password" do
     field :password, :string
