@@ -129,7 +129,6 @@ defmodule ElvenGard.Helpers.Packet do
 
     quote do
       Module.put_attribute(unquote(caller), :elven_packet_documentations, @elven_current_packet)
-      IO.inspect(Module.get_attribute(unquote(caller), :elven_packet_documentations))
 
       @doc false
       def handle_packet([unquote(packet_name) | args], client) do
