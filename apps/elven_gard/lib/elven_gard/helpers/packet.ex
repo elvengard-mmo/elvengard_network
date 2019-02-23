@@ -12,6 +12,13 @@ defmodule ElvenGard.Helpers.Packet do
   defmacro __using__(_) do
     parent = __MODULE__
     caller = __CALLER__.module
+
+    Module.register_attribute(
+      caller,
+      :elven_packet_documentations,
+      accumulate: true,
+      persist: true
+    )
     Module.put_attribute(caller, :elven_default_function, false)
 
     quote do
@@ -59,10 +66,13 @@ defmodule ElvenGard.Helpers.Packet do
   ¯\_(ツ)_/¯
   """
   defmacro useless_packet(packet_name) do
+    caller = __CALLER__.module
+
     quote do
       desc = @desc
       @elven_current_packet PacketDocumentation.new(unquote(packet_name), desc)
       @elven_current_packet PacketDocumentation.add_tag(@elven_current_packet, :useless_packet)
+      Module.put_attribute(unquote(caller), :elven_packet_documentations, @elven_current_packet)
       @desc nil
 
       @doc false
@@ -121,6 +131,9 @@ defmodule ElvenGard.Helpers.Packet do
       |> check_types!(packet_name)
 
     quote do
+      Module.put_attribute(unquote(caller), :elven_packet_documentations, @elven_current_packet)
+      IO.inspect(Module.get_attribute(unquote(caller), :elven_packet_documentations))
+
       @doc false
       def handle_packet([unquote(packet_name) | args], client) do
         zip_params = Enum.zip(unquote(params), args)
