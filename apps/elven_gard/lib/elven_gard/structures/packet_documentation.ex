@@ -3,7 +3,7 @@ defmodule ElvenGard.Structures.PacketDocumentation do
   Structure for a packet's documentation
   """
 
-  @keys [:name, :packetdoc, :fields]
+  @keys [:name, :packetdoc, :fields, :tags]
   @enforce_keys @keys
   defstruct @keys
 
@@ -16,7 +16,7 @@ defmodule ElvenGard.Structures.PacketDocumentation do
   """
   @spec new(String.t()) :: __MODULE__.t()
   def new(name) do
-    %__MODULE__{name: name, packetdoc: nil, fields: []}
+    %__MODULE__{name: name, packetdoc: nil, fields: [], tags: []}
   end
 
   @doc """
@@ -28,6 +28,17 @@ defmodule ElvenGard.Structures.PacketDocumentation do
 
     new_fields = fields ++ [field]
     %__MODULE__{doc_struct | fields: new_fields}
+  end
+
+  @doc """
+  Add a tag
+  """
+  @spec add_tag(__MODULE__.t(), atom) :: __MODULE__.t()
+  def add_tag(doc_struct, tag) do
+    %__MODULE__{tags: tags} = doc_struct
+
+    new_tags = tags ++ [tag]
+    %__MODULE__{doc_struct | tags: new_tags}
   end
 
   @doc """
