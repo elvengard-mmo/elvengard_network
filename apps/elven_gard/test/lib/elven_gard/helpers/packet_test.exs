@@ -355,7 +355,7 @@ defmodule ElvenGard.Helpers.PacketTest do
         %PacketDocumentation{
           name: :mov,
           description: nil,
-          tags: []
+          tags: [],
           fields: [
             %FieldDocumentation{
               description: nil,
@@ -367,12 +367,12 @@ defmodule ElvenGard.Helpers.PacketTest do
               name: :y,
               type: :integer
             }
-          ],
+          ]
         },
         %PacketDocumentation{
           name: :login,
           description: "Simple login packet",
-          tags: []
+          tags: [],
           fields: [
             %FieldDocumentation{
               description: nil,
@@ -394,13 +394,13 @@ defmodule ElvenGard.Helpers.PacketTest do
               name: :unknown2,
               type: :integer
             }
-          ],
+          ]
         },
         %PacketDocumentation{
           name: :useless_packet,
           description: "Don't know what is this packet",
-          tags: [:useless_packet]
-          fields: [],
+          tags: [:useless_packet],
+          fields: []
         }
       ]
 
