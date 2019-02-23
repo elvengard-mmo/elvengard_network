@@ -35,13 +35,17 @@ defmodule ElvenGard.Helpers.Packet do
   defmacro __before_compile__(env) do
     default? = Module.get_attribute(env.module, :elven_default_function)
 
-    case default? do
-      true ->
-        # Same than `quote do end`
-        {:__block__, [], []}
+    quote do
+      if unquote(default?) do
+        def handle_packet([packet_name | args], client) do
+          Logger.warn("Unknown packet header #{inspect(packet_name)} with args: #{inspect(args)}")
+          {:cont, client}
+        end
+      end
 
-      false ->
-        create_default_handle()
+      def elven_get_packet_documentation() do
+        @elven_packet_documentations
+      end
     end
   end
 
@@ -176,16 +180,6 @@ defmodule ElvenGard.Helpers.Packet do
 
     # Remove Dialyzer warning
     :ok
-  end
-
-  @spec create_default_handle() :: term
-  defp create_default_handle() do
-    quote do
-      def handle_packet([packet_name | args], client) do
-        Logger.warn("Unknown packet header #{inspect(packet_name)} with args: #{inspect(args)}")
-        {:cont, client}
-      end
-    end
   end
 
   @doc false
