@@ -26,6 +26,7 @@ defmodule ElvenGard.Helpers.Packet do
       import unquote(parent)
 
       @before_compile unquote(parent)
+      @desc nil
     end
   end
 

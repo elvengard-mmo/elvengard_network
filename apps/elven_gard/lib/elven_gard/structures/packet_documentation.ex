@@ -17,7 +17,7 @@ defmodule ElvenGard.Structures.PacketDocumentation do
   """
   @spec new(String.t(), empty_string) :: __MODULE__.t()
   def new(name, desc \\ nil) do
-    %__MODULE__{name: name, description: desc, fields: [], tags: []}
+    %__MODULE__{name: name, description: trim_string(desc), fields: [], tags: []}
   end
 
   @doc """
@@ -47,6 +47,16 @@ defmodule ElvenGard.Structures.PacketDocumentation do
   """
   @spec set_packetdoc(__MODULE__.t(), empty_string) :: __MODULE__.t()
   def set_packetdoc(doc_struct, desc) do
-    %__MODULE__{doc_struct | description: (if desc, do: String.trim(desc), else: desc)}
+    %__MODULE__{doc_struct | description: trim_string(desc)}
+  end
+
+  #
+  # Privates function
+  #
+
+  @doc false
+  @spec trim_string(empty_string) :: empty_string
+  defp trim_string(str) do
+    if str, do: String.trim(str), else: str
   end
 end
