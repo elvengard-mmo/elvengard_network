@@ -15,7 +15,7 @@ defmodule ElvenGard.Structures.PacketDocumentation do
   @doc """
   Create a new structure
   """
-  @spec new(empty_string, empty_string) :: __MODULE__.t()
+  @spec new(String.t(), empty_string) :: __MODULE__.t()
   def new(name, desc \\ nil) do
     %__MODULE__{name: name, description: desc, fields: [], tags: []}
   end
@@ -43,10 +43,10 @@ defmodule ElvenGard.Structures.PacketDocumentation do
   end
 
   @doc """
-  The the `description` value for the given structure
+  Set the `description` value for the given structure
   """
   @spec set_packetdoc(__MODULE__.t(), empty_string) :: __MODULE__.t()
-  def set_packetdoc(doc_struct, description) do
-    %__MODULE__{doc_struct | description: description}
+  def set_packetdoc(doc_struct, desc) do
+    %__MODULE__{doc_struct | description: (if desc, do: String.trim(desc), else: desc)}
   end
 end
