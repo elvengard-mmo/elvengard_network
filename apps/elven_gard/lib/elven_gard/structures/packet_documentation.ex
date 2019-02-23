@@ -3,20 +3,21 @@ defmodule ElvenGard.Structures.PacketDocumentation do
   Structure for a packet's documentation
   """
 
-  @keys [:name, :packetdoc, :fields, :tags]
+  @keys [:name, :description, :fields, :tags]
   @enforce_keys @keys
   defstruct @keys
 
   alias ElvenGard.Structures.FieldDocumentation
 
   @type t :: %__MODULE__{}
+  @type empty_string :: String.t() | nil
 
   @doc """
   Create a new structure
   """
-  @spec new(String.t()) :: __MODULE__.t()
-  def new(name) do
-    %__MODULE__{name: name, packetdoc: nil, fields: [], tags: []}
+  @spec new(empty_string, empty_string) :: __MODULE__.t()
+  def new(name, desc \\ nil) do
+    %__MODULE__{name: name, description: desc, fields: [], tags: []}
   end
 
   @doc """
@@ -42,10 +43,10 @@ defmodule ElvenGard.Structures.PacketDocumentation do
   end
 
   @doc """
-  The the `packetdoc` value for the given structure
+  The the `description` value for the given structure
   """
-  @spec set_packetdoc(__MODULE__.t(), String.t()) :: __MODULE__.t()
-  def set_packetdoc(doc_struct, packetdoc) do
-    %__MODULE__{doc_struct | packetdoc: packetdoc}
+  @spec set_packetdoc(__MODULE__.t(), empty_string) :: __MODULE__.t()
+  def set_packetdoc(doc_struct, description) do
+    %__MODULE__{doc_struct | description: description}
   end
 end
