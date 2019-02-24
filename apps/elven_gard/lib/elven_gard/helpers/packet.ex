@@ -57,8 +57,7 @@ defmodule ElvenGard.Helpers.Packet do
     def_packet(__CALLER__.module, packet_name)
 
     quote do
-      desc = @desc
-      @elven_current_packet PacketDocumentation.new(unquote(packet_name), desc)
+      @elven_current_packet PacketDocumentation.new(unquote(packet_name), @desc)
       @desc nil
 
       unquote(exp)
@@ -74,8 +73,7 @@ defmodule ElvenGard.Helpers.Packet do
     caller = __CALLER__.module
 
     quote do
-      desc = @desc
-      @elven_current_packet PacketDocumentation.new(unquote(packet_name), desc)
+      @elven_current_packet PacketDocumentation.new(unquote(packet_name), @desc)
       @elven_current_packet PacketDocumentation.add_tag(@elven_current_packet, :useless_packet)
       Module.put_attribute(unquote(caller), :elven_packet_documentations, @elven_current_packet)
       @desc nil
