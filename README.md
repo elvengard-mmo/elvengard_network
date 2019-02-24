@@ -7,7 +7,7 @@
 Currently, all independent developers wishing to create a MMORPG type game have already asked themselves the question of how to make the server part easily while being "solid" (minimum crash, latency, ...).  
 Indeed, for the client part, there are many tools very well designed to realize it (Unity3D, Unreal Engine,...) but for the server part, each game being different there are currently very few solutions to do this work.
 
-This is the goal of this project: make a framework to group together different functionalities present in any MMORPG (network part, quests, movements, objects in game, instances, etc...) to prepare bases for the developer so that he doesn't have to dwell on this part which is often tedious.
+This is the goal of this project: make a toolkit to group together different functionalities present in any MMORPG (network part, quests, movements, objects in game, instances, etc...) to prepare bases for the developer so that he doesn't have to dwell on this part which is often tedious.
 
 ## Who is this project for ?
 
