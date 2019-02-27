@@ -13,7 +13,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     use ElvenGard.Helpers.Packet
 
     packet :very_basic_packet do
-      resolve fn (_, _) -> :ok end
+      resolve fn _, _ -> :ok end
     end
   end
 
@@ -22,7 +22,7 @@ defmodule ElvenGard.Helpers.PacketTest do
 
     @desc "Some desc"
     packet :packet_with_desc do
-      resolve fn (_, _) -> :ok end
+      resolve fn _, _ -> :ok end
     end
   end
 
@@ -37,7 +37,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     desc
     """
     packet :packet_with_multi_lines_desc do
-      resolve fn (_, _) -> :ok end
+      resolve fn _, _ -> :ok end
     end
   end
 
@@ -47,7 +47,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     @real_desc "Here is the real description"
     @desc @real_desc
     packet :packet_desc_previously_set do
-      resolve fn (_, _) -> :ok end
+      resolve fn _, _ -> :ok end
     end
   end
 
@@ -56,7 +56,7 @@ defmodule ElvenGard.Helpers.PacketTest do
 
     packet :packet_no_desc_with_fields_no_desc do
       field :first_field, :string
-      resolve fn (_, _) -> :ok end
+      resolve fn _, _ -> :ok end
     end
   end
 
@@ -66,7 +66,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     packet :packet_no_desc_with_fields_desc_attr do
       @desc "Description attribute"
       field :first_field, :integer
-      resolve fn (_, _) -> :ok end
+      resolve fn _, _ -> :ok end
     end
   end
 
@@ -75,7 +75,7 @@ defmodule ElvenGard.Helpers.PacketTest do
 
     packet :packet_no_desc_with_fields_desc_opts do
       field :first_field, :string, description: "Description in options"
-      resolve fn (_, _) -> :ok end
+      resolve fn _, _ -> :ok end
     end
   end
 
@@ -91,7 +91,7 @@ defmodule ElvenGard.Helpers.PacketTest do
       desc
       """
       field :first_field, :string
-      resolve fn (_, _) -> :ok end
+      resolve fn _, _ -> :ok end
     end
   end
 
@@ -103,7 +103,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     packet :packet_no_desc_with_fields_desc_prev_set do
       @desc @real_desc
       field :first_field, :string
-      resolve fn (_, _) -> :ok end
+      resolve fn _, _ -> :ok end
     end
   end
 
@@ -162,6 +162,7 @@ defmodule ElvenGard.Helpers.PacketTest do
   describe "No field, single packet defined with" do
     test "no documentation" do
       got = HandlersB.elven_get_packet_documentation()
+
       expected = [
         %PacketDocumentation{
           description: nil,
@@ -176,6 +177,7 @@ defmodule ElvenGard.Helpers.PacketTest do
 
     test "documentation" do
       got = HandlersC.elven_get_packet_documentation()
+
       expected = [
         %PacketDocumentation{
           description: "Some desc",
@@ -190,6 +192,7 @@ defmodule ElvenGard.Helpers.PacketTest do
 
     test "multiline documentation" do
       got = HandlersD.elven_get_packet_documentation()
+
       expected = [
         %PacketDocumentation{
           description: "Some\n\nmulti lines\n\ndesc",
@@ -204,6 +207,7 @@ defmodule ElvenGard.Helpers.PacketTest do
 
     test "documentations previously set" do
       got = HandlersE.elven_get_packet_documentation()
+
       expected = [
         %PacketDocumentation{
           description: "Here is the real description",
@@ -220,6 +224,7 @@ defmodule ElvenGard.Helpers.PacketTest do
   describe "Single packet, single field defined with" do
     test "no documentation" do
       got = HandlersF.elven_get_packet_documentation()
+
       expected = [
         %PacketDocumentation{
           description: nil,
@@ -240,6 +245,7 @@ defmodule ElvenGard.Helpers.PacketTest do
 
     test "attribute documentation" do
       got = HandlersG.elven_get_packet_documentation()
+
       expected = [
         %PacketDocumentation{
           description: nil,
@@ -260,6 +266,7 @@ defmodule ElvenGard.Helpers.PacketTest do
 
     test "documentation option" do
       got = HandlersH.elven_get_packet_documentation()
+
       expected = [
         %PacketDocumentation{
           description: nil,
@@ -280,6 +287,7 @@ defmodule ElvenGard.Helpers.PacketTest do
 
     test "multiline documentation" do
       got = HandlersI.elven_get_packet_documentation()
+
       expected = [
         %PacketDocumentation{
           description: nil,
@@ -300,6 +308,7 @@ defmodule ElvenGard.Helpers.PacketTest do
 
     test "documentations previously set" do
       got = HandlersJ.elven_get_packet_documentation()
+
       expected = [
         %PacketDocumentation{
           description: nil,
@@ -322,6 +331,7 @@ defmodule ElvenGard.Helpers.PacketTest do
   describe "Tagged packet" do
     test "no documentation" do
       got = HandlersK.elven_get_packet_documentation()
+
       expected = [
         %PacketDocumentation{
           description: nil,
@@ -336,6 +346,7 @@ defmodule ElvenGard.Helpers.PacketTest do
 
     test "documentation" do
       got = HandlersL.elven_get_packet_documentation()
+
       expected = [
         %PacketDocumentation{
           description: "Some description",
@@ -344,6 +355,7 @@ defmodule ElvenGard.Helpers.PacketTest do
           tags: [:useless_packet]
         }
       ]
+
       assert expected == got
     end
   end
@@ -351,6 +363,7 @@ defmodule ElvenGard.Helpers.PacketTest do
   describe "Final test:" do
     test "Multiple packet, multiple fields, tagged or not, documented or not" do
       got = HandlersZ.elven_get_packet_documentation()
+
       expected = [
         %PacketDocumentation{
           name: :mov,

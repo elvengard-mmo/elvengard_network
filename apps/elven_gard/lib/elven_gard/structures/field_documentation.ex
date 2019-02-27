@@ -18,7 +18,7 @@ defmodule ElvenGard.Structures.FieldDocumentation do
     %__MODULE__{
       name: name,
       type: type,
-      description: (if desc, do: String.trim(desc), else: desc)
+      description: if(desc, do: String.trim(desc), else: desc)
     }
   end
 end

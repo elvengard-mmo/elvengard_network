@@ -19,6 +19,7 @@ defmodule ElvenGard.Helpers.Packet do
       accumulate: true,
       persist: true
     )
+
     Module.put_attribute(caller, :elven_default_function, false)
 
     quote do
@@ -112,10 +113,11 @@ defmodule ElvenGard.Helpers.Packet do
 
     quote do
       desc = @desc || Keyword.get(unquote(opts), :description)
+
       @elven_current_packet PacketDocumentation.add_field(
-        @elven_current_packet,
-        FieldDocumentation.new(unquote(name), unquote(type), desc)
-      )
+                              @elven_current_packet,
+                              FieldDocumentation.new(unquote(name), unquote(type), desc)
+                            )
       @desc nil
     end
   end
