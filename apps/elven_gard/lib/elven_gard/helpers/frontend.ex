@@ -59,9 +59,10 @@ defmodule ElvenGard.Helpers.Frontend do
         protocol_opts = []
 
         # TODO: Use args (pass them to ranch opts ?)
-        {:ok, _args} = opts
-        |> Enum.concat(unquote(use_opts))
-        |> handle_init()
+        {:ok, _args} =
+          opts
+          |> Enum.concat(unquote(use_opts))
+          |> handle_init()
 
         :ranch.child_spec(
           listener_name,
@@ -191,7 +192,9 @@ defmodule ElvenGard.Helpers.Frontend do
 
       @spec close_socket(unquote(parent).handle_return(), term) :: Client.t()
       defp close_socket({:ok, %Client{} = client}, reason), do: do_close_socket(client, reason)
-      defp close_socket({:error, _, %Client{} = client}, reason), do: do_close_socket(client, reason)
+
+      defp close_socket({:error, _, %Client{} = client}, reason),
+        do: do_close_socket(client, reason)
 
       @spec do_close_socket(Client.t(), term) :: Client.t()
       defp do_close_socket(%Client{} = client, reason) do

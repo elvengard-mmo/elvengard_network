@@ -42,8 +42,8 @@ defmodule WorldServer.PacketEncoder do
     data
     |> Crypto.decrypt(session_id, true)
     |> Stream.map(fn {_last_live, packet} -> packet end)
-    |> Stream.map(& String.replace(&1, "\n", ""))
-    |> Enum.map(& String.split(&1, " "))
+    |> Stream.map(&String.replace(&1, "\n", ""))
+    |> Enum.map(&String.split(&1, " "))
   end
 
   @impl true

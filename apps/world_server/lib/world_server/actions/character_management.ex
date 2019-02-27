@@ -14,7 +14,7 @@ defmodule WorldServer.Actions.CharacterManagement do
         slot: 1,
         gender: 1,
         hair_style: 1,
-        hair_color: 1,
+        hair_color: 1
       }
     ]
 
@@ -35,8 +35,9 @@ defmodule WorldServer.Actions.CharacterManagement do
       slot: slot,
       gender: gender,
       hair_style: hair_style,
-      hair_color: hair_color,
+      hair_color: hair_color
     } = character
+
     class = 0
     level = 30
     job_level = 10
@@ -44,7 +45,10 @@ defmodule WorldServer.Actions.CharacterManagement do
     equipments = "-1.-1.-1.-1.-1.-1.-1.-1"
     pets = "-1"
 
-    packet = "clist #{slot} #{name} 0 #{gender} #{hair_style} #{hair_color} 0 #{class} #{level} #{hero_level} #{equipments} #{job_level} 1 1 #{pets} 0"
+    packet =
+      "clist #{slot} #{name} 0 #{gender} #{hair_style} #{hair_color} 0 #{class}" <>
+        " #{level} #{hero_level} #{equipments} #{job_level} 1 1 #{pets} 0"
+
     Client.send(client, packet)
   end
 end

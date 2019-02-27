@@ -56,7 +56,10 @@ defmodule ElvenGard.Helpers.Packet do
     quote do
       @doc false
       def handle_packet([unquote(packet_type) | args], client) do
-        Logger.info("Discarded packet header #{inspect(unquote(packet_type))} with args: #{inspect(args)}")
+        Logger.info(
+          "Discarded packet header #{inspect(unquote(packet_type))} with args: #{inspect(args)}"
+        )
+
         {:cont, client}
       end
     end
@@ -124,6 +127,7 @@ defmodule ElvenGard.Helpers.Packet do
   """
   @spec parse_type!({{atom, atom}, String.t()}) :: {atom, String.t() | integer}
   def parse_type!({{name, :string}, val}), do: {name, val}
+
   def parse_type!({{name, :integer}, val}) do
     {name, String.to_integer(val, 10)}
   end
