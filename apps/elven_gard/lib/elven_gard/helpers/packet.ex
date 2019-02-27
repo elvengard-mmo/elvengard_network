@@ -4,12 +4,22 @@ defmodule ElvenGard.Helpers.Packet do
   by an `ElvenGard.Helpers.Frontend`
   """
 
+  alias ElvenGard.Structures.{FieldDocumentation, PacketDocumentation}
+
   @doc """
   Import all macros from this module
   """
   defmacro __using__(_) do
     parent = __MODULE__
     caller = __CALLER__.module
+
+    Module.register_attribute(
+      caller,
+      :elven_packet_documentations,
+      accumulate: true,
+      persist: true
+    )
+
     Module.put_attribute(caller, :elven_default_function, false)
 
     quote do
@@ -17,6 +27,7 @@ defmodule ElvenGard.Helpers.Packet do
       import unquote(parent)
 
       @before_compile unquote(parent)
+      @desc nil
     end
   end
 
@@ -26,23 +37,30 @@ defmodule ElvenGard.Helpers.Packet do
   defmacro __before_compile__(env) do
     default? = Module.get_attribute(env.module, :elven_default_function)
 
-    case default? do
-      true ->
-        # Same than `quote do end`
-        {:__block__, [], []}
+    quote do
+      if unquote(default?) do
+        def handle_packet([packet_name | args], client) do
+          Logger.warn("Unknown packet header #{inspect(packet_name)} with args: #{inspect(args)}")
+          {:cont, client}
+        end
+      end
 
-      false ->
-        create_default_handle()
+      def elven_get_packet_documentation() do
+        @elven_packet_documentations
+      end
     end
   end
 
   @doc """
   Define a new packet
   """
-  defmacro packet(packet_type, do: exp) do
-    def_packet(__CALLER__.module, packet_type)
+  defmacro packet(packet_name, do: exp) do
+    def_packet(__CALLER__.module, packet_name)
 
     quote do
+      @elven_current_packet PacketDocumentation.new(unquote(packet_name), @desc)
+      @desc nil
+
       unquote(exp)
     end
   end
@@ -52,12 +70,19 @@ defmodule ElvenGard.Helpers.Packet do
 
   ¯\_(ツ)_/¯
   """
-  defmacro useless_packet(packet_type) do
+  defmacro useless_packet(packet_name) do
+    caller = __CALLER__.module
+
     quote do
+      @elven_current_packet PacketDocumentation.new(unquote(packet_name), @desc)
+      @elven_current_packet PacketDocumentation.add_tag(@elven_current_packet, :useless_packet)
+      Module.put_attribute(unquote(caller), :elven_packet_documentations, @elven_current_packet)
+      @desc nil
+
       @doc false
-      def handle_packet([unquote(packet_type) | args], client) do
+      def handle_packet([unquote(packet_name) | args], client) do
         Logger.info(
-          "Discarded packet header #{inspect(unquote(packet_type))} with args: #{inspect(args)}"
+          "Discarded packet header #{inspect(unquote(packet_name))} with args: #{inspect(args)}"
         )
 
         {:cont, client}
@@ -73,7 +98,7 @@ defmodule ElvenGard.Helpers.Packet do
     Module.put_attribute(caller, :elven_default_function, true)
 
     quote do
-      def handle_packet([var!(packet_type) | var!(args)], var!(client)) do
+      def handle_packet([var!(packet_name) | var!(args)], var!(client)) do
         unquote(exp)
       end
     end
@@ -82,12 +107,19 @@ defmodule ElvenGard.Helpers.Packet do
   @doc """
   Define a new field for a packet
   """
-  defmacro field(name, type) do
+  defmacro field(name, type, opts \\ []) do
     caller = __CALLER__.module
     Module.put_attribute(caller, :elven_params, {name, type})
 
-    # Same than `quote do end`
-    {:__block__, [], []}
+    quote do
+      desc = @desc || Keyword.get(unquote(opts), :description)
+
+      @elven_current_packet PacketDocumentation.add_field(
+                              @elven_current_packet,
+                              FieldDocumentation.new(unquote(name), unquote(type), desc)
+                            )
+      @desc nil
+    end
   end
 
   @doc """
@@ -95,17 +127,19 @@ defmodule ElvenGard.Helpers.Packet do
   """
   defmacro resolve(fun) do
     caller = __CALLER__.module
-    packet_type = Module.get_attribute(caller, :elven_packet_type)
+    packet_name = Module.get_attribute(caller, :elven_packet_name)
 
     params =
       caller
       |> Module.get_attribute(:elven_params)
       |> Enum.reverse()
-      |> check_types!(packet_type)
+      |> check_types!(packet_name)
 
     quote do
+      Module.put_attribute(unquote(caller), :elven_packet_documentations, @elven_current_packet)
+
       @doc false
-      def handle_packet([unquote(packet_type) | args], client) do
+      def handle_packet([unquote(packet_name) | args], client) do
         zip_params = Enum.zip(unquote(params), args)
         fin_params = Enum.into(zip_params, %{}, &parse_type!/1)
         unquote(fun).(client, fin_params)
@@ -138,44 +172,34 @@ defmodule ElvenGard.Helpers.Packet do
 
   @doc false
   @spec def_packet(atom, binary) :: :ok
-  defp def_packet(caller, packet_type) do
+  defp def_packet(caller, packet_name) do
     # Delete old attributes
     Module.delete_attribute(caller, :elven_params)
 
     # Register the new one
     Module.register_attribute(caller, :elven_params, accumulate: true)
-    Module.register_attribute(caller, :elven_packet_type, [])
+    Module.register_attribute(caller, :elven_packet_name, [])
 
     # Save the packet type
-    Module.put_attribute(caller, :elven_packet_type, packet_type)
+    Module.put_attribute(caller, :elven_packet_name, packet_name)
 
     # Remove Dialyzer warning
     :ok
   end
 
-  @spec create_default_handle() :: term
-  defp create_default_handle() do
-    quote do
-      def handle_packet([packet_type | args], client) do
-        Logger.warn("Unknown packet header #{inspect(packet_type)} with args: #{inspect(args)}")
-        {:cont, client}
-      end
-    end
-  end
-
   @doc false
   @spec check_types!(list(tuple), binary) :: list(tuple)
-  defp check_types!(args, packet_type) do
-    Enum.each(args, &do_check_types!(&1, packet_type))
+  defp check_types!(args, packet_name) do
+    Enum.each(args, &do_check_types!(&1, packet_name))
     args
   end
 
   @doc false
   @spec do_check_types!(tuple, binary) :: no_return
-  defp do_check_types!({name, type}, packet_type) do
+  defp do_check_types!({name, type}, packet_name) do
     case type do
       x when x in @available_types -> :ok
-      _ -> raise "Unknown type '#{type}' for '#{name}' inside packet '#{packet_type}'"
+      _ -> raise "Unknown type '#{type}' for '#{name}' inside packet '#{packet_name}'"
     end
   end
 end
