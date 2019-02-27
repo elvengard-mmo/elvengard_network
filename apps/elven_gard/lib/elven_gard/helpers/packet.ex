@@ -79,9 +79,9 @@ defmodule ElvenGard.Helpers.Packet do
       @desc nil
 
       @doc false
-      def handle_packet([unquote(packet_type) | args], client) do
+      def handle_packet([unquote(packet_name) | args], client) do
         Logger.info(
-          "Discarded packet header #{inspect(unquote(packet_type))} with args: #{inspect(args)}"
+          "Discarded packet header #{inspect(unquote(packet_name))} with args: #{inspect(args)}"
         )
 
         {:cont, client}
