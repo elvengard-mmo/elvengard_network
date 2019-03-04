@@ -26,6 +26,7 @@ defmodule ElvenGard.MixProject do
         "mix.exs",
         "README.md",
         "CHANGELOG.md",
+        "COPYING*",
         ".formatter.exs"
       ],
       maintainers: ["ImNotAVirus"],
