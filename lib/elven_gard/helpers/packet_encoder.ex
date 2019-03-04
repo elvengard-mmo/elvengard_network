@@ -3,7 +3,7 @@ defmodule ElvenGard.Helpers.PacketEncoder do
   Transform a raw packet (packet received by a client) into a packet that can be
   pattern match by a PacketHandler.
 
-  /!\ No side effect: Cannot change modify the current `ElvenGard.Structures.Client`
+  /!\\ No side effect: Cannot change or modify the current `ElvenGard.Structures.Client`
   """
 
   alias ElvenGard.Structures.Client
