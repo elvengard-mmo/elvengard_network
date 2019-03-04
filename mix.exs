@@ -1,10 +1,12 @@
 defmodule ElvenGard.MixProject do
   use Mix.Project
 
+  @version "0.1.0-alpha"
+
   def project do
     [
       app: :elven_gard,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.7",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
@@ -63,6 +65,7 @@ defmodule ElvenGard.MixProject do
       # The main page in the docs
       main: "ElvenGard",
       # logo: "path/to/logo.png",
+      source_ref: "v#{@version}",
       extras: ["README.md"],
       groups_for_modules: [
         "Helpers": ~r/^ElvenGard.Helpers.?/,
