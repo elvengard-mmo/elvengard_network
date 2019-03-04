@@ -6,9 +6,9 @@ defmodule ElvenGard.Helpers.Packet do
 
   alias ElvenGard.Structures.{FieldDocumentation, PacketDocumentation}
 
-  @doc """
-  Import all macros from this module
-  """
+  @anno if :erlang.system_info(:otp_release) >= '19', do: [generated: true], else: [line: -1]
+
+  @doc false
   defmacro __using__(_) do
     parent = __MODULE__
     caller = __CALLER__.module
@@ -20,8 +20,6 @@ defmodule ElvenGard.Helpers.Packet do
       persist: true
     )
 
-    Module.put_attribute(caller, :elven_default_function, false)
-
     quote do
       require Logger
       import unquote(parent)
@@ -31,18 +29,18 @@ defmodule ElvenGard.Helpers.Packet do
     end
   end
 
-  @doc """
-  Create the default handler if not defined by user
-  """
-  defmacro __before_compile__(env) do
-    default? = Module.get_attribute(env.module, :elven_default_function)
-
-    quote do
-      if unquote(default?) do
-        def handle_packet([packet_name | args], client) do
-          Logger.warn("Unknown packet header #{inspect(packet_name)} with args: #{inspect(args)}")
-          {:cont, client}
-        end
+  @doc false
+  defmacro __before_compile__(_env) do
+    # We are using @anno because we don't want warnings coming from
+    # handle_packet/2 to be reported in case the user has defined a catch-all
+    # handle_packet/2 clause.
+    #
+    # Thanks to Phoenix
+    # https://github.com/phoenixframework/phoenix/blob/master/lib/phoenix/view.ex
+    quote @anno do
+      def handle_packet([packet_name | args], client) do
+        Logger.warn("Unknown packet header #{inspect(packet_name)} with args: #{inspect(args)}")
+        {:cont, client}
       end
 
       def elven_get_packet_documentation() do
@@ -94,10 +92,13 @@ defmodule ElvenGard.Helpers.Packet do
   Define the default behaviour if no packet's header match
   """
   defmacro default_packet(do: exp) do
-    caller = __CALLER__.module
-    Module.put_attribute(caller, :elven_default_function, true)
-
-    quote do
+    # We are using @anno because we don't want warnings coming from
+    # handle_packet/2 to be reported in case the user doesn't use
+    # `packet_name`, `args`, or `client`
+    #
+    # Thanks to Phoenix
+    # https://github.com/phoenixframework/phoenix/blob/master/lib/phoenix/view.ex
+    quote @anno do
       def handle_packet([var!(packet_name) | var!(args)], var!(client)) do
         unquote(exp)
       end

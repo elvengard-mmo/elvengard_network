@@ -68,8 +68,8 @@ defmodule ElvenGard.MixProject do
       source_ref: "v#{@version}",
       extras: ["README.md"],
       groups_for_modules: [
-        "Helpers": ~r/^ElvenGard.Helpers.?/,
-        "Structures": ~r/^ElvenGard.Structures.?/
+        Helpers: ~r/^ElvenGard.Helpers.?/,
+        Structures: ~r/^ElvenGard.Structures.?/
       ]
     ]
   end
