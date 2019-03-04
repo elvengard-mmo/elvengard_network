@@ -32,7 +32,7 @@ defmodule ElvenGard.MixProject do
       maintainers: ["ImNotAVirus"],
       licenses: ["AGPL", "LGPL"],
       links: %{
-        # Website: "https://absinthe-graphql.org",
+        # Website: "https://YOUR_PROJECT_WEBSITE",
         Changelog: "https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/CHANGELOG.md",
         GitHub: "https://github.com/ImNotAVirus/ElvenGard_V2"
       }
