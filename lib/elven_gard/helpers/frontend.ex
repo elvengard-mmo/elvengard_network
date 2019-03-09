@@ -120,10 +120,11 @@ defmodule ElvenGard.Helpers.Frontend do
           {:halt, {:error, reason}, final_client} ->
             do_halt_error(final_client, reason)
 
-          _ ->
+          x ->
             raise """
-               #{unquote(handler)}.handle_packet/2 have to return `{:cont, client}`, \
-              `{:halt, {:ok, :some_args}, client}`, or `{:halt, {:error, reason}, client}`.
+            #{unquote(handler)}.handle_packet/2 have to return `{:cont, client}`, \
+            `{:halt, {:ok, :some_args}, client}`, or `{:halt, {:error, reason}, client} `. \
+            Returned: #{inspect(x)}
             """
         end
       end
@@ -164,9 +165,9 @@ defmodule ElvenGard.Helpers.Frontend do
 
       defp do_handle_packet(x, _client) do
         raise """
-          Unable to handle packet #{inspect(x)}.
-          Please check that your decoder returns a list in the form of [header, \
-          param1, param2, ...]
+        Unable to handle packet #{inspect(x)}.
+        Please check that your decoder returns a list in the form of [header, \
+        param1, param2, ...]
         """
       end
 
