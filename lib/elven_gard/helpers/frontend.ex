@@ -215,11 +215,11 @@ defmodule ElvenGard.Helpers.Frontend do
 
       def handle_init(_args), do: {:ok, nil}
       def handle_connection(socket, transport), do: Client.new(socket, transport)
-      def handle_disconnection(client, _reason), do: client
-      def handle_message(client, _message), do: client
-      def handle_error(client, _reason), do: client
-      def handle_halt_ok(client, _args), do: client
-      def handle_halt_error(client, _reason), do: client
+      def handle_disconnection(client, _reason), do: {:ok, client}
+      def handle_message(client, _message), do: {:ok, client}
+      def handle_error(client, _reason), do: {:ok, client}
+      def handle_halt_ok(client, _args), do: {:ok, client}
+      def handle_halt_error(client, _reason), do: {:ok, client}
 
       defoverridable handle_init: 1,
                      handle_connection: 2,
