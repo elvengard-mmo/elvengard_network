@@ -28,7 +28,7 @@ defmodule ElvenGard.Structures.Client do
   @doc """
   Send a packet to the client
   """
-  @spec send(__MODULE__.t(), binary) :: :ok | {:error, atom}
+  @spec send(__MODULE__.t(), term) :: :ok | {:error, atom}
   def send(client, message) do
     %__MODULE__{
       socket: socket,

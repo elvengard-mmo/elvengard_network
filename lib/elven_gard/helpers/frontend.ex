@@ -13,6 +13,7 @@ defmodule ElvenGard.Helpers.Frontend do
 
   @callback handle_init(args :: list) :: {:ok, term} | {:error, term}
   @callback handle_connection(socket :: identifier, transport :: atom) :: handle_return
+  @callback handle_client_ready(client :: Client.t()) :: handle_return
   @callback handle_disconnection(client :: Client.t(), reason :: term) :: handle_return
   @callback handle_message(client :: Client.t(), message :: binary) :: handle_return
   @callback handle_error(client :: Client.t(), error :: conn_error) :: handle_return
@@ -95,7 +96,10 @@ defmodule ElvenGard.Helpers.Frontend do
         with :ok <- :ranch.accept_ack(ref),
              :ok = transport.setopts(socket, [{:active, true}]),
              {:ok, client} <- handle_connection(socket, transport) do
-          final_client = %Client{client | encoder: unquote(encoder)}
+          {:ok, final_client} =
+            %Client{client | encoder: unquote(encoder)}
+            |> handle_client_ready()
+
           :gen_server.enter_loop(__MODULE__, [], final_client, 10_000)
         end
       end
@@ -215,6 +219,7 @@ defmodule ElvenGard.Helpers.Frontend do
 
       def handle_init(_args), do: {:ok, nil}
       def handle_connection(socket, transport), do: Client.new(socket, transport)
+      def handle_client_ready(client), do: {:ok, client}
       def handle_disconnection(client, _reason), do: {:ok, client}
       def handle_message(client, _message), do: {:ok, client}
       def handle_error(client, _reason), do: {:ok, client}
@@ -223,6 +228,7 @@ defmodule ElvenGard.Helpers.Frontend do
 
       defoverridable handle_init: 1,
                      handle_connection: 2,
+                     handle_client_ready: 1,
                      handle_disconnection: 2,
                      handle_message: 2,
                      handle_error: 2,
