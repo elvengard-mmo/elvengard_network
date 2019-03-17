@@ -46,6 +46,7 @@ be found at [https://hexdocs.pm/elven_gard](https://hexdocs.pm/elven_gard).
 ## Projects using ElvenGard
 
 - [Flügel](https://github.com/ImNotAVirus/Flugel-NostaleEmu): Created by the same developer as ElvenGard, this is a [Nostale](http://nostale.com/) emulator
+- [Imanity](https://github.com/ImNotAVirus/Imanity-FlyffEmu): Created by the same developer as ElvenGard, this is a [FlyFF](http://flyff.webzen.com) emulator
 
 ## Contributing
 
