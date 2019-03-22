@@ -1,4 +1,4 @@
-defmodule ElvenGard.Helpers.Types do
+defmodule ElvenGard.Helpers.Type do
   @moduledoc """
   Define a behaviour for custom type (packet parsing)
   """
