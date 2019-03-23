@@ -110,6 +110,11 @@ defmodule ElvenGard.Helpers.Packet do
   """
   defmacro field(name, type, opts \\ []) do
     caller = __CALLER__.module
+    packet_name = Module.get_attribute(caller, :elven_packet_name)
+
+    real_type = Macro.expand(type, __CALLER__)
+    check_type!({name, real_type}, packet_name)
+
     Module.put_attribute(caller, :elven_params, {name, type})
 
     quote do
@@ -134,7 +139,6 @@ defmodule ElvenGard.Helpers.Packet do
       caller
       |> Module.get_attribute(:elven_params)
       |> Enum.reverse()
-      |> check_types!(packet_name)
 
     quote do
       Module.put_attribute(unquote(caller), :elven_packet_documentations, @elven_current_packet)
@@ -151,8 +155,6 @@ defmodule ElvenGard.Helpers.Packet do
   #
   # Some functions
   #
-
-  @available_types [:string, :integer]
 
   @doc """
   Currently, can only parse strings and integers.
@@ -189,18 +191,10 @@ defmodule ElvenGard.Helpers.Packet do
   end
 
   @doc false
-  @spec check_types!(list(tuple), binary) :: list(tuple)
-  defp check_types!(args, packet_name) do
-    Enum.each(args, &do_check_types!(&1, packet_name))
-    args
-  end
-
-  @doc false
-  @spec do_check_types!(tuple, binary) :: no_return
-  defp do_check_types!({name, type}, packet_name) do
-    case type do
-      x when x in @available_types -> :ok
-      _ -> raise "Unknown type '#{type}' for '#{name}' inside packet '#{packet_name}'"
+  @spec check_type!(tuple, binary) :: term
+  defp check_type!({name, type}, packet_name) do
+    unless Keyword.has_key?(type.__info__(:functions), :decode) do
+      raise "Unknown type '#{inspect(type)}' for '#{inspect(name)}' for packet '#{inspect(packet_name)}'"
     end
   end
 end
