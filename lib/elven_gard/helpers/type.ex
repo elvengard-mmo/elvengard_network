@@ -6,8 +6,8 @@ defmodule ElvenGard.Helpers.Type do
   @type encoded_term :: bitstring
   @type decoded_term :: term
 
-  @callback encode(decoded_term) :: encoded_term
-  @callback decode(encoded_term) :: {decoded_term, encoded_term}
+  @callback encode(decoded_term, opts :: list) :: encoded_term
+  @callback decode(encoded_term, opts :: list) :: {decoded_term, encoded_term}
 
   @doc false
   defmacro __using__(_) do
@@ -17,13 +17,9 @@ defmodule ElvenGard.Helpers.Type do
       @behaviour unquote(parent)
 
       @doc """
-      Decode a bitstring named `bin` into a map and insert the result on it
+      Encode a bitstring without params
       """
-      @spec put_decode(map, atom) :: map
-      def put_decode(%{bin: bin} = args, name) do
-        {content, rest} = decode(bin)
-        Map.put(%{args | bin: rest}, name, content)
-      end
+      def encode(val), do: encode(val, [])
     end
   end
 end
