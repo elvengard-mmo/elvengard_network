@@ -3,7 +3,7 @@ defmodule ElvenGard.Structures.FieldDocumentation do
   Structure for a packet field's documentation
   """
 
-  @keys [:name, :type, :description]
+  @keys [:name, :type, :description, :opts]
   @enforce_keys @keys
   defstruct @keys
 
@@ -13,11 +13,12 @@ defmodule ElvenGard.Structures.FieldDocumentation do
   @doc """
   Create a new structure
   """
-  @spec new(String.t(), atom, empty_string) :: __MODULE__.t()
-  def new(name, type, desc) do
+  @spec new(String.t(), atom, empty_string, list) :: __MODULE__.t()
+  def new(name, type, desc, opts) do
     %__MODULE__{
       name: name,
       type: type,
+      opts: opts,
       description: if(desc, do: String.trim(desc), else: desc)
     }
   end
