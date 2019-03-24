@@ -22,7 +22,7 @@ defmodule ElvenGard.Types.ElvenPadding do
     bits = Keyword.get(opts, :bits)
     bytes = Keyword.get(opts, :bytes)
 
-    if bits == nil and bytes == nil do
+    if bits == nil and bytes == nil and fill == nil do
       raise "You must specify a size (bytes/bits/fill) for a padding"
     end
 
