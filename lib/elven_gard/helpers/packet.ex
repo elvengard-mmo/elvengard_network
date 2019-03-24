@@ -112,18 +112,27 @@ defmodule ElvenGard.Helpers.Packet do
     caller = __CALLER__.module
     packet_name = Module.get_attribute(caller, :elven_packet_name)
 
-    real_type = Macro.expand(type, __CALLER__)
-    check_type!({name, real_type}, packet_name)
+    real_type =
+      type
+      |> Macro.expand(__CALLER__)
+      |> type_module()
 
-    Module.put_attribute(caller, :elven_params, {name, type})
+    check_type!({name, real_type}, packet_name)
+    Module.put_attribute(caller, :elven_params, {name, real_type})
 
     quote do
       desc = @desc || Keyword.get(unquote(opts), :description)
 
       @elven_current_packet PacketDocumentation.add_field(
                               @elven_current_packet,
-                              FieldDocumentation.new(unquote(name), unquote(type), desc)
+                              FieldDocumentation.new(
+                                unquote(name),
+                                unquote(real_type),
+                                desc,
+                                Keyword.delete(unquote(opts), :description)
+                              )
                             )
+
       @desc nil
     end
   end
@@ -146,7 +155,7 @@ defmodule ElvenGard.Helpers.Packet do
       @doc false
       def handle_packet([unquote(packet_name) | args], client) do
         zip_params = Enum.zip(unquote(params), args)
-        fin_params = Enum.into(zip_params, %{}, &parse_type!/1)
+        fin_params = Enum.into(zip_params, %{}, &parse_type/1)
         unquote(fun).(client, fin_params)
       end
     end
@@ -156,16 +165,26 @@ defmodule ElvenGard.Helpers.Packet do
   # Some functions
   #
 
+  @doc false
+  @spec type_module(atom) :: atom
+  defp type_module(:byte), do: ElvenGard.Types.ElvenByte
+  defp type_module(:integer), do: ElvenGard.Types.ElvenInteger
+  defp type_module(:long), do: ElvenGard.Types.ElvenLong
+  defp type_module(:padding), do: ElvenGard.Types.ElvenPadding
+  defp type_module(:short), do: ElvenGard.Types.ElvenShort
+  defp type_module(:string), do: ElvenGard.Types.ElvenString
+  defp type_module(type), do: type
+
   @doc """
   Currently, can only parse strings and integers.
 
   TODO: Add custom field support (like integer bytes/bits length,
   user custom field etc...)
   """
-  @spec parse_type!({{atom, atom}, String.t()}) :: {atom, String.t() | integer}
-  def parse_type!({{name, :string}, val}), do: {name, val}
+  @spec parse_type({{atom, atom}, String.t()}) :: {atom, String.t() | integer}
+  def parse_type({{name, :string}, val}), do: {name, val}
 
-  def parse_type!({{name, :integer}, val}) do
+  def parse_type({{name, :integer}, val}) do
     {name, String.to_integer(val, 10)}
   end
 
@@ -194,7 +213,8 @@ defmodule ElvenGard.Helpers.Packet do
   @spec check_type!(tuple, binary) :: term
   defp check_type!({name, type}, packet_name) do
     unless Keyword.has_key?(type.__info__(:functions), :decode) do
-      raise "Unknown type '#{inspect(type)}' for '#{inspect(name)}' for packet '#{inspect(packet_name)}'"
+      raise "Unknown type '#{inspect(type)}' for '#{inspect(name)}' " <>
+              "for packet '#{inspect(packet_name)}'"
     end
   end
 end
