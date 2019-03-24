@@ -126,7 +126,7 @@ defmodule ElvenGard.Helpers.Frontend do
 
           x ->
             raise """
-            #{unquote(handler)}.handle_packet/2 have to return `{:cont, client}`, \
+            #{unquote(handler)}.handle_packet/3 have to return `{:cont, client}`, \
             `{:halt, {:ok, :some_args}, client}`, or `{:halt, {:error, reason}, client} `. \
             Returned: #{inspect(x)}
             """
@@ -152,26 +152,26 @@ defmodule ElvenGard.Helpers.Frontend do
       # Private function
       #
 
-      @spec do_handle_packet(list | list(list), Client.t()) ::
+      @spec do_handle_packet({term, map} | list(tuple), Client.t()) ::
               {:cont, unquote(parent).state}
               | {:halt, {:ok, term}, unquote(parent).state}
               | {:halt, {:error, unquote(parent).conn_error()}, unquote(parent).state}
-      defp do_handle_packet([[_header | _params] | _rest] = packet_list, client) do
+      defp do_handle_packet({header, params}, client) do
+        unquote(handler).handle_packet(header, params, client)
+      end
+
+      defp do_handle_packet([{_header, _params} | _t] = packet_list, client) do
         Enum.reduce_while(packet_list, {:cont, client}, fn packet, {_, client} ->
           res = do_handle_packet(packet, client)
           {elem(res, 0), res}
         end)
       end
 
-      defp do_handle_packet([_header | _params] = packet, client) do
-        unquote(handler).handle_packet(packet, client)
-      end
-
       defp do_handle_packet(x, _client) do
         raise """
         Unable to handle packet #{inspect(x)}.
-        Please check that your decoder returns a list in the form of [header, \
-        param1, param2, ...]
+        Please check that your decoder returns a tuple in the form of {header, \
+        %{param1: :val1, param2: :val2, ...} or a list of tuples
         """
       end
 

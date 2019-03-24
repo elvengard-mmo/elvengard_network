@@ -38,10 +38,10 @@ defmodule ElvenGard.Helpers.PacketEncoder do
 
   @doc """
   If not already done by the `decode` function, this function will transform his
-  result into a list.
-  This function must return a list starting with your packet header followed by params.
+  result into a tuple.
+  This function must return a tuple starting with your packet header followed by params.
   """
-  @callback post_decode(data :: term, client :: Client.t()) :: list
+  @callback post_decode(data :: term, client :: Client.t()) :: {term, map} | list(tuple)
 
   @doc """
   Use ElvenGard.Helpers.PacketEncoder behaviour
@@ -70,7 +70,7 @@ defmodule ElvenGard.Helpers.PacketEncoder do
       Successively applies functions `pre_decode`, `decode` and `post_decode`
       Can return a packet list
       """
-      @spec complete_decode(binary, Client.t()) :: list | list(list)
+      @spec complete_decode(binary, Client.t()) :: tuple | list(tuple)
       def complete_decode(data, %Client{} = client) do
         data
         |> pre_decode(client)
