@@ -157,14 +157,15 @@ defmodule ElvenGard.Helpers.Packet do
   # Private functions
   #
 
+  # TODO: Replace theses hard coded modules by a function "aliases"
   @doc false
   @spec type_module(atom) :: atom
-  defp type_module(:byte), do: ElvenGard.Types.ElvenByte
-  defp type_module(:integer), do: ElvenGard.Types.ElvenInteger
-  defp type_module(:long), do: ElvenGard.Types.ElvenLong
-  defp type_module(:padding), do: ElvenGard.Types.ElvenPadding
-  defp type_module(:short), do: ElvenGard.Types.ElvenShort
-  defp type_module(:string), do: ElvenGard.Types.ElvenString
+  defp type_module(:byte), do: ElvenGard.Types.Binary.ByteType
+  defp type_module(:integer), do: ElvenGard.Types.Binary.IntegerType
+  defp type_module(:long), do: ElvenGard.Types.Binary.LongType
+  defp type_module(:padding), do: ElvenGard.Types.Binary.PaddingType
+  defp type_module(:short), do: ElvenGard.Types.Binary.ShortType
+  defp type_module(:string), do: ElvenGard.Types.Binary.StringType
   defp type_module(type), do: type
 
   @doc false

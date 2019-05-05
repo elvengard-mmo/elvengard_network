@@ -1,4 +1,4 @@
-defmodule ElvenGard.Helpers.PacketEncoder do
+defmodule ElvenGard.Helpers.BasicEncoder do
   @moduledoc """
   Transform a raw packet (packet received by a client) into a packet that can be
   pattern match by a PacketHandler.
@@ -46,10 +46,8 @@ defmodule ElvenGard.Helpers.PacketEncoder do
   @doc """
   Use ElvenGard.Helpers.PacketEncoder behaviour
   """
-  defmacro __using__(opts) do
+  defmacro __using__(_) do
     parent = __MODULE__
-    mode = opts[:mode]
-    model = opts[:model]
 
     quote do
       @behaviour unquote(parent)
@@ -73,10 +71,12 @@ defmodule ElvenGard.Helpers.PacketEncoder do
       Can return a packet list
       """
       @spec complete_decode(binary, Client.t()) :: tuple | list(tuple)
-
-      if unquote(mode) == :binary,
-        do: unquote(parent.def_binary_decode(model)),
-        else: unquote(parent.def_normal_decode())
+      def complete_decode(data, %Client{} = client) do
+        data
+        |> pre_decode(client)
+        |> decode()
+        |> post_decode(client)
+      end
 
       #
       # PacketEncoder behaviour
@@ -94,10 +94,11 @@ defmodule ElvenGard.Helpers.PacketEncoder do
       @impl true
       def post_decode(data, _client), do: data
 
-      defoverridable pre_encode: 2
-      defoverridable post_encode: 2
-      defoverridable pre_decode: 2
-      defoverridable post_decode: 2
+      defoverridable pre_encode: 2,
+                     post_encode: 2,
+                     pre_decode: 2,
+                     post_decode: 2,
+                     complete_decode: 2
     end
   end
 
@@ -126,67 +127,6 @@ defmodule ElvenGard.Helpers.PacketEncoder do
           |> String.split(" ")
         end
       """
-    end
-  end
-
-  #
-  # Private functions
-  #
-
-  @doc false
-  def def_normal_decode() do
-    quote do
-      def complete_decode(data, %Client{} = client) do
-        data
-        |> pre_decode(client)
-        |> decode()
-        |> post_decode(client)
-      end
-    end
-  end
-
-  @doc false
-  def def_binary_decode(model) do
-    quote do
-      ## Principal decoder
-      def complete_decode(data, %Client{} = client) do
-        data
-        |> pre_decode(client)
-        |> decode()
-        |> post_decode(client)
-        |> binary_decode()
-      end
-
-      ## Define sub decoders
-      Enum.each(unquote(model).elven_get_packet_documentation(), fn packet ->
-        name = packet.name
-        fields = Macro.escape(packet.fields)
-
-        contents =
-          quote do
-            defp binary_decode({unquote(name), params}) do
-              res = do_binary_decode(params, unquote(fields), %{})
-              {unquote(name), res}
-            end
-          end
-
-        Module.eval_quoted(__MODULE__, contents)
-      end)
-
-      @doc false
-      @spec do_binary_decode(bitstring, list, map) :: map
-      defp do_binary_decode(_bin, [], params), do: params
-
-      defp do_binary_decode(bin, [field | tail_fields], params) do
-        %{
-          name: name,
-          type: type,
-          opts: opts
-        } = field
-
-        {val, rest} = type.decode(bin, opts)
-        do_binary_decode(rest, tail_fields, Map.put(params, name, val))
-      end
     end
   end
 end

@@ -1,4 +1,4 @@
-defmodule ElvenGard.Types.ElvenLong do
+defmodule ElvenGard.Types.Binary.LongType do
   @moduledoc """
   Define a custom long type (uint64_t) for game protocols
   """

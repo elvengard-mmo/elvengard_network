@@ -1,4 +1,4 @@
-defmodule ElvenGard.Types.ElvenPadding do
+defmodule ElvenGard.Types.Binary.PaddingType do
   @moduledoc """
   Define a custom padding type for game protocols
   """

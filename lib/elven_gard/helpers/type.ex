@@ -6,8 +6,8 @@ defmodule ElvenGard.Helpers.Type do
   @type encoded_term :: bitstring
   @type decoded_term :: term
 
-  @callback encode(decoded_term, opts :: list) :: encoded_term
-  @callback decode(encoded_term, opts :: list) :: {decoded_term, encoded_term}
+  @callback encode(decoded_term, opts :: list) :: term
+  @callback decode(encoded_term, opts :: list) :: term
 
   @doc false
   defmacro __using__(_) do
