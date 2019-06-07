@@ -109,11 +109,7 @@ defmodule ElvenGard.Helpers.Packet do
   Define a new field for a packet
   """
   defmacro field(name, type, opts \\ []) do
-    caller = __CALLER__.module
-    packet_name = Module.get_attribute(caller, :elven_packet_name)
-
-    real_type = Macro.expand(type, __CALLER__)
-    # check_type!({name, real_type}, packet_name)
+    expanded_type = Macro.expand(type, __CALLER__)
 
     quote do
       desc = @desc || Keyword.get(unquote(opts), :description)
@@ -122,7 +118,7 @@ defmodule ElvenGard.Helpers.Packet do
                               @elven_current_packet,
                               FieldDefinition.new(
                                 unquote(name),
-                                unquote(real_type),
+                                unquote(expanded_type),
                                 desc,
                                 Keyword.delete(unquote(opts), :description)
                               )
@@ -161,14 +157,5 @@ defmodule ElvenGard.Helpers.Packet do
 
     # Save the packet type
     Module.put_attribute(caller, :elven_packet_name, packet_name)
-  end
-
-  @doc false
-  @spec check_type!(tuple, binary) :: term
-  defp check_type!({name, type}, packet_name) do
-    unless Keyword.has_key?(type.__info__(:functions), :decode) do
-      raise "Unknown type '#{inspect(type)}' for '#{inspect(name)}' " <>
-              "for packet '#{inspect(packet_name)}'"
-    end
   end
 end
