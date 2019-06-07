@@ -49,7 +49,11 @@ defmodule ElvenGard.PacketEncoder.TextualEncoder do
       ## Default sub decoder
       defp textual_decode({name, params}) do
         m = unquote(model)
-        Logger.debug("Can't decode packet with header #{name}: not defined in model #{m}")
+
+        Logger.debug(fn ->
+          "Can't decode packet with header #{name}: not defined in model #{m}"
+        end)
+
         {name, params}
       end
 
