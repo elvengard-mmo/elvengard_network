@@ -49,7 +49,7 @@ defmodule ElvenGard.Helpers.BasicEncoder do
   @callback post_decode(data :: term, client :: Client.t()) :: {term, map} | list(tuple)
 
   @doc """
-  Use ElvenGard.Helpers.PacketEncoder behaviour
+  Use ElvenGard.Helpers.BasicEncoder behaviour
   """
   defmacro __using__(_) do
     parent = __MODULE__
@@ -84,7 +84,7 @@ defmodule ElvenGard.Helpers.BasicEncoder do
       end
 
       #
-      # PacketEncoder behaviour
+      # BasicEncoder behaviour
       #
 
       @impl true

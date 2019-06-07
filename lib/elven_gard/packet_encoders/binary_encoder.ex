@@ -1,4 +1,4 @@
-defmodule ElvenGard.PacketEncoder.BinaryEncoder do
+defmodule ElvenGard.PacketEncoders.BinaryEncoder do
   @moduledoc false
 
   alias ElvenGard.Structures.{Client, PacketDefinition}
