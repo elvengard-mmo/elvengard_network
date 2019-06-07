@@ -88,7 +88,7 @@ defmodule ElvenGard.Helpers.BasicEncoder do
       #
 
       @impl true
-      defp aliases(), do: []
+      def aliases(), do: []
 
       @impl true
       def pre_encode(data, _client), do: data
@@ -102,7 +102,7 @@ defmodule ElvenGard.Helpers.BasicEncoder do
       @impl true
       def post_decode(data, _client), do: data
 
-      defoverridable aliases: 2,
+      defoverridable aliases: 0,
                      pre_encode: 2,
                      post_encode: 2,
                      pre_decode: 2,

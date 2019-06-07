@@ -11,7 +11,7 @@ defmodule ElvenGard.PacketEncoder.TextualEncoder do
       require Logger
 
       @impl true
-      defp aliases() do
+      def aliases() do
         [
           integer: ElvenGard.Types.Textual.IntegerType,
           float: ElvenGard.Types.Textual.FloatType,

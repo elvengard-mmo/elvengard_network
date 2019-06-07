@@ -9,7 +9,7 @@ defmodule ElvenGard.PacketEncoder.BinaryEncoder do
       use ElvenGard.Helpers.BasicEncoder
 
       @impl true
-      defp aliases() do
+      def aliases() do
         [
           byte: ElvenGard.Types.Binary.ByteType,
           integer: ElvenGard.Types.Binary.IntegerType,
