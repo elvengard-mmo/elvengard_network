@@ -4,7 +4,7 @@ defmodule ElvenGard.Helpers.Packet do
   by an `ElvenGard.Helpers.Frontend`
   """
 
-  alias ElvenGard.Structures.{FieldDocumentation, PacketDocumentation}
+  alias ElvenGard.Structures.{FieldDefinition, PacketDefinition}
 
   @anno if :erlang.system_info(:otp_release) >= '19', do: [generated: true], else: [line: -1]
 
@@ -15,7 +15,7 @@ defmodule ElvenGard.Helpers.Packet do
 
     Module.register_attribute(
       caller,
-      :elven_packet_documentations,
+      :elven_packet_definitions,
       accumulate: true,
       persist: true
     )
@@ -43,8 +43,8 @@ defmodule ElvenGard.Helpers.Packet do
         {:cont, client}
       end
 
-      def elven_get_packet_documentation() do
-        @elven_packet_documentations
+      def get_packet_definitions() do
+        @elven_packet_definitions
       end
     end
   end
@@ -56,7 +56,7 @@ defmodule ElvenGard.Helpers.Packet do
     def_packet(__CALLER__.module, packet_name)
 
     quote do
-      @elven_current_packet PacketDocumentation.new(unquote(packet_name), @desc)
+      @elven_current_packet PacketDefinition.new(unquote(packet_name), @desc)
       @desc nil
 
       unquote(exp)
@@ -72,9 +72,9 @@ defmodule ElvenGard.Helpers.Packet do
     caller = __CALLER__.module
 
     quote do
-      @elven_current_packet PacketDocumentation.new(unquote(packet_name), @desc)
-      @elven_current_packet PacketDocumentation.add_tag(@elven_current_packet, :useless_packet)
-      Module.put_attribute(unquote(caller), :elven_packet_documentations, @elven_current_packet)
+      @elven_current_packet PacketDefinition.new(unquote(packet_name), @desc)
+      @elven_current_packet PacketDefinition.add_tag(@elven_current_packet, :useless_packet)
+      Module.put_attribute(unquote(caller), :elven_packet_definitions, @elven_current_packet)
       @desc nil
 
       @doc false
@@ -122,9 +122,9 @@ defmodule ElvenGard.Helpers.Packet do
     quote do
       desc = @desc || Keyword.get(unquote(opts), :description)
 
-      @elven_current_packet PacketDocumentation.add_field(
+      @elven_current_packet PacketDefinition.add_field(
                               @elven_current_packet,
-                              FieldDocumentation.new(
+                              FieldDefinition.new(
                                 unquote(name),
                                 unquote(real_type),
                                 desc,
@@ -144,7 +144,7 @@ defmodule ElvenGard.Helpers.Packet do
     packet_name = Module.get_attribute(caller, :elven_packet_name)
 
     quote do
-      Module.put_attribute(unquote(caller), :elven_packet_documentations, @elven_current_packet)
+      Module.put_attribute(unquote(caller), :elven_packet_definitions, @elven_current_packet)
 
       @doc false
       def handle_packet(unquote(packet_name), args, client) do

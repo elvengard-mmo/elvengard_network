@@ -1,7 +1,7 @@
 defmodule ElvenGard.Helpers.PacketTest do
   use ExUnit.Case
 
-  alias ElvenGard.Structures.{FieldDocumentation, PacketDocumentation}
+  alias ElvenGard.Structures.{FieldDefinition, PacketDefinition}
 
   defmodule HandlersA do
     use ElvenGard.Helpers.Packet
@@ -152,7 +152,7 @@ defmodule ElvenGard.Helpers.PacketTest do
 
   describe "Invalid packet:" do
     test "no documentation" do
-      got = HandlersA.elven_get_packet_documentation()
+      got = HandlersA.get_packet_definitions()
       expected = []
 
       assert expected == got
@@ -161,10 +161,10 @@ defmodule ElvenGard.Helpers.PacketTest do
 
   describe "No field, single packet defined with" do
     test "no documentation" do
-      got = HandlersB.elven_get_packet_documentation()
+      got = HandlersB.get_packet_definitions()
 
       expected = [
-        %PacketDocumentation{
+        %PacketDefinition{
           description: nil,
           fields: [],
           name: :very_basic_packet,
@@ -176,10 +176,10 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
 
     test "documentation" do
-      got = HandlersC.elven_get_packet_documentation()
+      got = HandlersC.get_packet_definitions()
 
       expected = [
-        %PacketDocumentation{
+        %PacketDefinition{
           description: "Some desc",
           fields: [],
           name: :packet_with_desc,
@@ -191,10 +191,10 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
 
     test "multiline documentation" do
-      got = HandlersD.elven_get_packet_documentation()
+      got = HandlersD.get_packet_definitions()
 
       expected = [
-        %PacketDocumentation{
+        %PacketDefinition{
           description: "Some\n\nmulti lines\n\ndesc",
           fields: [],
           name: :packet_with_multi_lines_desc,
@@ -206,10 +206,10 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
 
     test "documentations previously set" do
-      got = HandlersE.elven_get_packet_documentation()
+      got = HandlersE.get_packet_definitions()
 
       expected = [
-        %PacketDocumentation{
+        %PacketDefinition{
           description: "Here is the real description",
           fields: [],
           name: :packet_desc_previously_set,
@@ -223,13 +223,13 @@ defmodule ElvenGard.Helpers.PacketTest do
 
   describe "Single packet, single field defined with" do
     test "no documentation" do
-      got = HandlersF.elven_get_packet_documentation()
+      got = HandlersF.get_packet_definitions()
 
       expected = [
-        %PacketDocumentation{
+        %PacketDefinition{
           description: nil,
           fields: [
-            %FieldDocumentation{
+            %FieldDefinition{
               description: nil,
               name: :first_field,
               type: ElvenGard.Types.Binary.StringType,
@@ -245,13 +245,13 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
 
     test "attribute documentation" do
-      got = HandlersG.elven_get_packet_documentation()
+      got = HandlersG.get_packet_definitions()
 
       expected = [
-        %PacketDocumentation{
+        %PacketDefinition{
           description: nil,
           fields: [
-            %FieldDocumentation{
+            %FieldDefinition{
               description: "Description attribute",
               name: :first_field,
               type: ElvenGard.Types.Binary.IntegerType,
@@ -267,13 +267,13 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
 
     test "documentation option" do
-      got = HandlersH.elven_get_packet_documentation()
+      got = HandlersH.get_packet_definitions()
 
       expected = [
-        %PacketDocumentation{
+        %PacketDefinition{
           description: nil,
           fields: [
-            %FieldDocumentation{
+            %FieldDefinition{
               description: "Description in options",
               name: :first_field,
               type: ElvenGard.Types.Binary.StringType,
@@ -289,13 +289,13 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
 
     test "multiline documentation" do
-      got = HandlersI.elven_get_packet_documentation()
+      got = HandlersI.get_packet_definitions()
 
       expected = [
-        %PacketDocumentation{
+        %PacketDefinition{
           description: nil,
           fields: [
-            %FieldDocumentation{
+            %FieldDefinition{
               description: "Some\n\nmulti lines\n\ndesc",
               name: :first_field,
               type: ElvenGard.Types.Binary.StringType,
@@ -311,13 +311,13 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
 
     test "documentations previously set" do
-      got = HandlersJ.elven_get_packet_documentation()
+      got = HandlersJ.get_packet_definitions()
 
       expected = [
-        %PacketDocumentation{
+        %PacketDefinition{
           description: nil,
           fields: [
-            %FieldDocumentation{
+            %FieldDefinition{
               description: "Here is the real description",
               name: :first_field,
               type: ElvenGard.Types.Binary.StringType,
@@ -335,10 +335,10 @@ defmodule ElvenGard.Helpers.PacketTest do
 
   describe "Tagged packet" do
     test "no documentation" do
-      got = HandlersK.elven_get_packet_documentation()
+      got = HandlersK.get_packet_definitions()
 
       expected = [
-        %PacketDocumentation{
+        %PacketDefinition{
           description: nil,
           fields: [],
           name: :useless_packet_no_desc,
@@ -350,10 +350,10 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
 
     test "documentation" do
-      got = HandlersL.elven_get_packet_documentation()
+      got = HandlersL.get_packet_definitions()
 
       expected = [
-        %PacketDocumentation{
+        %PacketDefinition{
           description: "Some description",
           fields: [],
           name: :useless_packet_desc,
@@ -367,21 +367,21 @@ defmodule ElvenGard.Helpers.PacketTest do
 
   describe "Final test:" do
     test "Multiple packet, multiple fields, tagged or not, documented or not" do
-      got = HandlersZ.elven_get_packet_documentation()
+      got = HandlersZ.get_packet_definitions()
 
       expected = [
-        %PacketDocumentation{
+        %PacketDefinition{
           name: :mov,
           description: nil,
           tags: [],
           fields: [
-            %FieldDocumentation{
+            %FieldDefinition{
               description: nil,
               name: :x,
               type: ElvenGard.Types.Binary.IntegerType,
               opts: []
             },
-            %FieldDocumentation{
+            %FieldDefinition{
               description: nil,
               name: :y,
               type: ElvenGard.Types.Binary.IntegerType,
@@ -389,30 +389,30 @@ defmodule ElvenGard.Helpers.PacketTest do
             }
           ]
         },
-        %PacketDocumentation{
+        %PacketDefinition{
           name: :login,
           description: "Simple login packet",
           tags: [],
           fields: [
-            %FieldDocumentation{
+            %FieldDefinition{
               description: nil,
               name: :username,
               type: ElvenGard.Types.Binary.StringType,
               opts: []
             },
-            %FieldDocumentation{
+            %FieldDefinition{
               description: nil,
               name: :password,
               type: ElvenGard.Types.Binary.StringType,
               opts: []
             },
-            %FieldDocumentation{
+            %FieldDefinition{
               description: "Seems to be always `NONE`",
               name: :unknown1,
               type: ElvenGard.Types.Binary.StringType,
               opts: []
             },
-            %FieldDocumentation{
+            %FieldDefinition{
               description: "Unknown too. Maybe a random number ?",
               name: :unknown2,
               type: ElvenGard.Types.Binary.IntegerType,
@@ -420,7 +420,7 @@ defmodule ElvenGard.Helpers.PacketTest do
             }
           ]
         },
-        %PacketDocumentation{
+        %PacketDefinition{
           name: :useless_packet,
           description: "Don't know what is this packet",
           tags: [:useless_packet],

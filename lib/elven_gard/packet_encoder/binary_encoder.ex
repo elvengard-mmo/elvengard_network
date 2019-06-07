@@ -18,7 +18,7 @@ defmodule ElvenGard.PacketEncoder.BinaryEncoder do
       end
 
       ## Define sub decoders
-      Enum.each(unquote(model).elven_get_packet_documentation(), fn packet ->
+      Enum.each(unquote(model).get_packet_definitions(), fn packet ->
         name = packet.name
         fields = Macro.escape(packet.fields)
 

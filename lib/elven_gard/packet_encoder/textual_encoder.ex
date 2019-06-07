@@ -25,7 +25,7 @@ defmodule ElvenGard.PacketEncoder.TextualEncoder do
       defp pre_textual_decode(x) when is_list(x), do: Enum.map(x, &textual_decode/1)
 
       ## Define sub decoders
-      Enum.each(unquote(model).elven_get_packet_documentation(), fn packet ->
+      Enum.each(unquote(model).get_packet_definitions(), fn packet ->
         name = packet.name
         fields = Macro.escape(packet.fields)
         sep = unquote(separator) |> Macro.escape()
@@ -54,7 +54,7 @@ defmodule ElvenGard.PacketEncoder.TextualEncoder do
       end
 
       @doc false
-      @spec do_textual_decode(list({String.t(), FieldDocumentation.t()}), map) :: map
+      @spec do_textual_decode(list({String.t(), FieldDefinition.t()}), map) :: map
       defp do_textual_decode([], params), do: params
 
       defp do_textual_decode([{data, field} | tail], params) do

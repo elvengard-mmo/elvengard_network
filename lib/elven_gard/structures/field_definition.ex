@@ -1,6 +1,6 @@
-defmodule ElvenGard.Structures.FieldDocumentation do
+defmodule ElvenGard.Structures.FieldDefinition do
   @moduledoc """
-  Structure for a packet field's documentation
+  Structure for a packet field's definition
   """
 
   @keys [:name, :type, :description, :opts]
