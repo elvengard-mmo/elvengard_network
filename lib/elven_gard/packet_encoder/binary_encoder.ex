@@ -8,6 +8,18 @@ defmodule ElvenGard.PacketEncoder.BinaryEncoder do
     quote do
       use ElvenGard.Helpers.BasicEncoder
 
+      @impl true
+      defp aliases() do
+        [
+          byte: ElvenGard.Types.Binary.ByteType,
+          integer: ElvenGard.Types.Binary.IntegerType,
+          long: ElvenGard.Types.Binary.LongType,
+          padding: ElvenGard.Types.Binary.PaddingType,
+          short: ElvenGard.Types.Binary.ShortType,
+          string: ElvenGard.Types.Binary.StringType
+        ]
+      end
+
       ## Principal decoder
       def complete_decode(data, %Client{} = client) do
         data

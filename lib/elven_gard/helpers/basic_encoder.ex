@@ -9,6 +9,11 @@ defmodule ElvenGard.Helpers.BasicEncoder do
   alias ElvenGard.Structures.Client
 
   @doc """
+  Define customs aliases for fields types
+  """
+  @callback aliases() :: [{atom, atom}]
+
+  @doc """
   Prepare the packet to be sent for the encode function
   """
   @callback pre_encode(data :: term, client :: Client.t()) :: term
@@ -83,6 +88,9 @@ defmodule ElvenGard.Helpers.BasicEncoder do
       #
 
       @impl true
+      defp aliases(), do: []
+
+      @impl true
       def pre_encode(data, _client), do: data
 
       @impl true
@@ -94,7 +102,8 @@ defmodule ElvenGard.Helpers.BasicEncoder do
       @impl true
       def post_decode(data, _client), do: data
 
-      defoverridable pre_encode: 2,
+      defoverridable aliases: 2,
+                     pre_encode: 2,
                      post_encode: 2,
                      pre_decode: 2,
                      post_decode: 2,

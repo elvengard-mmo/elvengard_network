@@ -232,7 +232,7 @@ defmodule ElvenGard.Helpers.PacketTest do
             %FieldDefinition{
               description: nil,
               name: :first_field,
-              type: ElvenGard.Types.Binary.StringType,
+              type: :string,
               opts: []
             }
           ],
@@ -254,7 +254,7 @@ defmodule ElvenGard.Helpers.PacketTest do
             %FieldDefinition{
               description: "Description attribute",
               name: :first_field,
-              type: ElvenGard.Types.Binary.IntegerType,
+              type: :integer,
               opts: []
             }
           ],
@@ -276,7 +276,7 @@ defmodule ElvenGard.Helpers.PacketTest do
             %FieldDefinition{
               description: "Description in options",
               name: :first_field,
-              type: ElvenGard.Types.Binary.StringType,
+              type: :string,
               opts: []
             }
           ],
@@ -298,7 +298,7 @@ defmodule ElvenGard.Helpers.PacketTest do
             %FieldDefinition{
               description: "Some\n\nmulti lines\n\ndesc",
               name: :first_field,
-              type: ElvenGard.Types.Binary.StringType,
+              type: :string,
               opts: []
             }
           ],
@@ -320,7 +320,7 @@ defmodule ElvenGard.Helpers.PacketTest do
             %FieldDefinition{
               description: "Here is the real description",
               name: :first_field,
-              type: ElvenGard.Types.Binary.StringType,
+              type: :string,
               opts: []
             }
           ],
@@ -378,13 +378,13 @@ defmodule ElvenGard.Helpers.PacketTest do
             %FieldDefinition{
               description: nil,
               name: :x,
-              type: ElvenGard.Types.Binary.IntegerType,
+              type: :integer,
               opts: []
             },
             %FieldDefinition{
               description: nil,
               name: :y,
-              type: ElvenGard.Types.Binary.IntegerType,
+              type: :integer,
               opts: []
             }
           ]
@@ -397,25 +397,25 @@ defmodule ElvenGard.Helpers.PacketTest do
             %FieldDefinition{
               description: nil,
               name: :username,
-              type: ElvenGard.Types.Binary.StringType,
+              type: :string,
               opts: []
             },
             %FieldDefinition{
               description: nil,
               name: :password,
-              type: ElvenGard.Types.Binary.StringType,
+              type: :string,
               opts: []
             },
             %FieldDefinition{
               description: "Seems to be always `NONE`",
               name: :unknown1,
-              type: ElvenGard.Types.Binary.StringType,
+              type: :string,
               opts: []
             },
             %FieldDefinition{
               description: "Unknown too. Maybe a random number ?",
               name: :unknown2,
-              type: ElvenGard.Types.Binary.IntegerType,
+              type: :integer,
               opts: []
             }
           ]

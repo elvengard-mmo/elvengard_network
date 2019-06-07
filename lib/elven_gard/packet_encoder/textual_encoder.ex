@@ -10,6 +10,15 @@ defmodule ElvenGard.PacketEncoder.TextualEncoder do
 
       require Logger
 
+      @impl true
+      defp aliases() do
+        [
+          integer: ElvenGard.Types.Textual.IntegerType,
+          float: ElvenGard.Types.Textual.FloatType,
+          string: ElvenGard.Types.Textual.StringType
+        ]
+      end
+
       ## Principal decoder
       def complete_decode(data, %Client{} = client) do
         data

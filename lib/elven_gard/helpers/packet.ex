@@ -112,12 +112,8 @@ defmodule ElvenGard.Helpers.Packet do
     caller = __CALLER__.module
     packet_name = Module.get_attribute(caller, :elven_packet_name)
 
-    real_type =
-      type
-      |> Macro.expand(__CALLER__)
-      |> type_module()
-
-    check_type!({name, real_type}, packet_name)
+    real_type = Macro.expand(type, __CALLER__)
+    # check_type!({name, real_type}, packet_name)
 
     quote do
       desc = @desc || Keyword.get(unquote(opts), :description)
@@ -156,17 +152,6 @@ defmodule ElvenGard.Helpers.Packet do
   #
   # Private functions
   #
-
-  # TODO: Replace theses hard coded modules by a function "aliases"
-  @doc false
-  @spec type_module(atom) :: atom
-  defp type_module(:byte), do: ElvenGard.Types.Binary.ByteType
-  defp type_module(:integer), do: ElvenGard.Types.Binary.IntegerType
-  defp type_module(:long), do: ElvenGard.Types.Binary.LongType
-  defp type_module(:padding), do: ElvenGard.Types.Binary.PaddingType
-  defp type_module(:short), do: ElvenGard.Types.Binary.ShortType
-  defp type_module(:string), do: ElvenGard.Types.Binary.StringType
-  defp type_module(type), do: type
 
   @doc false
   @spec def_packet(atom, binary) :: term
