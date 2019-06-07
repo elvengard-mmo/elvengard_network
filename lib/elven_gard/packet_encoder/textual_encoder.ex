@@ -84,7 +84,9 @@ defmodule ElvenGard.PacketEncoder.TextualEncoder do
           opts: opts
         } = field
 
-        val = type.decode(data, opts)
+        real_type = Keyword.get(unquote(@aliases), type, type)
+
+        val = real_type.decode(data, opts)
         do_textual_decode(tail, Map.put(params, name, val))
       end
     end
@@ -96,14 +98,9 @@ defmodule ElvenGard.PacketEncoder.TextualEncoder do
     for def <- defs, field <- def.fields do
       name = field.name
       type = field.type
+      real_type = Keyword.get(unquote(@aliases), type, type)
 
-      case Keyword.get(@aliases, type) do
-        nil ->
-          check_type!(type, name, def.name)
-
-        real_type ->
-          check_type!(real_type, name, def.name)
-      end
+      check_type!(real_type, name, def.name)
     end
   end
 
