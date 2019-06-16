@@ -1,4 +1,4 @@
-defmodule ElvenGard.Helpers.BasicEncoder do
+defmodule ElvenGard.Protocol do
   @moduledoc """
   Transform a raw packet (packet received by a client) into a packet that can be
   pattern match by a PacketHandler.
@@ -49,7 +49,7 @@ defmodule ElvenGard.Helpers.BasicEncoder do
   @callback post_decode(data :: term, client :: Client.t()) :: {term, map} | list(tuple)
 
   @doc """
-  Use ElvenGard.Helpers.BasicEncoder behaviour
+  Use ElvenGard.Protocol behaviour
   """
   defmacro __using__(_) do
     parent = __MODULE__
@@ -84,7 +84,7 @@ defmodule ElvenGard.Helpers.BasicEncoder do
       end
 
       #
-      # BasicEncoder behaviour
+      # Protocol behaviour
       #
 
       @impl true

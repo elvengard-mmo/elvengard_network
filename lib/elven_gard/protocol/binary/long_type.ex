@@ -1,24 +1,24 @@
-defmodule ElvenGard.Types.Binary.ByteType do
+defmodule ElvenGard.Protocol.Binary.LongType do
   @moduledoc """
-  Define a custom byte type (uint8_t) for game protocols
+  Define a custom long type (uint64_t) for game protocols
   """
 
   use ElvenGard.Helpers.Type
 
   @impl ElvenGard.Helpers.Type
   @spec encode(integer, list) :: bitstring
-  def encode(byte, _opts) do
-    <<byte::size(8)>>
+  def encode(long, _opts) do
+    <<long::little-size(64)>>
   end
 
   @impl ElvenGard.Helpers.Type
   @spec decode(bitstring, list) :: {integer, bitstring}
   def decode(bin, _opts) do
     <<
-      byte::size(8),
+      long::little-size(64),
       rest::binary
     >> = bin
 
-    {byte, rest}
+    {long, rest}
   end
 end

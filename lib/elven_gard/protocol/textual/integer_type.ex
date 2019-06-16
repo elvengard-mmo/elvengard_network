@@ -1,4 +1,4 @@
-defmodule ElvenGard.Types.Textual.IntegerType do
+defmodule ElvenGard.Protocol.Textual.IntegerType do
   @moduledoc """
   Define a custom integer type for game protocols
   """

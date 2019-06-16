@@ -1,4 +1,4 @@
-defmodule ElvenGard.Types.Textual.StringType do
+defmodule ElvenGard.Protocol.Textual.StringType do
   @moduledoc """
   Define a custom string type for game protocols
   """

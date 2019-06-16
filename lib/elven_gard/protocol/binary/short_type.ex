@@ -1,4 +1,4 @@
-defmodule ElvenGard.Types.Binary.ShortType do
+defmodule ElvenGard.Protocol.Binary.ShortType do
   @moduledoc """
   Define a custom short type (uint16_t) for game protocols
   """

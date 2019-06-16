@@ -1,15 +1,15 @@
-defmodule ElvenGard.PacketEncoders.BinaryEncoder do
+defmodule ElvenGard.Protocol.Binary do
   @moduledoc false
 
   alias ElvenGard.Structures.{Client, PacketDefinition}
 
   @aliases [
-    byte: ElvenGard.Types.Binary.ByteType,
-    integer: ElvenGard.Types.Binary.IntegerType,
-    long: ElvenGard.Types.Binary.LongType,
-    padding: ElvenGard.Types.Binary.PaddingType,
-    short: ElvenGard.Types.Binary.ShortType,
-    string: ElvenGard.Types.Binary.StringType
+    byte: ElvenGard.Protocol.Binary.ByteType,
+    integer: ElvenGard.Protocol.Binary.IntegerType,
+    long: ElvenGard.Protocol.Binary.LongType,
+    padding: ElvenGard.Protocol.Binary.PaddingType,
+    short: ElvenGard.Protocol.Binary.ShortType,
+    string: ElvenGard.Protocol.Binary.StringType
   ]
 
   @doc false
@@ -20,7 +20,7 @@ defmodule ElvenGard.PacketEncoders.BinaryEncoder do
     check_types!(defs)
 
     quote do
-      use ElvenGard.Helpers.BasicEncoder
+      use ElvenGard.Protocol
 
       @impl true
       def aliases() do

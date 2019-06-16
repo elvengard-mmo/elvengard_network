@@ -6,7 +6,7 @@ defmodule ElvenGard.Structures.Client do
 
   @keys [:id, :socket, :transport, :metadata]
   @enforce_keys @keys
-  defstruct @keys ++ [encoder: nil]
+  defstruct @keys ++ [protocol: nil]
 
   @type t :: %__MODULE__{}
   @type metadata_key :: [term, ...] | term
@@ -33,10 +33,10 @@ defmodule ElvenGard.Structures.Client do
     %__MODULE__{
       socket: socket,
       transport: transport,
-      encoder: encoder
+      protocol: protocol
     } = client
 
-    encoded_message = encoder.encode(message)
+    encoded_message = protocol.encode(message)
     transport.send(socket, encoded_message)
   end
 

@@ -1,4 +1,4 @@
-defmodule ElvenGard.Types.Textual.FloatType do
+defmodule ElvenGard.Protocol.Textual.FloatType do
   @moduledoc """
   Define a custom float type for game protocols
   """

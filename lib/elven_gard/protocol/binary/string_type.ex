@@ -1,4 +1,4 @@
-defmodule ElvenGard.Types.Binary.StringType do
+defmodule ElvenGard.Protocol.Binary.StringType do
   @moduledoc """
   Define a custom string type (utf8) for game protocols
   """

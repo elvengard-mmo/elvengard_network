@@ -27,13 +27,13 @@ defmodule ElvenGard.Helpers.Frontend do
     parent = __MODULE__
     caller = __CALLER__.module
     port = get_in(opts, [:port]) || 3000
-    encoder = get_in(opts, [:packet_encoder])
+    protocol = get_in(opts, [:packet_protocol])
     handler = get_in(opts, [:packet_handler])
     use_opts = put_in(opts, [:port], port)
 
-    # Check is there is any encoder
-    unless encoder do
-      raise "Please, specify a packet_encoder for #{caller}"
+    # Check is there is any protocol
+    unless protocol do
+      raise "Please, specify a packet_protocol for #{caller}"
     end
 
     # Check is there is any handler
@@ -97,7 +97,7 @@ defmodule ElvenGard.Helpers.Frontend do
              :ok = transport.setopts(socket, [{:active, true}]),
              {:ok, client} <- handle_connection(socket, transport) do
           {:ok, final_client} =
-            %Client{client | encoder: unquote(encoder)}
+            %Client{client | protocol: unquote(protocol)}
             |> handle_client_ready()
 
           :gen_server.enter_loop(__MODULE__, [], final_client, 10_000)
@@ -109,10 +109,10 @@ defmodule ElvenGard.Helpers.Frontend do
       #
 
       def handle_info({:tcp, socket, data}, %Client{} = client) do
-        # TODO: Manage errors on `handle_message`: don't execute the encoder
+        # TODO: Manage errors on `handle_message`: don't execute the protocol
         {:ok, tmp_state} = handle_message(client, data)
 
-        payload = unquote(encoder).complete_decode(data, tmp_state)
+        payload = unquote(protocol).complete_decode(data, tmp_state)
 
         case do_handle_packet(payload, tmp_state) do
           {:cont, final_client} ->
@@ -170,7 +170,7 @@ defmodule ElvenGard.Helpers.Frontend do
       defp do_handle_packet(x, _client) do
         raise """
         Unable to handle packet #{inspect(x)}.
-        Please check that your decoder returns a tuple in the form of {header, \
+        Please check that your protocol returns a tuple in the form of {header, \
         %{param1: :val1, param2: :val2, ...} or a list of tuples
         """
       end

@@ -1,12 +1,12 @@
-defmodule ElvenGard.PacketEncoders.TextualEncoder do
+defmodule ElvenGard.Protocol.Textual do
   @moduledoc false
 
   alias ElvenGard.Structures.{Client, PacketDefinition}
 
   @aliases [
-    integer: ElvenGard.Types.Textual.IntegerType,
-    float: ElvenGard.Types.Textual.FloatType,
-    string: ElvenGard.Types.Textual.StringType
+    integer: ElvenGard.Protocol.Textual.IntegerType,
+    float: ElvenGard.Protocol.Textual.FloatType,
+    string: ElvenGard.Protocol.Textual.StringType
   ]
 
   @doc false
@@ -17,7 +17,7 @@ defmodule ElvenGard.PacketEncoders.TextualEncoder do
     check_types!(defs)
 
     quote do
-      use ElvenGard.Helpers.BasicEncoder
+      use ElvenGard.Protocol
 
       require Logger
 
