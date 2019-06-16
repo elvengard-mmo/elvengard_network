@@ -1,4 +1,4 @@
-defmodule ElvenGard.Helpers.PacketEncoder do
+defmodule ElvenGard.Protocol do
   @moduledoc """
   Transform a raw packet (packet received by a client) into a packet that can be
   pattern match by a PacketHandler.
@@ -7,6 +7,11 @@ defmodule ElvenGard.Helpers.PacketEncoder do
   """
 
   alias ElvenGard.Structures.Client
+
+  @doc """
+  Define customs aliases for fields types
+  """
+  @callback aliases() :: [{atom, atom}]
 
   @doc """
   Prepare the packet to be sent for the encode function
@@ -38,13 +43,13 @@ defmodule ElvenGard.Helpers.PacketEncoder do
 
   @doc """
   If not already done by the `decode` function, this function will transform his
-  result into a list.
-  This function must return a list starting with your packet header followed by params.
+  result into a tuple.
+  This function must return a tuple starting with your packet header followed by params.
   """
-  @callback post_decode(data :: term, client :: Client.t()) :: list
+  @callback post_decode(data :: term, client :: Client.t()) :: {term, map} | list(tuple)
 
   @doc """
-  Use ElvenGard.Helpers.PacketEncoder behaviour
+  Use ElvenGard.Protocol behaviour
   """
   defmacro __using__(_) do
     parent = __MODULE__
@@ -70,13 +75,20 @@ defmodule ElvenGard.Helpers.PacketEncoder do
       Successively applies functions `pre_decode`, `decode` and `post_decode`
       Can return a packet list
       """
-      @spec complete_decode(binary, Client.t()) :: list | list(list)
+      @spec complete_decode(binary, Client.t()) :: tuple | list(tuple)
       def complete_decode(data, %Client{} = client) do
         data
         |> pre_decode(client)
         |> decode()
         |> post_decode(client)
       end
+
+      #
+      # Protocol behaviour
+      #
+
+      @impl true
+      def aliases(), do: []
 
       @impl true
       def pre_encode(data, _client), do: data
@@ -90,10 +102,12 @@ defmodule ElvenGard.Helpers.PacketEncoder do
       @impl true
       def post_decode(data, _client), do: data
 
-      defoverridable pre_encode: 2
-      defoverridable post_encode: 2
-      defoverridable pre_decode: 2
-      defoverridable post_decode: 2
+      defoverridable aliases: 0,
+                     pre_encode: 2,
+                     post_encode: 2,
+                     pre_decode: 2,
+                     post_decode: 2,
+                     complete_decode: 2
     end
   end
 

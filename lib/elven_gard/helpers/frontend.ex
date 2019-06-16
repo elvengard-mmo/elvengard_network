@@ -13,6 +13,7 @@ defmodule ElvenGard.Helpers.Frontend do
 
   @callback handle_init(args :: list) :: {:ok, term} | {:error, term}
   @callback handle_connection(socket :: identifier, transport :: atom) :: handle_return
+  @callback handle_client_ready(client :: Client.t()) :: handle_return
   @callback handle_disconnection(client :: Client.t(), reason :: term) :: handle_return
   @callback handle_message(client :: Client.t(), message :: binary) :: handle_return
   @callback handle_error(client :: Client.t(), error :: conn_error) :: handle_return
@@ -26,13 +27,13 @@ defmodule ElvenGard.Helpers.Frontend do
     parent = __MODULE__
     caller = __CALLER__.module
     port = get_in(opts, [:port]) || 3000
-    encoder = get_in(opts, [:packet_encoder])
+    protocol = get_in(opts, [:packet_protocol])
     handler = get_in(opts, [:packet_handler])
     use_opts = put_in(opts, [:port], port)
 
-    # Check is there is any encoder
-    unless encoder do
-      raise "Please, specify a packet_encoder for #{caller}"
+    # Check is there is any protocol
+    unless protocol do
+      raise "Please, specify a packet_protocol for #{caller}"
     end
 
     # Check is there is any handler
@@ -95,7 +96,10 @@ defmodule ElvenGard.Helpers.Frontend do
         with :ok <- :ranch.accept_ack(ref),
              :ok = transport.setopts(socket, [{:active, true}]),
              {:ok, client} <- handle_connection(socket, transport) do
-          final_client = %Client{client | encoder: unquote(encoder)}
+          {:ok, final_client} =
+            %Client{client | protocol: unquote(protocol)}
+            |> handle_client_ready()
+
           :gen_server.enter_loop(__MODULE__, [], final_client, 10_000)
         end
       end
@@ -105,10 +109,10 @@ defmodule ElvenGard.Helpers.Frontend do
       #
 
       def handle_info({:tcp, socket, data}, %Client{} = client) do
-        # TODO: Manage errors on `handle_message`: don't execute the encoder
+        # TODO: Manage errors on `handle_message`: don't execute the protocol
         {:ok, tmp_state} = handle_message(client, data)
 
-        payload = unquote(encoder).complete_decode(data, tmp_state)
+        payload = unquote(protocol).complete_decode(data, tmp_state)
 
         case do_handle_packet(payload, tmp_state) do
           {:cont, final_client} ->
@@ -122,7 +126,7 @@ defmodule ElvenGard.Helpers.Frontend do
 
           x ->
             raise """
-            #{unquote(handler)}.handle_packet/2 have to return `{:cont, client}`, \
+            #{unquote(handler)}.handle_packet/3 have to return `{:cont, client}`, \
             `{:halt, {:ok, :some_args}, client}`, or `{:halt, {:error, reason}, client} `. \
             Returned: #{inspect(x)}
             """
@@ -148,26 +152,26 @@ defmodule ElvenGard.Helpers.Frontend do
       # Private function
       #
 
-      @spec do_handle_packet(list | list(list), Client.t()) ::
+      @spec do_handle_packet({term, map} | list(tuple), Client.t()) ::
               {:cont, unquote(parent).state}
               | {:halt, {:ok, term}, unquote(parent).state}
               | {:halt, {:error, unquote(parent).conn_error()}, unquote(parent).state}
-      defp do_handle_packet([[_header | _params] | _rest] = packet_list, client) do
+      defp do_handle_packet({header, params}, client) do
+        unquote(handler).handle_packet(header, params, client)
+      end
+
+      defp do_handle_packet([{_header, _params} | _t] = packet_list, client) do
         Enum.reduce_while(packet_list, {:cont, client}, fn packet, {_, client} ->
           res = do_handle_packet(packet, client)
           {elem(res, 0), res}
         end)
       end
 
-      defp do_handle_packet([_header | _params] = packet, client) do
-        unquote(handler).handle_packet(packet, client)
-      end
-
       defp do_handle_packet(x, _client) do
         raise """
         Unable to handle packet #{inspect(x)}.
-        Please check that your decoder returns a list in the form of [header, \
-        param1, param2, ...]
+        Please check that your protocol returns a tuple in the form of {header, \
+        %{param1: :val1, param2: :val2, ...} or a list of tuples
         """
       end
 
@@ -215,14 +219,16 @@ defmodule ElvenGard.Helpers.Frontend do
 
       def handle_init(_args), do: {:ok, nil}
       def handle_connection(socket, transport), do: Client.new(socket, transport)
-      def handle_disconnection(client, _reason), do: client
-      def handle_message(client, _message), do: client
-      def handle_error(client, _reason), do: client
-      def handle_halt_ok(client, _args), do: client
-      def handle_halt_error(client, _reason), do: client
+      def handle_client_ready(client), do: {:ok, client}
+      def handle_disconnection(client, _reason), do: {:ok, client}
+      def handle_message(client, _message), do: {:ok, client}
+      def handle_error(client, _reason), do: {:ok, client}
+      def handle_halt_ok(client, _args), do: {:ok, client}
+      def handle_halt_error(client, _reason), do: {:ok, client}
 
       defoverridable handle_init: 1,
                      handle_connection: 2,
+                     handle_client_ready: 1,
                      handle_disconnection: 2,
                      handle_message: 2,
                      handle_error: 2,

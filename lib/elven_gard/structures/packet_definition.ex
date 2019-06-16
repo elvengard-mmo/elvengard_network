@@ -1,13 +1,13 @@
-defmodule ElvenGard.Structures.PacketDocumentation do
+defmodule ElvenGard.Structures.PacketDefinition do
   @moduledoc """
-  Structure for a packet's documentation
+  Structure for a packet's definition
   """
 
   @keys [:name, :description, :fields, :tags]
   @enforce_keys @keys
   defstruct @keys
 
-  alias ElvenGard.Structures.FieldDocumentation
+  alias ElvenGard.Structures.FieldDefinition
 
   @type t :: %__MODULE__{}
   @type empty_string :: String.t() | nil
@@ -23,8 +23,8 @@ defmodule ElvenGard.Structures.PacketDocumentation do
   @doc """
   Add a field
   """
-  @spec add_field(__MODULE__.t(), FieldDocumentation.t()) :: __MODULE__.t()
-  def add_field(doc_struct, %FieldDocumentation{} = field) do
+  @spec add_field(__MODULE__.t(), FieldDefinition.t()) :: __MODULE__.t()
+  def add_field(doc_struct, %FieldDefinition{} = field) do
     %__MODULE__{fields: fields} = doc_struct
 
     new_fields = fields ++ [field]
