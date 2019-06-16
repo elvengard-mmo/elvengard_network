@@ -3,13 +3,13 @@ defmodule ElvenGard.Helpers.PacketTest do
 
   alias ElvenGard.Structures.{FieldDefinition, PacketDefinition}
 
-  defmodule HandlersA do
+  defmodule InvalidPacketHandler do
     use ElvenGard.Helpers.Packet
 
     packet :invalid_packet, do: :ok
   end
 
-  defmodule HandlersB do
+  defmodule BasicPacketHandler do
     use ElvenGard.Helpers.Packet
 
     packet :very_basic_packet do
@@ -17,7 +17,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
   end
 
-  defmodule HandlersC do
+  defmodule WithDescHandler do
     use ElvenGard.Helpers.Packet
 
     @desc "Some desc"
@@ -26,7 +26,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
   end
 
-  defmodule HandlersD do
+  defmodule MultilineDescHandler do
     use ElvenGard.Helpers.Packet
 
     @desc """
@@ -41,7 +41,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
   end
 
-  defmodule HandlersE do
+  defmodule AttributeDescHandler do
     use ElvenGard.Helpers.Packet
 
     @real_desc "Here is the real description"
@@ -51,7 +51,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
   end
 
-  defmodule HandlersF do
+  defmodule FieldHandler do
     use ElvenGard.Helpers.Packet
 
     packet :packet_no_desc_with_fields_no_desc do
@@ -60,7 +60,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
   end
 
-  defmodule HandlersG do
+  defmodule FieldDescHandler do
     use ElvenGard.Helpers.Packet
 
     packet :packet_no_desc_with_fields_desc_attr do
@@ -70,7 +70,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
   end
 
-  defmodule HandlersH do
+  defmodule FieldDescOptsHandler do
     use ElvenGard.Helpers.Packet
 
     packet :packet_no_desc_with_fields_desc_opts do
@@ -79,7 +79,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
   end
 
-  defmodule HandlersI do
+  defmodule FieldMultilineDescHandler do
     use ElvenGard.Helpers.Packet
 
     packet :packet_no_desc_with_fields_multi_line_desc do
@@ -95,7 +95,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
   end
 
-  defmodule HandlersJ do
+  defmodule FieldDescAttributeHandler do
     use ElvenGard.Helpers.Packet
 
     @real_desc "Here is the real description"
@@ -107,20 +107,20 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
   end
 
-  defmodule HandlersK do
+  defmodule UselessHandler do
     use ElvenGard.Helpers.Packet
 
     useless_packet :useless_packet_no_desc
   end
 
-  defmodule HandlersL do
+  defmodule UselessWithDescHandler do
     use ElvenGard.Helpers.Packet
 
     @desc "Some description"
     useless_packet :useless_packet_desc
   end
 
-  defmodule HandlersZ do
+  defmodule CompleteHandler do
     use ElvenGard.Helpers.Packet
 
     @desc "Don't know what is this packet"
@@ -152,7 +152,7 @@ defmodule ElvenGard.Helpers.PacketTest do
 
   describe "Invalid packet:" do
     test "no documentation" do
-      got = HandlersA.get_packet_definitions()
+      got = InvalidPacketHandler.get_packet_definitions()
       expected = []
 
       assert expected == got
@@ -161,7 +161,7 @@ defmodule ElvenGard.Helpers.PacketTest do
 
   describe "No field, single packet defined with" do
     test "no documentation" do
-      got = HandlersB.get_packet_definitions()
+      got = BasicPacketHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -176,7 +176,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
 
     test "documentation" do
-      got = HandlersC.get_packet_definitions()
+      got = WithDescHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -191,7 +191,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
 
     test "multiline documentation" do
-      got = HandlersD.get_packet_definitions()
+      got = MultilineDescHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -206,7 +206,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
 
     test "documentations previously set" do
-      got = HandlersE.get_packet_definitions()
+      got = AttributeDescHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -223,7 +223,7 @@ defmodule ElvenGard.Helpers.PacketTest do
 
   describe "Single packet, single field defined with" do
     test "no documentation" do
-      got = HandlersF.get_packet_definitions()
+      got = FieldHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -245,7 +245,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
 
     test "attribute documentation" do
-      got = HandlersG.get_packet_definitions()
+      got = FieldDescHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -267,7 +267,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
 
     test "documentation option" do
-      got = HandlersH.get_packet_definitions()
+      got = FieldDescOptsHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -289,7 +289,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
 
     test "multiline documentation" do
-      got = HandlersI.get_packet_definitions()
+      got = FieldMultilineDescHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -311,7 +311,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
 
     test "documentations previously set" do
-      got = HandlersJ.get_packet_definitions()
+      got = FieldDescAttributeHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -335,7 +335,7 @@ defmodule ElvenGard.Helpers.PacketTest do
 
   describe "Tagged packet" do
     test "no documentation" do
-      got = HandlersK.get_packet_definitions()
+      got = UselessHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -350,7 +350,7 @@ defmodule ElvenGard.Helpers.PacketTest do
     end
 
     test "documentation" do
-      got = HandlersL.get_packet_definitions()
+      got = UselessWithDescHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -367,7 +367,7 @@ defmodule ElvenGard.Helpers.PacketTest do
 
   describe "Final test:" do
     test "Multiple packet, multiple fields, tagged or not, documented or not" do
-      got = HandlersZ.get_packet_definitions()
+      got = CompleteHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
