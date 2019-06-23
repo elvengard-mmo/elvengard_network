@@ -1,7 +1,7 @@
-defmodule ElvenGard.Helpers.Packet do
+defmodule ElvenGard.Packet do
   @moduledoc """
   Define some usefull macros for create a packet that can be handled
-  by an `ElvenGard.Helpers.Frontend`
+  by an `ElvenGard.Frontend`
   """
 
   alias ElvenGard.Structures.{FieldDefinition, PacketDefinition}

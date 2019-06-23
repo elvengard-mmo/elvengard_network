@@ -3,9 +3,9 @@ defmodule ElvenGard.Protocol.Binary.PaddingType do
   Define a custom padding type for game protocols
   """
 
-  use ElvenGard.Helpers.Type
+  use ElvenGard.Type
 
-  @impl ElvenGard.Helpers.Type
+  @impl ElvenGard.Type
   @spec encode(term, list) :: bitstring
   def encode(val, opts) do
     bits = Keyword.get(opts, :bits)
@@ -15,7 +15,7 @@ defmodule ElvenGard.Protocol.Binary.PaddingType do
     <<val::size(size)>>
   end
 
-  @impl ElvenGard.Helpers.Type
+  @impl ElvenGard.Type
   @spec decode(bitstring, list) :: {bitstring, bitstring}
   def decode(bin, opts) do
     fill = Keyword.get(opts, :fill)

@@ -3,15 +3,15 @@ defmodule ElvenGard.Protocol.Binary.StringType do
   Define a custom string type (utf8) for game protocols
   """
 
-  use ElvenGard.Helpers.Type
+  use ElvenGard.Type
 
-  @impl ElvenGard.Helpers.Type
+  @impl ElvenGard.Type
   @spec encode(String.t(), list) :: bitstring
   def encode(str, _opts) do
     <<str::binary>>
   end
 
-  @impl ElvenGard.Helpers.Type
+  @impl ElvenGard.Type
   @spec decode(bitstring, list) :: {String.t(), bitstring}
   def decode(bin, opts) do
     bits = Keyword.get(opts, :bits)

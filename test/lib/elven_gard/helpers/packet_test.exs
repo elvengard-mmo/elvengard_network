@@ -1,16 +1,16 @@
-defmodule ElvenGard.Helpers.PacketTest do
+defmodule ElvenGard.PacketTest do
   use ExUnit.Case
 
   alias ElvenGard.Structures.{FieldDefinition, PacketDefinition}
 
   defmodule InvalidPacketHandler do
-    use ElvenGard.Helpers.Packet
+    use ElvenGard.Packet
 
     packet :invalid_packet, do: :ok
   end
 
   defmodule BasicPacketHandler do
-    use ElvenGard.Helpers.Packet
+    use ElvenGard.Packet
 
     packet :very_basic_packet do
       resolve fn _, _ -> :ok end
@@ -18,7 +18,7 @@ defmodule ElvenGard.Helpers.PacketTest do
   end
 
   defmodule WithDescHandler do
-    use ElvenGard.Helpers.Packet
+    use ElvenGard.Packet
 
     @desc "Some desc"
     packet :packet_with_desc do
@@ -27,7 +27,7 @@ defmodule ElvenGard.Helpers.PacketTest do
   end
 
   defmodule MultilineDescHandler do
-    use ElvenGard.Helpers.Packet
+    use ElvenGard.Packet
 
     @desc """
     Some
@@ -42,7 +42,7 @@ defmodule ElvenGard.Helpers.PacketTest do
   end
 
   defmodule AttributeDescHandler do
-    use ElvenGard.Helpers.Packet
+    use ElvenGard.Packet
 
     @real_desc "Here is the real description"
     @desc @real_desc
@@ -52,7 +52,7 @@ defmodule ElvenGard.Helpers.PacketTest do
   end
 
   defmodule FieldHandler do
-    use ElvenGard.Helpers.Packet
+    use ElvenGard.Packet
 
     packet :packet_no_desc_with_fields_no_desc do
       field :first_field, :string
@@ -61,7 +61,7 @@ defmodule ElvenGard.Helpers.PacketTest do
   end
 
   defmodule FieldDescHandler do
-    use ElvenGard.Helpers.Packet
+    use ElvenGard.Packet
 
     packet :packet_no_desc_with_fields_desc_attr do
       @desc "Description attribute"
@@ -71,7 +71,7 @@ defmodule ElvenGard.Helpers.PacketTest do
   end
 
   defmodule FieldDescOptsHandler do
-    use ElvenGard.Helpers.Packet
+    use ElvenGard.Packet
 
     packet :packet_no_desc_with_fields_desc_opts do
       field :first_field, :string, description: "Description in options"
@@ -80,7 +80,7 @@ defmodule ElvenGard.Helpers.PacketTest do
   end
 
   defmodule FieldMultilineDescHandler do
-    use ElvenGard.Helpers.Packet
+    use ElvenGard.Packet
 
     packet :packet_no_desc_with_fields_multi_line_desc do
       @desc """
@@ -96,7 +96,7 @@ defmodule ElvenGard.Helpers.PacketTest do
   end
 
   defmodule FieldDescAttributeHandler do
-    use ElvenGard.Helpers.Packet
+    use ElvenGard.Packet
 
     @real_desc "Here is the real description"
 
@@ -108,20 +108,20 @@ defmodule ElvenGard.Helpers.PacketTest do
   end
 
   defmodule UselessHandler do
-    use ElvenGard.Helpers.Packet
+    use ElvenGard.Packet
 
     useless_packet :useless_packet_no_desc
   end
 
   defmodule UselessWithDescHandler do
-    use ElvenGard.Helpers.Packet
+    use ElvenGard.Packet
 
     @desc "Some description"
     useless_packet :useless_packet_desc
   end
 
   defmodule CompleteHandler do
-    use ElvenGard.Helpers.Packet
+    use ElvenGard.Packet
 
     @desc "Don't know what is this packet"
     useless_packet :useless_packet

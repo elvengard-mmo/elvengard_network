@@ -1,4 +1,4 @@
-defmodule ElvenGard.Helpers.View do
+defmodule ElvenGard.View do
   @moduledoc """
   Define a custom behaviour for a view (packet sent from server to client)
   """

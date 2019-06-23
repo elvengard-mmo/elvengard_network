@@ -3,15 +3,15 @@ defmodule ElvenGard.Protocol.Binary.LongType do
   Define a custom long type (uint64_t) for game protocols
   """
 
-  use ElvenGard.Helpers.Type
+  use ElvenGard.Type
 
-  @impl ElvenGard.Helpers.Type
+  @impl ElvenGard.Type
   @spec encode(integer, list) :: bitstring
   def encode(long, _opts) do
     <<long::little-size(64)>>
   end
 
-  @impl ElvenGard.Helpers.Type
+  @impl ElvenGard.Type
   @spec decode(bitstring, list) :: {integer, bitstring}
   def decode(bin, _opts) do
     <<
