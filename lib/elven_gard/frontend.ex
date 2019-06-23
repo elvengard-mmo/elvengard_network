@@ -1,6 +1,6 @@
-defmodule ElvenGard.Helpers.Frontend do
+defmodule ElvenGard.Frontend do
   @moduledoc """
-  TODO: Documentation for ElvenGard.Helpers.Frontend
+  TODO: Documentation for ElvenGard.Frontend
   """
 
   alias ElvenGard.Structures.Client
@@ -21,7 +21,7 @@ defmodule ElvenGard.Helpers.Frontend do
   @callback handle_halt_error(client :: Client.t(), error :: conn_error) :: handle_return
 
   @doc """
-  Use ElvenGard.Helpers.Frontend behaviour
+  Use ElvenGard.Frontend behaviour
   """
   defmacro __using__(opts) do
     parent = __MODULE__

@@ -3,15 +3,15 @@ defmodule ElvenGard.Protocol.Binary.IntegerType do
   Define a custom integer type (uint32_t) for game protocols
   """
 
-  use ElvenGard.Helpers.Type
+  use ElvenGard.Type
 
-  @impl ElvenGard.Helpers.Type
+  @impl ElvenGard.Type
   @spec encode(integer, list) :: bitstring
   def encode(int, _opts) do
     <<int::little-size(32)>>
   end
 
-  @impl ElvenGard.Helpers.Type
+  @impl ElvenGard.Type
   @spec decode(bitstring, list) :: {integer, bitstring}
   def decode(bin, _opts) do
     <<

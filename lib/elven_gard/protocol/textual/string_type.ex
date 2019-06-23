@@ -3,15 +3,15 @@ defmodule ElvenGard.Protocol.Textual.StringType do
   Define a custom string type for game protocols
   """
 
-  use ElvenGard.Helpers.Type
+  use ElvenGard.Type
 
-  @impl ElvenGard.Helpers.Type
+  @impl ElvenGard.Type
   @spec encode(String.t(), list) :: bitstring
   def encode(str, _opts) do
     str
   end
 
-  @impl ElvenGard.Helpers.Type
+  @impl ElvenGard.Type
   @spec decode(String.t(), list) :: String.t()
   def decode(str, _opts) do
     str
