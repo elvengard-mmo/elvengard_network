@@ -20,6 +20,11 @@ defmodule ElvenGard.Type do
       Encode a bitstring without params
       """
       def encode(val), do: encode(val, [])
+
+      @doc """
+      Decode a term without params
+      """
+      def decode(val), do: decode(val, [])
     end
   end
 end
