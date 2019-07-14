@@ -1,6 +1,8 @@
 defmodule ElvenGard.Protocol.Binary.ShortType do
   @moduledoc """
   Define a custom short type (uint16_t) for game protocols
+
+  TODO: Manage signed/unsigned number & little/big/native endianness
   """
 
   use ElvenGard.Type

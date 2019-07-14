@@ -20,6 +20,6 @@ script:
   # Check that code is formatted
   - "mix format --dry-run --check-formatted"
   # Run all tests except pending ones
-  - "mix test --exclude pending --trace"
+  - "mix test --trace"
   # Push code coverage
   - "mix coveralls.travis"

@@ -1,0 +1,19 @@
+defmodule ElvenGard.Protocol.Textual.FloatTypeTest do
+  use ExUnit.Case
+
+  alias ElvenGard.Protocol.Textual.FloatType
+
+  test "Encode textual float type" do
+    got = FloatType.encode(13.37)
+    expected = "13.37"
+
+    assert expected == got
+  end
+
+  test "Decode textual float type" do
+    got = FloatType.decode("13.37")
+    expected = 13.37
+
+    assert expected == got
+  end
+end

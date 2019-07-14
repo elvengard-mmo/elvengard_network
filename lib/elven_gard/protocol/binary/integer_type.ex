@@ -1,6 +1,8 @@
 defmodule ElvenGard.Protocol.Binary.IntegerType do
   @moduledoc """
   Define a custom integer type (uint32_t) for game protocols
+
+  TODO: Manage signed/unsigned number & little/big/native endianness
   """
 
   use ElvenGard.Type

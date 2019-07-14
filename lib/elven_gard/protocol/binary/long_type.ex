@@ -1,6 +1,8 @@
 defmodule ElvenGard.Protocol.Binary.LongType do
   @moduledoc """
   Define a custom long type (uint64_t) for game protocols
+
+  TODO: Manage signed/unsigned number & little/big/native endianness
   """
 
   use ElvenGard.Type
