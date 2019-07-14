@@ -10,6 +10,7 @@ defmodule ElvenGard.MixProject do
       elixir: "~> 1.7",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
+      test_coverage: [tool: ExCoveralls],
       description: description(),
       package: package(),
       deps: deps(),
@@ -56,7 +57,8 @@ defmodule ElvenGard.MixProject do
       {:ranch, "~> 1.5"},
       {:elixir_uuid, "~> 1.2"},
       {:ex_doc, "~> 0.19.0", only: :dev, runtime: false},
-      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.1", only: [:dev, :test], runtime: false},
+      {:excoveralls, "~> 0.11", only: :test, runtime: false}
     ]
   end
 

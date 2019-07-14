@@ -1,6 +1,7 @@
 # ElvenGard
 
 [![Build Status](https://travis-ci.com/ImNotAVirus/ElvenGard_V2.svg?branch=master)](https://travis-ci.com/ImNotAVirus/ElvenGard_V2)
+[![Coverage Status](https://coveralls.io/repos/github/ImNotAVirus/ElvenGard_V2/badge.svg?branch=master)](https://coveralls.io/github/ImNotAVirus/ElvenGard_V2?branch=master)
 
 ## What is ElvenGard
 
