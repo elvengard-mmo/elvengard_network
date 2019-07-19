@@ -21,7 +21,7 @@ defmodule ElvenGard.Protocol.Binary.StringType do
       raise "You must specify a size in bytes/bits for a string"
     end
 
-    size = if bits != nil, do: bits / 8, else: bytes
+    size = if bits != nil, do: Kernel.trunc(bits / 8), else: bytes
 
     <<
       str::binary-size(size),
