@@ -14,9 +14,9 @@ defmodule ElvenGard.Protocol.Binary.StringTypeTest do
 
   describe "Decode binary string type:" do
     test "raise without length" do
-      expected = "You must specify a size in bytes/bits for a string"
-
-      assert_raise RuntimeError, expected, fn -> StringType.decode("no length") end
+      assert_raise ElvenGard.TypeOptionError, fn ->
+        StringType.decode("no length")
+      end
     end
 
     test "without rest (size in bytes)" do
