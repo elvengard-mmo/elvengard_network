@@ -1,23 +1,38 @@
 defmodule ElvenGard.MixProject do
   use Mix.Project
 
+  @app_name "ElvenGard"
   @version "0.1.0-alpha"
+  @github_link "https://github.com/ImNotAVirus/ElvenGard_V2"
 
   def project do
     [
       app: :elven_gard,
       version: @version,
       elixir: "~> 1.7",
+      deps: deps(),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
+
+      # Docs
+      name: @app_name,
+      docs: docs(),
+
+      # Testing
       test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ],
+
+      # Dialyzer
+      dialyzer: dialyzer(),
+
+      # Hex
       description: description(),
-      package: package(),
-      deps: deps(),
-      name: "ElvenGard",
-      source_url: "https://github.com/ImNotAVirus/ElvenGard_V2",
-      # homepage_url: "https://YOUR_PROJECT_HOMEPAGE",
-      docs: docs()
+      package: package()
     ]
   end
 
@@ -36,8 +51,8 @@ defmodule ElvenGard.MixProject do
       licenses: ["AGPL", "LGPL"],
       links: %{
         # Website: "https://YOUR_PROJECT_WEBSITE",
-        Changelog: "https://github.com/ImNotAVirus/ElvenGard_V2/blob/master/CHANGELOG.md",
-        GitHub: "https://github.com/ImNotAVirus/ElvenGard_V2"
+        Changelog: "#{@github_link}/blob/master/CHANGELOG.md",
+        GitHub: @github_link
       }
     ]
   end
@@ -56,22 +71,36 @@ defmodule ElvenGard.MixProject do
     [
       {:ranch, "~> 1.5"},
       {:elixir_uuid, "~> 1.2"},
-      {:ex_doc, "~> 0.19.0", only: :dev, runtime: false},
-      {:credo, "~> 1.1", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
+      {:dialyxir, "~> 0.5", optional: true, only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.1", optional: true, only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.11", only: :test, runtime: false}
     ]
   end
 
   defp docs() do
     [
-      # The main page in the docs
-      main: "ElvenGard",
-      # logo: "path/to/logo.png",
+      main: @app_name,
       source_ref: "v#{@version}",
-      extras: ["README.md"],
-      groups_for_modules: [
-        Helpers: ~r/^ElvenGard.Helpers.?/,
-        Structures: ~r/^ElvenGard.Structures.?/
+      source_url: @github_link,
+      # logo: "path/to/logo.png",
+      extras: [
+        "guides/getting-started.md",
+        "guides/network.md"
+      ]
+    ]
+  end
+
+  defp dialyzer do
+    [
+      plt_add_apps: [:mix, :eex],
+      flags: [
+        :unmatched_returns,
+        :error_handling,
+        :race_conditions,
+        :no_opaque,
+        :unknown,
+        :no_return
       ]
     ]
   end
