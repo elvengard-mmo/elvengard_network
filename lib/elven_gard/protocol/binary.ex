@@ -1,5 +1,7 @@
 defmodule ElvenGard.Protocol.Binary do
-  @moduledoc false
+  @moduledoc """
+  TODO: Documentation for ElvenGard.Protocol.Binary
+  """
 
   alias ElvenGard.Structures.{Client, PacketDefinition}
 

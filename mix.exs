@@ -13,6 +13,7 @@ defmodule ElvenGard.MixProject do
       deps: deps(),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
+      consolidate_protocols: Mix.env() != :test,
 
       # Docs
       name: @app_name,
@@ -36,7 +37,13 @@ defmodule ElvenGard.MixProject do
     ]
   end
 
-  defp package do
+  def application() do
+    [
+      extra_applications: [:logger]
+    ]
+  end
+
+  defp package() do
     [
       description: description(),
       files: [
@@ -61,13 +68,7 @@ defmodule ElvenGard.MixProject do
     "MMORPG Game Server toolkit written in Elixir"
   end
 
-  def application do
-    [
-      extra_applications: [:logger]
-    ]
-  end
-
-  defp deps do
+  defp deps() do
     [
       {:ranch, "~> 1.5"},
       {:elixir_uuid, "~> 1.2"},
@@ -84,16 +85,21 @@ defmodule ElvenGard.MixProject do
       source_ref: "v#{@version}",
       source_url: @github_link,
       # logo: "path/to/logo.png",
-      extras: [
-        "guides/getting-started.md",
-        "guides/network.md"
+      extra_section: "GUIDES",
+      extras: extras(),
+      groups_for_extras: groups_for_extras(),
+      groups_for_modules: [
+        "Textual protocol specs": ~r/ElvenGard\.Protocol\.Textual\.?/,
+        "Binary protocol specs": ~r/ElvenGard\.Protocol\.Binary\.?/,
+        Structures: ~r/ElvenGard\.Structures\./
       ]
     ]
   end
 
-  defp dialyzer do
+  defp dialyzer() do
     [
-      plt_add_apps: [:mix, :eex],
+      plt_add_apps: [:elven_gard],
+      plt_add_deps: :apps_direct,
       flags: [
         :unmatched_returns,
         :error_handling,
@@ -102,6 +108,17 @@ defmodule ElvenGard.MixProject do
         :unknown,
         :no_return
       ]
+    ]
+  end
+
+  defp extras() do
+    ["README.md"] ++ Path.wildcard("guides/**/*.md")
+  end
+
+  defp groups_for_extras() do
+    [
+      Introduction: ~r/(README.md|guides\/introduction\/.?)/,
+      "How-To's": ~r/guides\/howtos\/.?/
     ]
   end
 end

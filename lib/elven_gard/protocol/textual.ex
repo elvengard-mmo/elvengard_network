@@ -1,5 +1,7 @@
 defmodule ElvenGard.Protocol.Textual do
-  @moduledoc false
+  @moduledoc """
+  TODO: Documentation for ElvenGard.Protocol.Textual
+  """
 
   alias ElvenGard.Structures.{Client, PacketDefinition}
 
