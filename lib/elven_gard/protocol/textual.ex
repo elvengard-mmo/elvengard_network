@@ -93,15 +93,17 @@ defmodule ElvenGard.Protocol.Textual do
   end
 
   @doc false
-  @spec check_types!([PacketDefinition.t()]) :: term
+  @spec check_types!([PacketDefinition.t()]) :: :ok
   defp check_types!(defs) do
     for def <- defs, field <- def.fields do
       name = field.name
       type = field.type
-      real_type = Keyword.get(unquote(@aliases), type, type)
+      real_type = Keyword.get(@aliases, type, type)
 
       check_type!(real_type, name, def.name)
     end
+
+    :ok
   end
 
   @doc false

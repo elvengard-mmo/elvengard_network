@@ -17,7 +17,7 @@ defmodule ElvenGard.Protocol.Binary do
     expanded_model = Macro.expand(model, __CALLER__)
     defs = expanded_model.get_packet_definitions()
 
-    check_types!(defs)
+    :ok = check_types!(defs)
 
     quote do
       use ElvenGard.Protocol
@@ -70,20 +70,17 @@ defmodule ElvenGard.Protocol.Binary do
   end
 
   @doc false
-  @spec check_types!([PacketDefinition.t()]) :: term
+  @spec check_types!([PacketDefinition.t()]) :: :ok
   defp check_types!(defs) do
     for def <- defs, field <- def.fields do
       name = field.name
       type = field.type
+      real_type = Keyword.get(@aliases, type, type)
 
-      case Keyword.get(@aliases, type) do
-        nil ->
-          check_type!(type, name, def.name)
-
-        real_type ->
-          check_type!(real_type, name, def.name)
-      end
+      check_type!(real_type, name, def.name)
     end
+
+    :ok
   end
 
   @doc false
