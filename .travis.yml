@@ -23,3 +23,8 @@ script:
   - "mix test --trace"
   # Push code coverage
   - "mix coveralls.travis"
+
+after_script:
+  - mix deps.get
+  # Documentation coverage
+  - mix inch.report
