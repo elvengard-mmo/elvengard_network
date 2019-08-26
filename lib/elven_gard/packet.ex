@@ -64,9 +64,9 @@ defmodule ElvenGard.Packet do
   end
 
   @doc """
-  Define an useless packet
+  Define an unused packet
 
-  ¯\\_(ツ)_/¯
+  ¯\\\\_(ツ)_/¯
   """
   defmacro useless_packet(packet_name) do
     caller = __CALLER__.module
