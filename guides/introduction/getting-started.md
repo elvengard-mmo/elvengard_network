@@ -117,9 +117,9 @@ defmodule LoginServer.PacketProtocol do
     model: LoginServer.PacketHandler,
     separator: " "
 
-  # Here, no processing will be applied because the packet will be created by a `View`
+  # Just add a line feed before sending our packets to clients
   @impl ElvenGard.Protocol
-  def encode(data), do: data
+  def encode(data), do: data <> "\n"
 
   @impl ElvenGard.Protocol
   def decode(data) do
@@ -158,13 +158,13 @@ defmodule LoginServer.PacketHandler do
 
   use ElvenGard.Packet
 
-  alias LoginServer.Actions.Auth
+  alias LoginServer.Auth.Actions
 
   @desc """
   The PING packet: a simple packet to test if our server is responding
   """
   packet "PING" do
-    resolve &Auth.ping/3
+    resolve &Actions.ping/3
   end
 
   @desc """
@@ -179,7 +179,7 @@ defmodule LoginServer.PacketHandler do
     @desc "A plaintext password"
     field :password, :string
     
-    resolve &Auth.player_connect/3
+    resolve &Actions.player_connect/3
   end
 end
 ```
@@ -187,8 +187,121 @@ end
 Now that we are able to accept a client, receive his packets and parse them, we need to process these packets and send a response back to the client.  
 This is the role of [Actions](actions.html) and [Views](views.html).
 
+## Creating Views
+
+In order to create our Views, let's first create the `lib/login_server/auth` folder and add the `views.ex` file with the following content:
+
+```elixir
+defmodule LoginServer.Auth.Views do
+  @moduledoc false
+
+  use ElvenGard.View
+
+  @impl ElvenGard.View
+  def render(:pong, _) do
+    "PONG"
+  end
+
+  @impl ElvenGard.View
+  def render(:login_error, %{error: error}) do
+    "ERROR #{error}"
+  end
+
+  @impl ElvenGard.View
+  def render(:login_success, %{ip: ip, port: port}) do
+    "SUCCESS #{ip}:#{port}"
+  end
+end
+```
+
+This file being quite simple, I wouldn't dwell on it (a guide is available [here](views.html) for more information).
+
 ## Creating Actions
 
+Last step before we can test our server: the creation of our [Actions](actions.html).  
 
+To do this, create the file `lib/login_server/auth/actions.ex` with the following content :
 
-**WIP**
+```elixir
+defmodule LoginServer.Auth.Actions do
+  @moduledoc false
+
+  alias ElvenGard.Structures.Client
+  alias LoginServer.Auth.Views
+
+  @doc false
+  @spec ping(Client.t(), String.t(), map) :: String.t()
+  def ping(client, _header, _params) do
+    render = Views.render(:pong, nil)
+    
+    # Send the response to the client
+    Client.send(client, render)
+    
+    # We continue to receive packages from the client
+    {:cont, client}
+  end
+  
+  @doc false
+  @spec player_connect(Client.t(), String.t(), map) :: String.t()
+  def player_connect(client, _header, params) do
+    %{
+      username: username,
+      password: password
+    } = params
+
+    render =
+      if username == "admin" and password == "pass" do
+        Views.render(:login_success, %{ip: "127.0.0.1", port: 1234})
+      else
+        Views.render(:login_error, %{error: "Bad credentials!"})
+      end
+
+    # Send the response to the client
+    Client.send(client, render)
+
+    # Requests the client's disconnection, stating that there has been no error
+    {:halt, {:ok, :normal}, client}
+  end
+end
+```
+
+This file is also quite explicit, so I encourage you to check the documentation [here](actions.html) if you want more details.
+
+## Testing our server
+
+As our server is based on a text protocol, we just need to connect to port 3000 in TCP (using `netcat` for example) and send our messages.
+
+```
+# Terminal 1
+$> mix run --no-halt
+XX:XX:XX.XXX [info]  Login server started on port 3000
+```
+
+```
+# Terminal 2
+$> nc 127.0.0.1 3000
+PING
+PONG                    # Client response
+LOGIN admin test
+ERROR Bad credentials!  # Client response
+
+# Here we have been disconnected by the action of the LOGIN packet. So we need to reconnect.
+
+$> nc 127.0.0.1 3000
+LOGIN admin pass
+SUCCESS 127.0.0.1:1234  # Client response
+
+# We are once again disconnected after receiving the "SUCCESS" packet
+```
+
+```
+#Back to terminal 1, we also received several messages due to the application logs
+XX:XX:XX.XX [info]  Login server started on port 3000
+XX:XX:XX.XX [info]  New connection: 226167fe-493f-47ea-ae81-5f94e0e728ed
+XX:XX:XX.XX [info]  New message from 226167fe-493f-47ea-ae81-5f94e0e728ed (len: 5)
+XX:XX:XX.XX [info]  New message from 226167fe-493f-47ea-ae81-5f94e0e728ed (len: 17)
+XX:XX:XX.XX [info]  226167fe-493f-47ea-ae81-5f94e0e728ed is now disconnected (reason: :normal)
+XX:XX:XX.XX [info]  New connection: 728760aa-024a-4a04-a5b3-251bd1780c77
+XX:XX:XX.XX [info]  New message from 728760aa-024a-4a04-a5b3-251bd1780c77 (len: 17)
+XX:XX:XX.XX [info]  728760aa-024a-4a04-a5b3-251bd1780c77 is now disconnected (reason: :normal)
+```
