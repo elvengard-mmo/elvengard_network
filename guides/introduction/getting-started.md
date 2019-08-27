@@ -35,10 +35,10 @@ mix deps.get
 
 ## Creating our first Frontend
 
-As mentioned in the [Frontend guide](frontend.html), the Frontend is the module used to manage interaction with clients.  
+As mentioned in the [Frontend guide](frontends.html), the Frontend is the module used to manage interaction with clients.  
 The one we will create here will be simple and will not cover all features of the module. For more information, please consult the above-mentioned guide.
 
-NOTE: I'll later add a mix task (`mix elven.init`) in order to automatically initialize a project.
+NOTE: I'll later add a mix task (`mix elven.gen.frontend`) in order to automatically initialize a project.
 
 First of all, let's create a new file at `lib/login_server/frontend.ex` :
 
@@ -84,8 +84,8 @@ end
 
 As you can see, our Frontend depends on two other modules:
 
-- [PacketProtocol](protocol.html): the Protocol is the module that will describe the serialization and deserialization of all packets that travel between the client and our server
-- [PacketHandler](packet_handler.html): the packet handler will allow us to define the structure of packets that we will receive
+- [PacketProtocol](protocols.html): the Protocol is the module that will describe the serialization and deserialization of all packets that travel between the client and our server
+- [PacketHandler](packet_handlers.html): the packet handler will allow us to define the structure of packets that we will receive
 
 Don't forget to setup the `LoginServer.Frontend` as a process within the application's supervision tree, which we can do in `lib/login_server/application.ex`, inside the `start/2` function:
 
@@ -98,7 +98,7 @@ def start(_type, _args) do
   ...
 ```
 
-## Create the Protocol
+## Creating the Protocol
 
 As we said in the introduction of this guide, we will use a text protocol for this example.  
 Our packets will therefore be defined in the following format:
@@ -137,7 +137,57 @@ defmodule LoginServer.PacketProtocol do
 end
 ```
 
-Since `ElvenGard.Protocol.Textual` is a wrapper of `ElvenGard.Protocol` allowing to generate for us the specifications of this one, it also requires that we specify a model and a separator to it ([guide](protocol.html#textual-protocol)).
+Since `ElvenGard.Protocol.Textual` is a wrapper of `ElvenGard.Protocol` that allowing to generate for us the specifications of this one, it also requires that we specify a model and a separator (cf. [guide](protocols.html#textual-protocol)).
+
+## Creating the PacketHandler
+
+The next step is to create the packet handler.
+
+Here, for the example, we will be able to receive 2 types of packets:
+
+- `PING`: a simple packet to test if our server is responding
+- `LOGIN username password`: a packet allowing you to authenticate yourself
+
+NOTE: I'll later add a mix task (`mix elven.gen.packet`) in order to automatically generate and add handlers to the projet.
+
+Let's create a new file at `lib/login_server/packet_handler.ex` :
+
+```elixir
+defmodule LoginServer.PacketHandler do
+  @moduledoc false
+
+  use ElvenGard.Packet
+
+  alias LoginServer.Actions.Auth
+
+  @desc """
+  The PING packet: a simple packet to test if our server is responding
+  """
+  packet "PING" do
+    resolve &Auth.ping/3
+  end
+
+  @desc """
+  The LOGIN packet: a packet allowing you to authenticate yourself
+  
+  NOTE: This packet returns the IP and port of our world server before disconnecting the client
+  """
+  packet "LOGIN" do
+    @desc "An user name"
+    field :username, :string
+    
+    @desc "A plaintext password"
+    field :password, :string
+    
+    resolve &Auth.player_connect/3
+  end
+end
+```
+
+Now that we are able to accept a client, receive his packets and parse them, we need to process these packets and send a response back to the client.  
+This is the role of [Actions](actions.html) and [Views](views.html).
+
+## Creating Actions
 
 
 

@@ -1,3 +1,3 @@
-# Writing documentation
+# Writing Documentation
 
 **SOON**
