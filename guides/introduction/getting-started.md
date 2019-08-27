@@ -11,7 +11,28 @@ For more details on other protocols or features, please refer to the other guide
 
 Let's start creating a new Elixir application by running this command:
 
-    mix new login_server --sup
+```
+mix new login_server --sup
+```
 
+The `--sup` option ensures that this application has [a supervision tree](http://elixir-lang.org/getting-started/mix-otp/supervisor-and-application.html), which we'll need for ElvenGard a little later on.
+
+To add ElvenGard to this application, just add an entry to your mix.exs:
+
+```elixir
+defp deps do
+  [
+    {:elven_gard, github: "imnotavirus/elvengard_v2"}
+  ]
+end
+```
+
+To install this dependency, we will run this command:
+
+```
+mix deps.get
+```
+
+## Creating our first Frontend
 
 **WIP**

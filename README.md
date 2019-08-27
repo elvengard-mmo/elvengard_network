@@ -22,7 +22,7 @@ Currently not [available in Hex](https://hex.pm/docs/publish), you can use it li
 ```elixir
 def deps do
   [
-    {:elven_gard, git: "https://github.com/ImNotAVirus/ElvenGard_V2.git"}
+    {:elven_gard, github: "imnotavirus/elvengard_v2"}
   ]
 end
 ```

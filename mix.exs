@@ -113,13 +113,13 @@ defmodule ElvenGard.MixProject do
   end
 
   defp extras() do
-    ["README.md"] ++ Path.wildcard("guides/**/*.md")
+    ["README.md": [title: "Project Description"]] ++ Path.wildcard("guides/**/*.md")
   end
 
   defp groups_for_extras() do
     [
       Introduction: ~r/(README.md|guides\/introduction\/.?)/,
-      "How-To's": ~r/guides\/howtos\/.?/
+      Topics: ~r/guides\/topics\/.?/
     ]
   end
 end
