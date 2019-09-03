@@ -5,6 +5,7 @@ defmodule ElvenGard.Structures.FieldDefinition do
 
   @keys [:name, :type, :description, :opts]
   @enforce_keys @keys
+
   defstruct @keys
 
   @type t :: %__MODULE__{}

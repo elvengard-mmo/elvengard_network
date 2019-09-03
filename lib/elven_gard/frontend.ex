@@ -33,21 +33,20 @@ defmodule ElvenGard.Frontend do
 
     # Check is there is any protocol
     unless protocol do
-      raise "Please, specify a packet_protocol for #{caller}"
+      raise "please, specify a packet_protocol for #{caller}"
     end
 
     # Check is there is any handler
     unless handler do
-      raise "Please, specify a packet_handler for #{caller}"
+      raise "please, specify a packet_handler for #{caller}"
     end
 
     quote do
-      alias ElvenGard.Structures.Client
-
       @behaviour unquote(parent)
       @behaviour :ranch_protocol
 
-      # TODO: Use `Application.get_env` inside function for a live update
+      alias ElvenGard.Structures.Client
+
       @timeout Application.get_env(:elven_gard, :response_timeout, 2000)
 
       @doc false
@@ -169,7 +168,7 @@ defmodule ElvenGard.Frontend do
 
       defp do_handle_packet(x, _client) do
         raise """
-        Unable to handle packet #{inspect(x)}.
+        unable to handle packet #{inspect(x)}.
         Please check that your protocol returns a tuple in the form of {header, \
         %{param1: :val1, param2: :val2, ...} or a list of tuples
         """

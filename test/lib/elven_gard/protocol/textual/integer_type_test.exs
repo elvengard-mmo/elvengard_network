@@ -7,13 +7,13 @@ defmodule ElvenGard.Protocol.Textual.IntegerTypeTest do
     got = IntegerType.encode(1337)
     expected = "1337"
 
-    assert expected == got
+    assert got == expected
   end
 
   test "Decode textual integer type" do
     got = IntegerType.decode("1337")
     expected = 1337
 
-    assert expected == got
+    assert got == expected
   end
 end

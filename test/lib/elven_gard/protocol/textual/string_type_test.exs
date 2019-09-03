@@ -4,16 +4,16 @@ defmodule ElvenGard.Protocol.Textual.StringTypeTest do
   alias ElvenGard.Protocol.Textual.StringType
 
   test "Encode textual string type" do
-    got = StringType.encode("1337 1337 1337")
-    expected = "1337 1337 1337"
+    expected = "Some string"
+    got = StringType.encode(expected)
 
-    assert expected == got
+    assert got == expected
   end
 
   test "Decode textual string type" do
-    got = StringType.decode("1337 1337 1337")
-    expected = "1337 1337 1337"
+    expected = "Another string"
+    got = StringType.decode(expected)
 
-    assert expected == got
+    assert got == expected
   end
 end

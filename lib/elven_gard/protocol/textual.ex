@@ -1,6 +1,9 @@
 defmodule ElvenGard.Protocol.Textual do
-  @moduledoc false
+  @moduledoc """
+  TODO: Documentation for ElvenGard.Protocol.Textual
+  """
 
+  alias ElvenGard.FieldTypeError
   alias ElvenGard.Structures.{Client, PacketDefinition}
 
   @aliases [
@@ -93,23 +96,24 @@ defmodule ElvenGard.Protocol.Textual do
   end
 
   @doc false
-  @spec check_types!([PacketDefinition.t()]) :: term
+  @spec check_types!([PacketDefinition.t()]) :: :ok
   defp check_types!(defs) do
     for def <- defs, field <- def.fields do
       name = field.name
       type = field.type
-      real_type = Keyword.get(unquote(@aliases), type, type)
+      real_type = Keyword.get(@aliases, type, type)
 
       check_type!(real_type, name, def.name)
     end
+
+    :ok
   end
 
   @doc false
   @spec check_type!(atom, atom, term) :: term
   defp check_type!(type, name, def_name) do
     unless Keyword.has_key?(type.__info__(:functions), :decode) do
-      raise "Invalid type '#{inspect(type)}' for '#{inspect(name)}' " <>
-              "for packet '#{inspect(def_name)}'"
+      raise FieldTypeError, field_type: type, field_name: name, packet_name: def_name
     end
   end
 end

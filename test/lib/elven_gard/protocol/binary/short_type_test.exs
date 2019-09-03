@@ -9,7 +9,7 @@ defmodule ElvenGard.Protocol.Binary.ShortTypeTest do
       got = ShortType.encode(0x1337)
       expected = <<0x1337::size(16)>>
 
-      assert expected == got
+      assert got == expected
     end
 
     @tag :pending
@@ -17,21 +17,21 @@ defmodule ElvenGard.Protocol.Binary.ShortTypeTest do
       got = ShortType.encode(0x901337)
       expected = <<0x1337::size(16)>>
 
-      assert expected == got
+      assert got == expected
     end
 
     test "signed + little" do
       got = ShortType.encode(0x1337, signed: true, endian: :little)
       expected = <<0x1337::signed-little-size(16)>>
 
-      assert expected == got
+      assert got == expected
     end
 
     test "unsigned + little" do
       got = ShortType.encode(0x1337, signed: false, endian: :little)
       expected = <<0x1337::unsigned-little-size(16)>>
 
-      assert expected == got
+      assert got == expected
     end
 
     @tag :pending
@@ -39,7 +39,7 @@ defmodule ElvenGard.Protocol.Binary.ShortTypeTest do
       got = ShortType.encode(0x1337, signed: true, endian: :big)
       expected = <<0x1337::signed-big-size(16)>>
 
-      assert expected == got
+      assert got == expected
     end
 
     @tag :pending
@@ -47,21 +47,21 @@ defmodule ElvenGard.Protocol.Binary.ShortTypeTest do
       got = ShortType.encode(0x1337, signed: false, endian: :big)
       expected = <<0x1337::unsigned-big-size(16)>>
 
-      assert expected == got
+      assert got == expected
     end
 
     test "signed + native" do
       got = ShortType.encode(0x1337, signed: true, endian: :native)
       expected = <<0x1337::signed-native-size(16)>>
 
-      assert expected == got
+      assert got == expected
     end
 
     test "unsigned + native" do
       got = ShortType.encode(0x1337, signed: false, endian: :native)
       expected = <<0x1337::unsigned-native-size(16)>>
 
-      assert expected == got
+      assert got == expected
     end
   end
 
@@ -71,7 +71,7 @@ defmodule ElvenGard.Protocol.Binary.ShortTypeTest do
       got = ShortType.decode(<<0x1337::size(16)>>)
       expected = {0x1337, <<>>}
 
-      assert expected == got
+      assert got == expected
     end
 
     @tag :pending
@@ -79,14 +79,14 @@ defmodule ElvenGard.Protocol.Binary.ShortTypeTest do
       got = ShortType.decode(<<0x1337::size(16), 0x42::signed-size(16), 0x01::little-size(16)>>)
       expected = {0x1337, <<0x42::signed-size(16), 0x01::little-size(16)>>}
 
-      assert expected == got
+      assert got == expected
     end
 
     test "signed + little" do
       got = ShortType.decode(<<0x1337::signed-little-size(16)>>, signed: true, endian: :little)
       expected = {0x1337, <<>>}
 
-      assert expected == got
+      assert got == expected
     end
 
     test "unsigned + little" do
@@ -94,7 +94,7 @@ defmodule ElvenGard.Protocol.Binary.ShortTypeTest do
 
       expected = {0x1337, <<>>}
 
-      assert expected == got
+      assert got == expected
     end
 
     @tag :pending
@@ -102,7 +102,7 @@ defmodule ElvenGard.Protocol.Binary.ShortTypeTest do
       got = ShortType.decode(<<0x1337::signed-big-size(16)>>, signed: true, endian: :big)
       expected = {0x1337, <<>>}
 
-      assert expected == got
+      assert got == expected
     end
 
     @tag :pending
@@ -110,14 +110,14 @@ defmodule ElvenGard.Protocol.Binary.ShortTypeTest do
       got = ShortType.decode(<<0x1337::unsigned-big-size(16)>>, signed: false, endian: :big)
       expected = {0x1337, <<>>}
 
-      assert expected == got
+      assert got == expected
     end
 
     test "signed + native" do
       got = ShortType.decode(<<0x1337::signed-native-size(16)>>, signed: true, endian: :native)
       expected = {0x1337, <<>>}
 
-      assert expected == got
+      assert got == expected
     end
 
     test "unsigned + native" do
@@ -125,7 +125,7 @@ defmodule ElvenGard.Protocol.Binary.ShortTypeTest do
 
       expected = {0x1337, <<>>}
 
-      assert expected == got
+      assert got == expected
     end
   end
 end

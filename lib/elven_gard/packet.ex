@@ -21,8 +21,9 @@ defmodule ElvenGard.Packet do
     )
 
     quote do
-      require Logger
       import unquote(parent)
+
+      require Logger
 
       @before_compile unquote(parent)
       @desc nil
@@ -64,9 +65,9 @@ defmodule ElvenGard.Packet do
   end
 
   @doc """
-  Define an useless packet
+  Define an unused packet
 
-  ¯\\_(ツ)_/¯
+  ¯\\\\_(ツ)_/¯
   """
   defmacro useless_packet(packet_name) do
     caller = __CALLER__.module

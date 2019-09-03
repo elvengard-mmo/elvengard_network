@@ -1,9 +1,12 @@
 defmodule ElvenGard.Protocol do
   @moduledoc """
   Transform a raw packet (packet received by a client) into a packet that can be
-  pattern match by a PacketHandler.
+  pattern match by a PacketHandler
 
   /!\\ No side effect: Cannot change or modify the current `ElvenGard.Structures.Client`
+
+  TODO: I don't really know if it's usefull to add `pre` and `post` hooks for `encode` and
+  `decode`. I'll probably remove them later.
   """
 
   alias ElvenGard.Structures.Client
@@ -15,17 +18,20 @@ defmodule ElvenGard.Protocol do
 
   @doc """
   Prepare the packet to be sent for the encode function
+
+  NOTE: This function is called by `ElvenGard.Structures.Client.send/2`
   """
   @callback pre_encode(data :: term, client :: Client.t()) :: term
 
   @doc """
-  Encodes a packet so that it can be sent to a client.
+  Transforms a term into a packet that can be sent to the client
+
   You can, for example, apply your cryptographic algorithm.
   """
   @callback encode(data :: term) :: term
 
   @doc """
-  If not already done by the `encode` function, this function will transform his
+  If not already done by the `c:encode/1` function, this function will transform his
   result into a binary.
   """
   @callback post_encode(data :: term, client :: Client.t()) :: binary
@@ -37,14 +43,18 @@ defmodule ElvenGard.Protocol do
 
   @doc """
   Transform a raw packet to an understandable packet.
+
   You can, for example, apply your cryptographic algorithm and split your packet.
   """
   @callback decode(data :: term) :: term
 
   @doc """
-  If not already done by the `decode` function, this function will transform his
+  If not already done by the `c:decode/1` function, this function will transform his
   result into a tuple.
-  This function must return a tuple starting with your packet header followed by params.
+
+  NOTE: This function must return a tuple starting with your packet header followed by
+  params or a list of tuple.  
+  The result of this function will then be used by `c:ElvenGard.Packet.handle_packet/3`
   """
   @callback post_decode(data :: term, client :: Client.t()) :: {term, map} | list(tuple)
 
@@ -56,9 +66,10 @@ defmodule ElvenGard.Protocol do
 
     quote do
       @behaviour unquote(parent)
-      @before_compile unquote(parent)
 
       alias ElvenGard.Structures.Client
+
+      @before_compile unquote(parent)
 
       @doc """
       Successively applies functions `pre_encode`, `encode` and `post_encode`
@@ -73,7 +84,8 @@ defmodule ElvenGard.Protocol do
 
       @doc """
       Successively applies functions `pre_decode`, `decode` and `post_decode`
-      Can return a packet list
+
+      NOTE: Can return a packet list
       """
       @spec complete_decode(binary, Client.t()) :: tuple | list(tuple)
       def complete_decode(data, %Client{} = client) do
@@ -107,6 +119,7 @@ defmodule ElvenGard.Protocol do
                      post_encode: 2,
                      pre_decode: 2,
                      post_decode: 2,
+                     complete_encode: 2,
                      complete_decode: 2
     end
   end

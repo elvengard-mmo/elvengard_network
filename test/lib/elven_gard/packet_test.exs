@@ -155,7 +155,7 @@ defmodule ElvenGard.PacketTest do
       got = InvalidPacketHandler.get_packet_definitions()
       expected = []
 
-      assert expected == got
+      assert got == expected
     end
   end
 
@@ -172,7 +172,7 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
 
     test "documentation" do
@@ -187,7 +187,7 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
 
     test "multiline documentation" do
@@ -202,7 +202,7 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
 
     test "documentations previously set" do
@@ -217,7 +217,7 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
   end
 
@@ -241,7 +241,7 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
 
     test "attribute documentation" do
@@ -263,7 +263,7 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
 
     test "documentation option" do
@@ -285,7 +285,7 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
 
     test "multiline documentation" do
@@ -307,7 +307,7 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
 
     test "documentations previously set" do
@@ -329,7 +329,7 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
   end
 
@@ -346,7 +346,7 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
 
     test "documentation" do
@@ -361,7 +361,7 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
   end
 
@@ -428,7 +428,7 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
   end
 end

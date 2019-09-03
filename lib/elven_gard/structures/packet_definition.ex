@@ -3,11 +3,12 @@ defmodule ElvenGard.Structures.PacketDefinition do
   Structure for a packet's definition
   """
 
+  alias ElvenGard.Structures.FieldDefinition
+
   @keys [:name, :description, :fields, :tags]
   @enforce_keys @keys
-  defstruct @keys
 
-  alias ElvenGard.Structures.FieldDefinition
+  defstruct @keys
 
   @type t :: %__MODULE__{}
   @type empty_string :: String.t() | nil
