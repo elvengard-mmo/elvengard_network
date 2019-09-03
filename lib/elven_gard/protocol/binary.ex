@@ -18,7 +18,7 @@ defmodule ElvenGard.Protocol.Binary do
   @doc false
   defmacro __using__(model: model) do
     expanded_model = Macro.expand(model, __CALLER__)
-    defs = expanded_model.get_packet_definitions()
+    defs = expanded_model.fetch_definitions()
 
     :ok = check_types!(defs)
 
@@ -40,7 +40,7 @@ defmodule ElvenGard.Protocol.Binary do
       end
 
       ## Define sub decoders
-      Enum.each(unquote(model).get_packet_definitions(), fn packet ->
+      Enum.each(unquote(model).fetch_definitions(), fn packet ->
         name = packet.name
         fields = Macro.escape(packet.fields)
 

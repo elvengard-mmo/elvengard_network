@@ -15,7 +15,7 @@ defmodule ElvenGard.UnknownViewError do
 
   @impl true
   def message(%{parent: parent, type: type}) do
-    "Unable to find the `render/2` function with the '#{inspect(type)}' key " <>
+    "unable to find the `render/2` function with the '#{inspect(type)}' key " <>
       "(from #{inspect(parent)})"
   end
 end
