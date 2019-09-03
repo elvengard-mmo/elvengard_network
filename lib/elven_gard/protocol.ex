@@ -1,7 +1,7 @@
 defmodule ElvenGard.Protocol do
   @moduledoc """
   Transform a raw packet (packet received by a client) into a packet that can be
-  pattern match by a PacketHandler.
+  pattern match by a PacketHandler
 
   /!\\ No side effect: Cannot change or modify the current `ElvenGard.Structures.Client`
 
@@ -66,9 +66,10 @@ defmodule ElvenGard.Protocol do
 
     quote do
       @behaviour unquote(parent)
-      @before_compile unquote(parent)
 
       alias ElvenGard.Structures.Client
+
+      @before_compile unquote(parent)
 
       @doc """
       Successively applies functions `pre_encode`, `encode` and `post_encode`

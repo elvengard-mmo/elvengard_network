@@ -1,5 +1,5 @@
 defmodule ElvenGard do
   @moduledoc """
-  Documentation for ElvenGard.
+  Documentation for ElvenGard
   """
 end

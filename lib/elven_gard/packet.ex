@@ -21,8 +21,9 @@ defmodule ElvenGard.Packet do
     )
 
     quote do
-      require Logger
       import unquote(parent)
+
+      require Logger
 
       @before_compile unquote(parent)
       @desc nil
@@ -43,7 +44,7 @@ defmodule ElvenGard.Packet do
         {:cont, client}
       end
 
-      def fetch_definitions() do
+      def get_packet_definitions() do
         @elven_packet_definitions
       end
     end

@@ -7,13 +7,13 @@ defmodule ElvenGard.Protocol.Textual.FloatTypeTest do
     got = FloatType.encode(13.37)
     expected = "13.37"
 
-    assert expected == got
+    assert got == expected
   end
 
   test "Decode textual float type" do
     got = FloatType.decode("13.37")
     expected = 13.37
 
-    assert expected == got
+    assert got == expected
   end
 end

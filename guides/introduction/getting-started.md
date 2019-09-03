@@ -237,7 +237,7 @@ defmodule LoginServer.Auth.Actions do
     # Send the response to the client
     Client.send(client, render)
     
-    # We continue to receive packets from the client
+    # We continue to receive packages from the client
     {:cont, client}
   end
   
@@ -295,7 +295,7 @@ SUCCESS 127.0.0.1:1234  # Client response
 ```
 
 ```
-# Back to terminal 1, we also received several messages due to the application logs
+#Back to terminal 1, we also received several messages due to the application logs
 XX:XX:XX.XX [info]  Login server started on port 3000
 XX:XX:XX.XX [info]  New connection: 226167fe-493f-47ea-ae81-5f94e0e728ed
 XX:XX:XX.XX [info]  New message from 226167fe-493f-47ea-ae81-5f94e0e728ed (len: 5)

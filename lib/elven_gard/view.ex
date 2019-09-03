@@ -5,12 +5,12 @@ defmodule ElvenGard.View do
 
   alias ElvenGard.UnknownViewError
 
+  @anno if :erlang.system_info(:otp_release) >= '19', do: [generated: true], else: [line: -1]
+
   @doc """
   Build a packet to send to the client
   """
   @callback render(type :: atom, opts :: map) :: term
-
-  @anno if :erlang.system_info(:otp_release) >= '19', do: [generated: true], else: [line: -1]
 
   @doc false
   defmacro __using__(_) do
@@ -18,6 +18,7 @@ defmodule ElvenGard.View do
 
     quote do
       @behaviour unquote(parent)
+
       @before_compile unquote(parent)
     end
   end

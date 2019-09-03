@@ -3,6 +3,7 @@ defmodule ElvenGard.Protocol.Binary do
   TODO: Documentation for ElvenGard.Protocol.Binary
   """
 
+  alias ElvenGard.FieldTypeError
   alias ElvenGard.Structures.{Client, PacketDefinition}
 
   @aliases [
@@ -17,7 +18,7 @@ defmodule ElvenGard.Protocol.Binary do
   @doc false
   defmacro __using__(model: model) do
     expanded_model = Macro.expand(model, __CALLER__)
-    defs = expanded_model.fetch_definitions()
+    defs = expanded_model.get_packet_definitions()
 
     :ok = check_types!(defs)
 
@@ -39,7 +40,7 @@ defmodule ElvenGard.Protocol.Binary do
       end
 
       ## Define sub decoders
-      Enum.each(unquote(model).fetch_definitions(), fn packet ->
+      Enum.each(unquote(model).get_packet_definitions(), fn packet ->
         name = packet.name
         fields = Macro.escape(packet.fields)
 
@@ -89,8 +90,7 @@ defmodule ElvenGard.Protocol.Binary do
   @spec check_type!(atom, atom, term) :: term
   defp check_type!(type, name, def_name) do
     unless Keyword.has_key?(type.__info__(:functions), :decode) do
-      raise "Invalid type '#{inspect(type)}' for '#{inspect(name)}' " <>
-              "for packet '#{inspect(def_name)}'"
+      raise FieldTypeError, field_type: type, field_name: name, packet_name: def_name
     end
   end
 end

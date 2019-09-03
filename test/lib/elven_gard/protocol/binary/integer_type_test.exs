@@ -9,7 +9,7 @@ defmodule ElvenGard.Protocol.Binary.IntegerTypeTest do
       got = IntegerType.encode(0x1337)
       expected = <<0x1337::size(32)>>
 
-      assert expected == got
+      assert got == expected
     end
 
     @tag :pending
@@ -17,21 +17,21 @@ defmodule ElvenGard.Protocol.Binary.IntegerTypeTest do
       got = IntegerType.encode(0x1337133700)
       expected = <<0x37133700::size(32)>>
 
-      assert expected == got
+      assert got == expected
     end
 
     test "signed + little" do
       got = IntegerType.encode(0x1337, signed: true, endian: :little)
       expected = <<0x1337::signed-little-size(32)>>
 
-      assert expected == got
+      assert got == expected
     end
 
     test "unsigned + little" do
       got = IntegerType.encode(0x1337, signed: false, endian: :little)
       expected = <<0x1337::unsigned-little-size(32)>>
 
-      assert expected == got
+      assert got == expected
     end
 
     @tag :pending
@@ -39,7 +39,7 @@ defmodule ElvenGard.Protocol.Binary.IntegerTypeTest do
       got = IntegerType.encode(0x1337, signed: true, endian: :big)
       expected = <<0x1337::signed-big-size(32)>>
 
-      assert expected == got
+      assert got == expected
     end
 
     @tag :pending
@@ -47,21 +47,21 @@ defmodule ElvenGard.Protocol.Binary.IntegerTypeTest do
       got = IntegerType.encode(0x1337, signed: false, endian: :big)
       expected = <<0x1337::unsigned-big-size(32)>>
 
-      assert expected == got
+      assert got == expected
     end
 
     test "signed + native" do
       got = IntegerType.encode(0x1337, signed: true, endian: :native)
       expected = <<0x1337::signed-native-size(32)>>
 
-      assert expected == got
+      assert got == expected
     end
 
     test "unsigned + native" do
       got = IntegerType.encode(0x1337, signed: false, endian: :native)
       expected = <<0x1337::unsigned-native-size(32)>>
 
-      assert expected == got
+      assert got == expected
     end
   end
 
@@ -71,7 +71,7 @@ defmodule ElvenGard.Protocol.Binary.IntegerTypeTest do
       got = IntegerType.decode(<<0x1337::size(32)>>)
       expected = {0x1337, <<>>}
 
-      assert expected == got
+      assert got == expected
     end
 
     @tag :pending
@@ -79,14 +79,14 @@ defmodule ElvenGard.Protocol.Binary.IntegerTypeTest do
       got = IntegerType.decode(<<0x1337::size(32), 0x42::signed-size(32), 0x01::little-size(32)>>)
       expected = {0x1337, <<0x42::signed-size(32), 0x01::little-size(32)>>}
 
-      assert expected == got
+      assert got == expected
     end
 
     test "signed + little" do
       got = IntegerType.decode(<<0x1337::signed-little-size(32)>>, signed: true, endian: :little)
       expected = {0x1337, <<>>}
 
-      assert expected == got
+      assert got == expected
     end
 
     test "unsigned + little" do
@@ -95,7 +95,7 @@ defmodule ElvenGard.Protocol.Binary.IntegerTypeTest do
 
       expected = {0x1337, <<>>}
 
-      assert expected == got
+      assert got == expected
     end
 
     @tag :pending
@@ -103,7 +103,7 @@ defmodule ElvenGard.Protocol.Binary.IntegerTypeTest do
       got = IntegerType.decode(<<0x1337::signed-big-size(32)>>, signed: true, endian: :big)
       expected = {0x1337, <<>>}
 
-      assert expected == got
+      assert got == expected
     end
 
     @tag :pending
@@ -111,14 +111,14 @@ defmodule ElvenGard.Protocol.Binary.IntegerTypeTest do
       got = IntegerType.decode(<<0x1337::unsigned-big-size(32)>>, signed: false, endian: :big)
       expected = {0x1337, <<>>}
 
-      assert expected == got
+      assert got == expected
     end
 
     test "signed + native" do
       got = IntegerType.decode(<<0x1337::signed-native-size(32)>>, signed: true, endian: :native)
       expected = {0x1337, <<>>}
 
-      assert expected == got
+      assert got == expected
     end
 
     test "unsigned + native" do
@@ -127,7 +127,7 @@ defmodule ElvenGard.Protocol.Binary.IntegerTypeTest do
 
       expected = {0x1337, <<>>}
 
-      assert expected == got
+      assert got == expected
     end
   end
 end

@@ -152,16 +152,16 @@ defmodule ElvenGard.PacketTest do
 
   describe "Invalid packet:" do
     test "no documentation" do
-      got = InvalidPacketHandler.fetch_definitions()
+      got = InvalidPacketHandler.get_packet_definitions()
       expected = []
 
-      assert expected == got
+      assert got == expected
     end
   end
 
   describe "No field, single packet defined with" do
     test "no documentation" do
-      got = BasicPacketHandler.fetch_definitions()
+      got = BasicPacketHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -172,11 +172,11 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
 
     test "documentation" do
-      got = WithDescHandler.fetch_definitions()
+      got = WithDescHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -187,11 +187,11 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
 
     test "multiline documentation" do
-      got = MultilineDescHandler.fetch_definitions()
+      got = MultilineDescHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -202,11 +202,11 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
 
     test "documentations previously set" do
-      got = AttributeDescHandler.fetch_definitions()
+      got = AttributeDescHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -217,13 +217,13 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
   end
 
   describe "Single packet, single field defined with" do
     test "no documentation" do
-      got = FieldHandler.fetch_definitions()
+      got = FieldHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -241,11 +241,11 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
 
     test "attribute documentation" do
-      got = FieldDescHandler.fetch_definitions()
+      got = FieldDescHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -263,11 +263,11 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
 
     test "documentation option" do
-      got = FieldDescOptsHandler.fetch_definitions()
+      got = FieldDescOptsHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -285,11 +285,11 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
 
     test "multiline documentation" do
-      got = FieldMultilineDescHandler.fetch_definitions()
+      got = FieldMultilineDescHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -307,11 +307,11 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
 
     test "documentations previously set" do
-      got = FieldDescAttributeHandler.fetch_definitions()
+      got = FieldDescAttributeHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -329,13 +329,13 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
   end
 
   describe "Tagged packet" do
     test "no documentation" do
-      got = UselessHandler.fetch_definitions()
+      got = UselessHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -346,11 +346,11 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
 
     test "documentation" do
-      got = UselessWithDescHandler.fetch_definitions()
+      got = UselessWithDescHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -361,13 +361,13 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
   end
 
   describe "Final test:" do
     test "Multiple packet, multiple fields, tagged or not, documented or not" do
-      got = CompleteHandler.fetch_definitions()
+      got = CompleteHandler.get_packet_definitions()
 
       expected = [
         %PacketDefinition{
@@ -428,7 +428,7 @@ defmodule ElvenGard.PacketTest do
         }
       ]
 
-      assert expected == got
+      assert got == expected
     end
   end
 end

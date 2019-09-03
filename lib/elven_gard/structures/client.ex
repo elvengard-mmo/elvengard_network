@@ -1,12 +1,14 @@
 defmodule ElvenGard.Structures.Client do
   @moduledoc """
-  Manage a socket.
+  Manage a socket
+
   You can store some metadata on this structure.
   """
 
   @keys [:id, :socket, :transport, :metadata]
   @enforce_keys @keys
-  defstruct @keys ++ [protocol: nil]
+
+  defstruct @keys ++ [:protocol]
 
   @type t :: %__MODULE__{}
   @type metadata_key :: [term, ...] | term

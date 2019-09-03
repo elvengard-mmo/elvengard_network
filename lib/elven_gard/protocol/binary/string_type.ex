@@ -20,7 +20,7 @@ defmodule ElvenGard.Protocol.Binary.StringType do
     bytes = Keyword.get(opts, :bytes)
 
     if bits == nil and bytes == nil do
-      raise TypeOptionError, message: "You must specify a size in bytes/bits for a string"
+      raise TypeOptionError, "you must specify a size in bytes/bits for a string"
     end
 
     size = if bits != nil, do: Kernel.trunc(bits / 8), else: bytes

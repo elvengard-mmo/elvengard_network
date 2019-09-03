@@ -8,7 +8,7 @@ defmodule ElvenGard.Protocol.Binary.StringTypeTest do
       got = StringType.encode("first test")
       expected = "first test"
 
-      assert expected == got
+      assert got == expected
     end
   end
 
@@ -25,7 +25,7 @@ defmodule ElvenGard.Protocol.Binary.StringTypeTest do
       got = StringType.decode(msg, bytes: len)
       expected = {msg, <<>>}
 
-      assert expected == got
+      assert got == expected
     end
 
     test "without rest (size in bits)" do
@@ -34,7 +34,7 @@ defmodule ElvenGard.Protocol.Binary.StringTypeTest do
       got = StringType.decode(msg, bits: len)
       expected = {msg, <<>>}
 
-      assert expected == got
+      assert got == expected
     end
 
     test "with rest (size in bytes)" do
@@ -45,7 +45,7 @@ defmodule ElvenGard.Protocol.Binary.StringTypeTest do
       got = StringType.decode(full_msg, bytes: len)
       expected = {msg, rest}
 
-      assert expected == got
+      assert got == expected
     end
 
     test "with rest (size in bits)" do
@@ -56,7 +56,7 @@ defmodule ElvenGard.Protocol.Binary.StringTypeTest do
       got = StringType.decode(full_msg, bits: len)
       expected = {msg, rest}
 
-      assert expected == got
+      assert got == expected
     end
   end
 end
