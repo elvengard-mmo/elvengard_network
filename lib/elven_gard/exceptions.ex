@@ -7,13 +7,13 @@ end
 
 defmodule ElvenGard.UnknownViewError do
   @moduledoc """
-  Raised when the view is not found
+  Raised when a view is not found
   """
   defexception [:parent, :type]
 
   @impl true
   def message(%{parent: parent, type: type}) do
-    "Unable to find the `render/2` function with the '#{inspect(type)}' key " <>
+    "unable to find the `render/2` function with the '#{inspect(type)}' key " <>
       "(from #{inspect(parent)})"
   end
 end

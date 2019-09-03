@@ -152,7 +152,7 @@ defmodule ElvenGard.PacketTest do
 
   describe "Invalid packet:" do
     test "no documentation" do
-      got = InvalidPacketHandler.get_packet_definitions()
+      got = InvalidPacketHandler.fetch_definitions()
       expected = []
 
       assert expected == got
@@ -161,7 +161,7 @@ defmodule ElvenGard.PacketTest do
 
   describe "No field, single packet defined with" do
     test "no documentation" do
-      got = BasicPacketHandler.get_packet_definitions()
+      got = BasicPacketHandler.fetch_definitions()
 
       expected = [
         %PacketDefinition{
@@ -176,7 +176,7 @@ defmodule ElvenGard.PacketTest do
     end
 
     test "documentation" do
-      got = WithDescHandler.get_packet_definitions()
+      got = WithDescHandler.fetch_definitions()
 
       expected = [
         %PacketDefinition{
@@ -191,7 +191,7 @@ defmodule ElvenGard.PacketTest do
     end
 
     test "multiline documentation" do
-      got = MultilineDescHandler.get_packet_definitions()
+      got = MultilineDescHandler.fetch_definitions()
 
       expected = [
         %PacketDefinition{
@@ -206,7 +206,7 @@ defmodule ElvenGard.PacketTest do
     end
 
     test "documentations previously set" do
-      got = AttributeDescHandler.get_packet_definitions()
+      got = AttributeDescHandler.fetch_definitions()
 
       expected = [
         %PacketDefinition{
@@ -223,7 +223,7 @@ defmodule ElvenGard.PacketTest do
 
   describe "Single packet, single field defined with" do
     test "no documentation" do
-      got = FieldHandler.get_packet_definitions()
+      got = FieldHandler.fetch_definitions()
 
       expected = [
         %PacketDefinition{
@@ -245,7 +245,7 @@ defmodule ElvenGard.PacketTest do
     end
 
     test "attribute documentation" do
-      got = FieldDescHandler.get_packet_definitions()
+      got = FieldDescHandler.fetch_definitions()
 
       expected = [
         %PacketDefinition{
@@ -267,7 +267,7 @@ defmodule ElvenGard.PacketTest do
     end
 
     test "documentation option" do
-      got = FieldDescOptsHandler.get_packet_definitions()
+      got = FieldDescOptsHandler.fetch_definitions()
 
       expected = [
         %PacketDefinition{
@@ -289,7 +289,7 @@ defmodule ElvenGard.PacketTest do
     end
 
     test "multiline documentation" do
-      got = FieldMultilineDescHandler.get_packet_definitions()
+      got = FieldMultilineDescHandler.fetch_definitions()
 
       expected = [
         %PacketDefinition{
@@ -311,7 +311,7 @@ defmodule ElvenGard.PacketTest do
     end
 
     test "documentations previously set" do
-      got = FieldDescAttributeHandler.get_packet_definitions()
+      got = FieldDescAttributeHandler.fetch_definitions()
 
       expected = [
         %PacketDefinition{
@@ -335,7 +335,7 @@ defmodule ElvenGard.PacketTest do
 
   describe "Tagged packet" do
     test "no documentation" do
-      got = UselessHandler.get_packet_definitions()
+      got = UselessHandler.fetch_definitions()
 
       expected = [
         %PacketDefinition{
@@ -350,7 +350,7 @@ defmodule ElvenGard.PacketTest do
     end
 
     test "documentation" do
-      got = UselessWithDescHandler.get_packet_definitions()
+      got = UselessWithDescHandler.fetch_definitions()
 
       expected = [
         %PacketDefinition{
@@ -367,7 +367,7 @@ defmodule ElvenGard.PacketTest do
 
   describe "Final test:" do
     test "Multiple packet, multiple fields, tagged or not, documented or not" do
-      got = CompleteHandler.get_packet_definitions()
+      got = CompleteHandler.fetch_definitions()
 
       expected = [
         %PacketDefinition{

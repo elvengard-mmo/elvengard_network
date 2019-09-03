@@ -43,7 +43,7 @@ defmodule ElvenGard.Packet do
         {:cont, client}
       end
 
-      def get_packet_definitions() do
+      def fetch_definitions() do
         @elven_packet_definitions
       end
     end
