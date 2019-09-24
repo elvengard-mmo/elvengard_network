@@ -26,10 +26,13 @@ script:
   - "mix format --dry-run --check-formatted"
   # Run all tests except pending ones
   - "mix test --trace"
-  # Push code coverage
-  - "mix coveralls.travis"
 
-after_script:
-  - mix deps.get
-  # Documentation coverage
-  - mix inch.report
+jobs:
+  include:
+    - stage: code_coverage
+      script:
+        - "mix deps.get"
+        # Push code coverage
+        - "mix coveralls.travis"
+      elixir: 1.9.1
+      otp_release: 22.0
