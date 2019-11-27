@@ -13,8 +13,10 @@ defmodule ElvenGard.PacketTest do
     use ElvenGard.Packet
 
     packet :very_basic_packet do
-      resolve fn _, _ -> :ok end
+      resolve &__MODULE__.handler/3
     end
+
+    def handler(_, _, _), do: :ok
   end
 
   defmodule WithDescHandler do
@@ -22,8 +24,10 @@ defmodule ElvenGard.PacketTest do
 
     @desc "Some desc"
     packet :packet_with_desc do
-      resolve fn _, _ -> :ok end
+      resolve &__MODULE__.handler/3
     end
+
+    def handler(_, _, _), do: :ok
   end
 
   defmodule MultilineDescHandler do
@@ -37,8 +41,10 @@ defmodule ElvenGard.PacketTest do
     desc
     """
     packet :packet_with_multi_lines_desc do
-      resolve fn _, _ -> :ok end
+      resolve &__MODULE__.handler/3
     end
+
+    def handler(_, _, _), do: :ok
   end
 
   defmodule AttributeDescHandler do
@@ -47,8 +53,10 @@ defmodule ElvenGard.PacketTest do
     @real_desc "Here is the real description"
     @desc @real_desc
     packet :packet_desc_previously_set do
-      resolve fn _, _ -> :ok end
+      resolve &__MODULE__.handler/3
     end
+
+    def handler(_, _, _), do: :ok
   end
 
   defmodule FieldHandler do
@@ -56,8 +64,10 @@ defmodule ElvenGard.PacketTest do
 
     packet :packet_no_desc_with_fields_no_desc do
       field :first_field, :string
-      resolve fn _, _ -> :ok end
+      resolve &__MODULE__.handler/3
     end
+
+    def handler(_, _, _), do: :ok
   end
 
   defmodule FieldDescHandler do
@@ -66,8 +76,10 @@ defmodule ElvenGard.PacketTest do
     packet :packet_no_desc_with_fields_desc_attr do
       @desc "Description attribute"
       field :first_field, :integer
-      resolve fn _, _ -> :ok end
+      resolve &__MODULE__.handler/3
     end
+
+    def handler(_, _, _), do: :ok
   end
 
   defmodule FieldDescOptsHandler do
@@ -75,8 +87,10 @@ defmodule ElvenGard.PacketTest do
 
     packet :packet_no_desc_with_fields_desc_opts do
       field :first_field, :string, description: "Description in options"
-      resolve fn _, _ -> :ok end
+      resolve &__MODULE__.handler/3
     end
+
+    def handler(_, _, _), do: :ok
   end
 
   defmodule FieldMultilineDescHandler do
@@ -91,8 +105,10 @@ defmodule ElvenGard.PacketTest do
       desc
       """
       field :first_field, :string
-      resolve fn _, _ -> :ok end
+      resolve &__MODULE__.handler/3
     end
+
+    def handler(_, _, _), do: :ok
   end
 
   defmodule FieldDescAttributeHandler do
@@ -103,8 +119,10 @@ defmodule ElvenGard.PacketTest do
     packet :packet_no_desc_with_fields_desc_prev_set do
       @desc @real_desc
       field :first_field, :string
-      resolve fn _, _ -> :ok end
+      resolve &__MODULE__.handler/3
     end
+
+    def handler(_, _, _), do: :ok
   end
 
   defmodule UselessHandler do
@@ -137,17 +155,17 @@ defmodule ElvenGard.PacketTest do
       @desc "Unknown too. Maybe a random number ?"
       field :unknown2, :integer
 
-      resolve &handle_login/2
+      resolve &__MODULE__.handle_login/3
     end
 
     packet :mov do
       field :x, :integer
       field :y, :integer
-      resolve &handle_mov/2
+      resolve &__MODULE__.handle_mov/3
     end
 
-    defp handle_login(_, _), do: :ok
-    defp handle_mov(_, _), do: :ok
+    def handle_login(_, _, _), do: :ok
+    def handle_mov(_, _, _), do: :ok
   end
 
   describe "Invalid packet:" do
