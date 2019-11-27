@@ -136,11 +136,23 @@ defmodule ElvenGard.Packet do
     caller = __CALLER__.module
     packet_name = Module.get_attribute(caller, :elven_packet_name)
 
-    quote do
-      Module.put_attribute(unquote(caller), :elven_packet_definitions, @elven_current_packet)
+    quote unquote: false, bind_quoted: [caller: caller, fun: fun, packet_name: packet_name] do
+      Module.put_attribute(caller, :elven_packet_definitions, @elven_current_packet)
+
+      params_map =
+        Enum.map(@elven_current_packet.fields, fn %FieldDefinition{name: name} = x ->
+          case Keyword.get(x.opts, :using) do
+            nil -> {name, {:_, [], Elixir}}
+            val -> {name, val}
+          end
+        end)
 
       @doc false
-      def handle_packet(unquote(packet_name), args, client) do
+      def handle_packet(
+            unquote(packet_name),
+            unquote({:%{}, [], params_map}) = args,
+            client
+          ) do
         unquote(fun).(client, unquote(packet_name), args)
       end
     end
