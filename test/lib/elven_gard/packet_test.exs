@@ -1,4 +1,8 @@
 defmodule ElvenGard.PacketTest do
+  #
+  # TODO: Add tests for `using` and `optional` fields properties
+  #
+
   use ExUnit.Case
 
   alias ElvenGard.Structures.{FieldDefinition, PacketDefinition}
