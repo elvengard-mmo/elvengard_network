@@ -1,3 +1,195 @@
+defmodule ElvenGard.Frontend.State do
+  @moduledoc false
+
+  require Record
+
+  alias ElvenGard.Structures.Client
+
+  Record.defrecord(:frontend_state,
+    callback_module: nil,
+    packet_handler: nil,
+    packet_protocol: nil,
+    client: nil
+  )
+
+  @type t ::
+          record(:frontend_state,
+            callback_module: module,
+            packet_handler: module,
+            packet_protocol: module,
+            client: Client.t()
+          )
+end
+
+defmodule ElvenGard.Frontend.RanchProtocol do
+  @moduledoc false
+
+  @behaviour :ranch_protocol
+
+  import ElvenGard.Frontend.State
+
+  alias ElvenGard.Frontend
+  alias ElvenGard.Structures.Client
+
+  @timeout 5_000
+
+  @impl :ranch_protocol
+  def start_link(ref, socket, transport, protocol_options) do
+    opts = [
+      ref,
+      socket,
+      transport,
+      protocol_options
+    ]
+
+    pid = :proc_lib.spawn_link(__MODULE__, :init, opts)
+    {:ok, pid}
+  end
+
+  @doc false
+  @spec init(reference, pid, atom, keyword) :: no_return
+  def init(ref, socket, transport, protocol_options) do
+    callback_module = Keyword.fetch!(protocol_options, :callback_module)
+    packet_protocol = Keyword.fetch!(protocol_options, :packet_protocol)
+    packet_handler = Keyword.fetch!(protocol_options, :packet_handler)
+
+    :ok = :ranch.accept_ack(ref)
+    :ok = transport.setopts(socket, [{:active, true}])
+
+    {:ok, client} =
+      socket
+      |> Client.new(transport, packet_protocol)
+      |> callback_module.handle_connection()
+
+    state =
+      frontend_state(
+        callback_module: callback_module,
+        packet_protocol: packet_protocol,
+        packet_handler: packet_handler,
+        client: client
+      )
+
+    :gen_server.enter_loop(__MODULE__, [], state, @timeout)
+  end
+
+  ## All GenServer callbacks
+
+  @doc false
+  def handle_info({:tcp, _socket, data}, state) do
+    frontend_state(
+      callback_module: cb_module,
+      packet_handler: handler,
+      packet_protocol: protocol,
+      client: client
+    ) = state
+
+    # TODO: Manage errors on `handle_message`: don't execute the protocol
+    {:ok, tmp_client} = cb_module.handle_message(client, data)
+
+    payload = protocol.complete_decode(data, tmp_client)
+
+    case do_handle_packet(payload, tmp_client, handler) do
+      {:cont, final_client} ->
+        {:noreply, final_client}
+
+      {:halt, {:ok, args}, final_client} ->
+        do_halt_ok(final_client, args, cb_module)
+
+      {:halt, {:error, reason}, final_client} ->
+        do_halt_error(final_client, reason, cb_module)
+
+      x ->
+        raise """
+        #{inspect(handler)}.handle_packet/3 have to return `{:cont, client}`, \
+        `{:halt, {:ok, :some_args}, client}`, or `{:halt, {:error, reason}, client} `. \
+        Returned: #{inspect(x)}
+        """
+    end
+  end
+
+  @doc false
+  def handle_info({:tcp_closed, _socket}, state) do
+    frontend_state(callback_module: cb_module, client: client) = state
+    {:ok, new_state} = cb_module.handle_disconnection(client, :normal)
+    {:stop, :normal, new_state}
+  end
+
+  @doc false
+  def handle_info({:tcp_error, _socket, reason}, state) do
+    frontend_state(callback_module: cb_module, client: client) = state
+    {:ok, new_state} = cb_module.handle_error(client, reason)
+    {:stop, reason, new_state}
+  end
+
+  @doc false
+  def handle_info(:timeout, state) do
+    frontend_state(callback_module: cb_module, client: client) = state
+    {:ok, new_state} = cb_module.handle_error(client, :timeout)
+    {:stop, :normal, new_state}
+  end
+
+  #
+  # Private function
+  #
+
+  @doc false
+  @spec do_handle_packet({term, map} | list(tuple), Client.t(), module) ::
+          {:cont, Frontend.state()}
+          | {:halt, {:ok, term}, Frontend.state()}
+          | {:halt, {:error, Frontend.conn_error()}, Frontend.state()}
+  defp do_handle_packet({header, params}, client, handler) do
+    handler.handle_packet(header, params, client)
+  end
+
+  defp do_handle_packet([{_header, _params} | _t] = packet_list, client, handler) do
+    Enum.reduce_while(packet_list, {:cont, client}, fn packet, {_, client} ->
+      res = do_handle_packet(packet, client, handler)
+      {elem(res, 0), res}
+    end)
+  end
+
+  defp do_handle_packet(x, _client, _handler) do
+    raise """
+    unable to handle packet #{inspect(x)}.
+    Please check that your protocol returns a tuple in the form of {header, \
+    %{param1: :val1, param2: :val2, ...} or a list of tuples
+    """
+  end
+
+  @doc false
+  @spec do_halt_ok(Client.t(), term, module) :: {:stop, :normal, Client.t()}
+  defp do_halt_ok(%Client{} = client, args, cb_module) do
+    final_client = client |> cb_module.handle_halt_ok(args) |> close_socket(:normal, cb_module)
+    {:stop, :normal, final_client}
+  end
+
+  @doc false
+  @spec do_halt_error(Client.t(), term, module) :: {:stop, :normal, Client.t()}
+  defp do_halt_error(%Client{} = client, reason, cb_module) do
+    final_client =
+      client |> cb_module.handle_halt_error(reason) |> close_socket(reason, cb_module)
+
+    {:stop, :normal, final_client}
+  end
+
+  @doc false
+  @spec close_socket(ElvenGard.Frontend.handle_return(), term, module) :: Client.t()
+  defp close_socket({:ok, %Client{} = client}, reason, cb_module),
+    do: do_close_socket(client, reason, cb_module)
+
+  defp close_socket({:error, _, %Client{} = client}, reason, cb_module),
+    do: do_close_socket(client, reason, cb_module)
+
+  @doc false
+  @spec do_close_socket(Client.t(), term, module) :: Client.t()
+  defp do_close_socket(%Client{} = client, reason, cb_module) do
+    %Client{socket: socket, transport: transport} = client
+    {:ok, final_client} = cb_module.handle_disconnection(client, reason)
+    transport.close(socket)
+    final_client
+  end
+end
+
 defmodule ElvenGard.Frontend do
   @moduledoc """
   TODO: Documentation for ElvenGard.Frontend
@@ -11,9 +203,12 @@ defmodule ElvenGard.Frontend do
   @type handle_return :: handle_ok | handle_error
   @type state :: Client.t()
 
-  @callback handle_init(args :: list) :: {:ok, term} | {:error, term}
-  @callback handle_connection(socket :: identifier, transport :: atom) :: handle_return
-  @callback handle_client_ready(client :: Client.t()) :: handle_return
+  @callback handle_init(args :: list) ::
+              {:ok, state}
+              | {:ok, state, timeout() | :hibernate | {:continue, term()}}
+              | :ignore
+              | {:stop, reason :: any()}
+  @callback handle_connection(client :: Client.t()) :: handle_return
   @callback handle_disconnection(client :: Client.t(), reason :: term) :: handle_return
   @callback handle_message(client :: Client.t(), message :: binary) :: handle_return
   @callback handle_error(client :: Client.t(), error :: conn_error) :: handle_return
@@ -24,192 +219,89 @@ defmodule ElvenGard.Frontend do
   Use ElvenGard.Frontend behaviour
   """
   defmacro __using__(opts) do
-    parent = __MODULE__
     caller = __CALLER__.module
-    port = get_in(opts, [:port]) || 3000
-    protocol = get_in(opts, [:packet_protocol])
-    handler = get_in(opts, [:packet_handler])
-    use_opts = put_in(opts, [:port], port)
+    port = Keyword.get(opts, :port, 3000)
+    protocol = Keyword.get(opts, :packet_protocol)
+    handler = Keyword.get(opts, :packet_handler)
 
-    # Check is there is any protocol
+    # Check if there is any protocol
     unless protocol do
       raise "please, specify a packet_protocol for #{caller}"
     end
 
-    # Check is there is any handler
+    # Check if there is any handler
     unless handler do
       raise "please, specify a packet_handler for #{caller}"
     end
 
     quote do
-      @behaviour unquote(parent)
-      @behaviour :ranch_protocol
+      @behaviour unquote(__MODULE__)
 
-      alias ElvenGard.Structures.Client
+      use GenServer
 
-      @timeout Application.get_env(:elven_gard, :response_timeout, 2000)
-
-      @doc false
-      def child_spec(opts) do
-        listener_name = __MODULE__
-        num_acceptors = Application.get_env(:elven_gard, :num_acceptors, 10)
-        transport = :ranch_tcp
-        transport_opts = [port: unquote(port)]
-        protocol = __MODULE__
-        protocol_opts = []
-
-        # TODO: Use args (pass them to ranch opts ?)
-        {:ok, _args} =
-          opts
-          |> Enum.concat(unquote(use_opts))
-          |> handle_init()
-
-        :ranch.child_spec(
-          listener_name,
-          num_acceptors,
-          transport,
-          transport_opts,
-          protocol,
-          protocol_opts
-        )
+      def start_link(args) do
+        GenServer.start_link(__MODULE__, args, name: __MODULE__)
       end
 
-      @doc false
-      @impl true
-      def start_link(ref, socket, transport, protocol_options) do
-        opts = [
-          ref,
-          socket,
-          transport,
-          protocol_options
-        ]
+      @impl GenServer
+      def init(_) do
+        ip_address = Application.get_env(:elven_gard, :ip_address, "127.0.0.1")
+        port = unquote(port)
+        {:ok, ranch_ip} = ip_address |> to_char_list() |> :inet.parse_ipv4_address()
 
-        pid = :proc_lib.spawn_link(__MODULE__, :init, opts)
-        {:ok, pid}
-      end
+        listener_opts = %{
+          num_acceptors: Application.get_env(:elven_gard, :num_acceptors, 10),
+          max_connections: Application.get_env(:elven_gard, :max_connections, 1024),
+          handshake_timeout: Application.get_env(:elven_gard, :handshake_timeout, 5000),
+          socket_opts: [ip: ranch_ip, port: port]
+        }
 
-      @doc """
-      Accept Ranch ack and handle packets
-      """
-      def init(ref, socket, transport, _) do
-        with :ok <- :ranch.accept_ack(ref),
-             :ok = transport.setopts(socket, [{:active, true}]),
-             {:ok, client} <- handle_connection(socket, transport) do
-          {:ok, final_client} =
-            %Client{client | protocol: unquote(protocol)}
-            |> handle_client_ready()
+        opts = %{
+          listener_name: {__MODULE__, ip_address, port},
+          transport: :ranch_tcp,
+          listener_opts: listener_opts,
+          protocol: unquote(__MODULE__).RanchProtocol,
+          protocol_opts: [
+            callback_module: __MODULE__,
+            packet_protocol: unquote(protocol),
+            packet_handler: unquote(handler)
+          ]
+        }
 
-          :gen_server.enter_loop(__MODULE__, [], final_client, 10_000)
+        case handle_init(opts) do
+          {:ok, opts} -> {:ok, nil, {:continue, {:init_listener, opts, nil}}}
+          {:ok, opts, action} -> {:ok, nil, {:continue, {:init_listener, opts, action}}}
+          res -> res
         end
       end
 
-      #
-      # All GenServer handles
-      #
+      @impl GenServer
+      def handle_continue({:init_listener, opts, action}, state) do
+        %{
+          listener_name: listener_name,
+          transport: transport,
+          listener_opts: listener_opts,
+          protocol: protocol,
+          protocol_opts: protocol_opts
+        } = opts
 
-      def handle_info({:tcp, socket, data}, %Client{} = client) do
-        # TODO: Manage errors on `handle_message`: don't execute the protocol
-        {:ok, tmp_state} = handle_message(client, data)
+        {:ok, pid} =
+          :ranch.start_listener(
+            listener_name,
+            transport,
+            listener_opts,
+            protocol,
+            protocol_opts
+          )
 
-        payload = unquote(protocol).complete_decode(data, tmp_state)
+        # FIXMME: Not sure if it's a good practice....
+        # Maybe a monitor would be better
+        Process.link(pid)
 
-        case do_handle_packet(payload, tmp_state) do
-          {:cont, final_client} ->
-            {:noreply, final_client}
-
-          {:halt, {:ok, args}, final_client} ->
-            do_halt_ok(final_client, args)
-
-          {:halt, {:error, reason}, final_client} ->
-            do_halt_error(final_client, reason)
-
-          x ->
-            raise """
-            #{unquote(handler)}.handle_packet/3 have to return `{:cont, client}`, \
-            `{:halt, {:ok, :some_args}, client}`, or `{:halt, {:error, reason}, client} `. \
-            Returned: #{inspect(x)}
-            """
+        case action do
+          nil -> {:noreply, state}
+          _ -> {:noreply, state, action}
         end
-      end
-
-      def handle_info({:tcp_closed, _socket}, %Client{} = client) do
-        {:ok, new_state} = handle_disconnection(client, :normal)
-        {:stop, :normal, new_state}
-      end
-
-      def handle_info({:tcp_error, _socket, reason}, %Client{} = client) do
-        {:ok, new_state} = handle_error(client, reason)
-        {:stop, reason, new_state}
-      end
-
-      def handle_info(:timeout, %Client{} = client) do
-        {:ok, new_state} = handle_error(client, :timeout)
-        {:stop, :normal, new_state}
-      end
-
-      #
-      # Private function
-      #
-
-      @spec do_handle_packet({term, map} | list(tuple), Client.t()) ::
-              {:cont, unquote(parent).state}
-              | {:halt, {:ok, term}, unquote(parent).state}
-              | {:halt, {:error, unquote(parent).conn_error()}, unquote(parent).state}
-      defp do_handle_packet({header, params}, client) do
-        unquote(handler).handle_packet(header, params, client)
-      end
-
-      defp do_handle_packet([{_header, _params} | _t] = packet_list, client) do
-        Enum.reduce_while(packet_list, {:cont, client}, fn packet, {_, client} ->
-          res = do_handle_packet(packet, client)
-          {elem(res, 0), res}
-        end)
-      end
-
-      defp do_handle_packet(x, _client) do
-        raise """
-        unable to handle packet #{inspect(x)}.
-        Please check that your protocol returns a tuple in the form of {header, \
-        %{param1: :val1, param2: :val2, ...} or a list of tuples
-        """
-      end
-
-      @spec do_halt_ok(Client.t(), term) :: {:stop, :normal, Client.t()}
-      defp do_halt_ok(%Client{} = client, args) do
-        final_client =
-          client
-          |> handle_halt_ok(args)
-          |> close_socket(:normal)
-
-        {:stop, :normal, final_client}
-      end
-
-      @spec do_halt_error(Client.t(), term) :: {:stop, :normal, Client.t()}
-      defp do_halt_error(%Client{} = client, reason) do
-        final_client =
-          client
-          |> handle_halt_error(reason)
-          |> close_socket(reason)
-
-        {:stop, :normal, final_client}
-      end
-
-      @spec close_socket(unquote(parent).handle_return(), term) :: Client.t()
-      defp close_socket({:ok, %Client{} = client}, reason), do: do_close_socket(client, reason)
-
-      defp close_socket({:error, _, %Client{} = client}, reason),
-        do: do_close_socket(client, reason)
-
-      @spec do_close_socket(Client.t(), term) :: Client.t()
-      defp do_close_socket(%Client{} = client, reason) do
-        %Client{
-          socket: socket,
-          transport: transport
-        } = client
-
-        {:ok, final_client} = handle_disconnection(client, reason)
-        transport.close(socket)
-        final_client
       end
 
       #
@@ -217,8 +309,7 @@ defmodule ElvenGard.Frontend do
       #
 
       def handle_init(_args), do: {:ok, nil}
-      def handle_connection(socket, transport), do: Client.new(socket, transport)
-      def handle_client_ready(client), do: {:ok, client}
+      def handle_connection(client), do: {:ok, client}
       def handle_disconnection(client, _reason), do: {:ok, client}
       def handle_message(client, _message), do: {:ok, client}
       def handle_error(client, _reason), do: {:ok, client}
@@ -226,8 +317,7 @@ defmodule ElvenGard.Frontend do
       def handle_halt_error(client, _reason), do: {:ok, client}
 
       defoverridable handle_init: 1,
-                     handle_connection: 2,
-                     handle_client_ready: 1,
+                     handle_connection: 1,
                      handle_disconnection: 2,
                      handle_message: 2,
                      handle_error: 2,

@@ -5,10 +5,10 @@ defmodule ElvenGard.Structures.Client do
   You can store some metadata on this structure.
   """
 
-  @keys [:id, :socket, :transport, :metadata]
+  @keys [:id, :socket, :transport, :protocol, :metadata]
   @enforce_keys @keys
 
-  defstruct @keys ++ [:protocol]
+  defstruct @keys
 
   @type t :: %__MODULE__{}
   @type metadata_key :: [term, ...] | term
@@ -17,12 +17,13 @@ defmodule ElvenGard.Structures.Client do
   @doc """
   Create a new structure
   """
-  @spec new(identifier, atom, map) :: __MODULE__.t()
-  def new(socket, transport, metadata \\ %{}) do
+  @spec new(identifier, atom, module, map) :: __MODULE__.t()
+  def new(socket, transport, protocol, metadata \\ %{}) do
     %__MODULE__{
       id: UUID.uuid4(),
       socket: socket,
       transport: transport,
+      protocol: protocol,
       metadata: metadata
     }
   end

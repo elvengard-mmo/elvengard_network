@@ -62,8 +62,7 @@ defmodule LoginServer.Frontend do
   end
 
   @impl ElvenGard.Frontend
-  def handle_connection(socket, transport) do
-    client = Client.new(socket, transport)
+  def handle_connection(client) do
     Logger.info("New connection: #{client.id}")
     {:ok, client}
   end
