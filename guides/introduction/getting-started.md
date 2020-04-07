@@ -56,8 +56,9 @@ defmodule LoginServer.Frontend do
 
   @impl ElvenGard.Frontend
   def handle_init(args) do
-    port = get_in(args, [:port])
-    Logger.info("Login server started on port #{port}")
+    ip = Keyword.fetch!(args.listener_opts.socket_opts, :ip)
+    port = Keyword.fetch!(args.listener_opts.socket_opts, :port)
+    Logger.info("Listening for connections on #{:inet.ntoa(ip)}:#{port}")
     {:ok, nil}
   end
 
