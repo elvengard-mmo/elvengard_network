@@ -26,6 +26,8 @@ defmodule ElvenGard.Frontend.RanchProtocol do
 
   @behaviour :ranch_protocol
 
+  use GenServer
+
   import ElvenGard.Frontend.State
 
   alias ElvenGard.Frontend
@@ -33,22 +35,26 @@ defmodule ElvenGard.Frontend.RanchProtocol do
 
   @timeout 5_000
 
+  ## Ranch behaviour
+
   @impl :ranch_protocol
   def start_link(ref, socket, transport, protocol_options) do
-    opts = [
+    opts = {
       ref,
       socket,
       transport,
       protocol_options
-    ]
+    }
 
-    pid = :proc_lib.spawn_link(__MODULE__, :init, opts)
+    pid = :proc_lib.spawn_link(__MODULE__, :init, [opts])
     {:ok, pid}
   end
 
-  @doc false
-  @spec init(reference, pid, atom, keyword) :: no_return
-  def init(ref, socket, transport, protocol_options) do
+  ## Genserver behaviour
+
+  @impl GenServer
+  @spec init({reference, pid, atom, keyword}) :: no_return
+  def init({ref, socket, transport, protocol_options}) do
     callback_module = Keyword.fetch!(protocol_options, :callback_module)
     packet_protocol = Keyword.fetch!(protocol_options, :packet_protocol)
     packet_handler = Keyword.fetch!(protocol_options, :packet_handler)
@@ -72,9 +78,7 @@ defmodule ElvenGard.Frontend.RanchProtocol do
     :gen_server.enter_loop(__MODULE__, [], state, @timeout)
   end
 
-  ## All GenServer callbacks
-
-  @doc false
+  @impl GenServer
   def handle_info({:tcp, _socket, data}, state) do
     frontend_state(
       callback_module: cb_module,
@@ -83,20 +87,22 @@ defmodule ElvenGard.Frontend.RanchProtocol do
       client: client
     ) = state
 
-    # TODO: Manage errors on `handle_message`: don't execute the protocol
+    # TODO: Manage errors on `handle_message`: don't execute the protocol ???
     {:ok, tmp_client} = cb_module.handle_message(client, data)
 
     payload = protocol.complete_decode(data, tmp_client)
 
     case do_handle_packet(payload, tmp_client, handler) do
       {:cont, final_client} ->
-        {:noreply, final_client}
+        {:noreply, frontend_state(state, client: final_client)}
 
       {:halt, {:ok, args}, final_client} ->
-        do_halt_ok(final_client, args, cb_module)
+        new_state = frontend_state(state, client: final_client)
+        do_halt_ok(args, new_state)
 
       {:halt, {:error, reason}, final_client} ->
-        do_halt_error(final_client, reason, cb_module)
+        new_state = frontend_state(state, client: final_client)
+        do_halt_error(reason, new_state)
 
       x ->
         raise """
@@ -107,36 +113,34 @@ defmodule ElvenGard.Frontend.RanchProtocol do
     end
   end
 
-  @doc false
+  @impl GenServer
   def handle_info({:tcp_closed, _socket}, state) do
     frontend_state(callback_module: cb_module, client: client) = state
-    {:ok, new_state} = cb_module.handle_disconnection(client, :normal)
-    {:stop, :normal, new_state}
+    {:ok, new_client} = cb_module.handle_disconnection(client, :normal)
+    {:stop, :normal, frontend_state(state, client: new_client)}
   end
 
-  @doc false
+  @impl GenServer
   def handle_info({:tcp_error, _socket, reason}, state) do
     frontend_state(callback_module: cb_module, client: client) = state
-    {:ok, new_state} = cb_module.handle_error(client, reason)
-    {:stop, reason, new_state}
+    {:ok, new_client} = cb_module.handle_error(client, reason)
+    {:stop, reason, frontend_state(state, client: new_client)}
   end
 
-  @doc false
+  @impl GenServer
   def handle_info(:timeout, state) do
     frontend_state(callback_module: cb_module, client: client) = state
-    {:ok, new_state} = cb_module.handle_error(client, :timeout)
-    {:stop, :normal, new_state}
+    {:ok, new_client} = cb_module.handle_error(client, :timeout)
+    {:stop, :normal, frontend_state(state, client: new_client)}
   end
 
-  #
-  # Private function
-  #
+  ## Private function
 
   @doc false
   @spec do_handle_packet({term, map} | list(tuple), Client.t(), module) ::
-          {:cont, Frontend.state()}
-          | {:halt, {:ok, term}, Frontend.state()}
-          | {:halt, {:error, Frontend.conn_error()}, Frontend.state()}
+          {:cont, Client.t()}
+          | {:halt, {:ok, term}, Client.t()}
+          | {:halt, {:error, Frontend.conn_error()}, Client.t()}
   defp do_handle_packet({header, params}, client, handler) do
     handler.handle_packet(header, params, client)
   end
@@ -157,19 +161,21 @@ defmodule ElvenGard.Frontend.RanchProtocol do
   end
 
   @doc false
-  @spec do_halt_ok(Client.t(), term, module) :: {:stop, :normal, Client.t()}
-  defp do_halt_ok(%Client{} = client, args, cb_module) do
-    final_client = client |> cb_module.handle_halt_ok(args) |> close_socket(:normal, cb_module)
-    {:stop, :normal, final_client}
+  @spec do_halt_ok(term, State.t()) :: {:stop, :normal, State.t()}
+  defp do_halt_ok(args, state) do
+    frontend_state(callback_module: cb_module, client: client) = state
+    new_client = client |> cb_module.handle_halt_ok(args) |> close_socket(:normal, cb_module)
+    new_state = frontend_state(state, client: new_client)
+    {:stop, :normal, new_state}
   end
 
   @doc false
-  @spec do_halt_error(Client.t(), term, module) :: {:stop, :normal, Client.t()}
-  defp do_halt_error(%Client{} = client, reason, cb_module) do
-    final_client =
-      client |> cb_module.handle_halt_error(reason) |> close_socket(reason, cb_module)
-
-    {:stop, :normal, final_client}
+  @spec do_halt_error(term, State.t()) :: {:stop, :normal, State.t()}
+  defp do_halt_error(reason, state) do
+    frontend_state(callback_module: cb_module, client: client) = state
+    new_client = client |> cb_module.handle_halt_error(reason) |> close_socket(reason, cb_module)
+    new_state = frontend_state(state, client: new_client)
+    {:stop, :normal, new_state}
   end
 
   @doc false
@@ -201,11 +207,10 @@ defmodule ElvenGard.Frontend do
   @type handle_ok :: {:ok, Client.t()}
   @type handle_error :: {:error, term, Client.t()}
   @type handle_return :: handle_ok | handle_error
-  @type state :: Client.t()
 
-  @callback handle_init(args :: list) ::
-              {:ok, state}
-              | {:ok, state, timeout() | :hibernate | {:continue, term()}}
+  @callback handle_init(args :: map) ::
+              {:ok, map}
+              | {:ok, map, timeout() | :hibernate | {:continue, term()}}
               | :ignore
               | {:stop, reason :: any()}
   @callback handle_connection(client :: Client.t()) :: handle_return
@@ -215,9 +220,7 @@ defmodule ElvenGard.Frontend do
   @callback handle_halt_ok(client :: Client.t(), args :: term) :: handle_return
   @callback handle_halt_error(client :: Client.t(), error :: conn_error) :: handle_return
 
-  @doc """
-  Use ElvenGard.Frontend behaviour
-  """
+  @doc false
   defmacro __using__(opts) do
     caller = __CALLER__.module
     port = Keyword.get(opts, :port, 3000)
