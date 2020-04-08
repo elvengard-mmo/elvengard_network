@@ -73,7 +73,7 @@ defmodule ElvenGard.MixProject do
       {:ranch, "~> 1.7"},
       {:elixir_uuid, "~> 1.2"},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false},
-      {:dialyxir, "~> 0.5", optional: true, only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.0", optional: true, only: [:dev, :test], runtime: false},
       {:credo, "~> 1.1", optional: true, only: [:dev, :test], runtime: false},
       {:inch_ex, "~> 2.0", optional: true, only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.11", only: :test, runtime: false}
