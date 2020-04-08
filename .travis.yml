@@ -27,12 +27,13 @@ script:
   # Run all tests except pending ones
   - "mix test --trace"
 
-jobs:
-  include:
-    - stage: code_coverage
-      script:
-        - "mix deps.get"
-        # Push code coverage
-        - "mix coveralls.travis"
-      elixir: 1.9.1
-      otp_release: 22.0
+# TODO: Put it off till later. I need to write better documentation before
+# jobs:
+#   include:
+#     - stage: code_coverage
+#       script:
+#         - "mix deps.get"
+#         # Push code coverage
+#         - "mix coveralls.travis"
+#       elixir: 1.9.1
+#       otp_release: 22.0

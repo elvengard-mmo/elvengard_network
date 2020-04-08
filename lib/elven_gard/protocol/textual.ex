@@ -70,7 +70,7 @@ defmodule ElvenGard.Protocol.Textual do
         m = unquote(model)
 
         Logger.debug(fn ->
-          "Can't decode packet with header #{name}: not defined in model #{m}"
+          "Can't decode packet with header #{name}: not defined in model #{inspect(m)}"
         end)
 
         {name, params}

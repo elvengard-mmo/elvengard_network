@@ -70,7 +70,7 @@ defmodule ElvenGard.MixProject do
 
   defp deps() do
     [
-      {:ranch, "~> 1.5"},
+      {:ranch, "~> 1.7"},
       {:elixir_uuid, "~> 1.2"},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false},
       {:dialyxir, "~> 0.5", optional: true, only: [:dev, :test], runtime: false},

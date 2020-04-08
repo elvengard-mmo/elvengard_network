@@ -140,7 +140,8 @@ defmodule ElvenGard.Packet do
       Module.put_attribute(caller, :elven_packet_definitions, @elven_current_packet)
 
       params_map =
-        Enum.reduce(@elven_current_packet.fields, [], fn %FieldDefinition{name: name} = x, acc ->
+        @elven_current_packet.fields
+        |> Enum.reduce([], fn %FieldDefinition{name: name} = x, acc ->
           case {Keyword.get(x.opts, :optional), Keyword.get(x.opts, :using)} do
             {true, _} -> acc
             {_, nil} -> [{name, {:_, [], Elixir}} | acc]
