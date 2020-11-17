@@ -1,5 +1,5 @@
 defmodule ElvenGard.Protocol.Textual.FloatTypeTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias ElvenGard.Protocol.Textual.FloatType
 

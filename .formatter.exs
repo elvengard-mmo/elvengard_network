@@ -6,6 +6,6 @@
     field: 2,
     field: 3,
     resolve: 1,
-    useless_packet: 1
+    ignore_packet: 1
   ]
 ]

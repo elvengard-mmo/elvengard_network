@@ -3,7 +3,7 @@ defmodule ElvenGard.PacketTest do
   # TODO: Add tests for `using` and `optional` fields properties
   #
 
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias ElvenGard.Structures.{FieldDefinition, PacketDefinition}
 
@@ -132,21 +132,21 @@ defmodule ElvenGard.PacketTest do
   defmodule UselessHandler do
     use ElvenGard.Packet
 
-    useless_packet :useless_packet_no_desc
+    ignore_packet :ignore_packet_no_desc
   end
 
   defmodule UselessWithDescHandler do
     use ElvenGard.Packet
 
     @desc "Some description"
-    useless_packet :useless_packet_desc
+    ignore_packet :ignore_packet_desc
   end
 
   defmodule CompleteHandler do
     use ElvenGard.Packet
 
     @desc "Don't know what is this packet"
-    useless_packet :useless_packet
+    ignore_packet :ignore_packet
 
     @desc "Simple login packet"
     packet :login do
@@ -363,8 +363,8 @@ defmodule ElvenGard.PacketTest do
         %PacketDefinition{
           description: nil,
           fields: [],
-          name: :useless_packet_no_desc,
-          tags: [:useless_packet]
+          name: :ignore_packet_no_desc,
+          tags: [:ignored]
         }
       ]
 
@@ -378,8 +378,8 @@ defmodule ElvenGard.PacketTest do
         %PacketDefinition{
           description: "Some description",
           fields: [],
-          name: :useless_packet_desc,
-          tags: [:useless_packet]
+          name: :ignore_packet_desc,
+          tags: [:ignored]
         }
       ]
 
@@ -443,9 +443,9 @@ defmodule ElvenGard.PacketTest do
           ]
         },
         %PacketDefinition{
-          name: :useless_packet,
+          name: :ignore_packet,
           description: "Don't know what is this packet",
-          tags: [:useless_packet],
+          tags: [:ignored],
           fields: []
         }
       ]

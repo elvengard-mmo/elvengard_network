@@ -1,5 +1,5 @@
 defmodule ElvenGard.Protocol.Binary.ByteTypeTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias ElvenGard.Protocol.Binary.ByteType
 

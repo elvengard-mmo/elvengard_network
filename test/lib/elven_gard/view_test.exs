@@ -1,5 +1,5 @@
 defmodule ElvenGard.ViewTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   defmodule BasicView do
     use ElvenGard.View
@@ -8,12 +8,12 @@ defmodule ElvenGard.ViewTest do
     def render(:some_key, _args), do: :ok
   end
 
-  describe "Basic `View` behaviour:" do
-    test "render/1 with an existing key" do
+  describe "render/2" do
+    test "returns a value with an existing key" do
       assert BasicView.render(:some_key, nil) == :ok
     end
 
-    test "render/1 with an unknown key" do
+    test "raises an error with an unknown key" do
       assert_raise ElvenGard.UnknownViewError, fn ->
         BasicView.render(:unknown_key, nil)
       end

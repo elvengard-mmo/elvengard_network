@@ -1,5 +1,5 @@
 defmodule ElvenGard.ProtocolTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   describe "Protocol raise error if:" do
     test "encode/1 is not defined" do

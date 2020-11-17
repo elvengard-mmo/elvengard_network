@@ -1,5 +1,5 @@
 defmodule ElvenGard.TypeTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   defmodule BasicType do
     use ElvenGard.Type

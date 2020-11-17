@@ -1,5 +1,5 @@
 defmodule ElvenGard.Protocol.Binary.ShortTypeTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias ElvenGard.Protocol.Binary.ShortType
 

@@ -1,5 +1,5 @@
 defmodule ElvenGard.Protocol.Binary.LongTypeTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias ElvenGard.Protocol.Binary.LongType
 

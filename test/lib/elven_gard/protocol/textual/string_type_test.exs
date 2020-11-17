@@ -1,5 +1,5 @@
 defmodule ElvenGard.Protocol.Textual.StringTypeTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias ElvenGard.Protocol.Textual.StringType
 

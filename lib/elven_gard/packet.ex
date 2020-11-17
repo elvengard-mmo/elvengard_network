@@ -69,12 +69,12 @@ defmodule ElvenGard.Packet do
 
   ¯\\\\_(ツ)_/¯
   """
-  defmacro useless_packet(packet_name) do
+  defmacro ignore_packet(packet_name) do
     caller = __CALLER__.module
 
     quote do
       @elven_current_packet PacketDefinition.new(unquote(packet_name), @desc)
-      @elven_current_packet PacketDefinition.add_tag(@elven_current_packet, :useless_packet)
+      @elven_current_packet PacketDefinition.add_tag(@elven_current_packet, :ignored)
       Module.put_attribute(unquote(caller), :elven_packet_definitions, @elven_current_packet)
       @desc nil
 

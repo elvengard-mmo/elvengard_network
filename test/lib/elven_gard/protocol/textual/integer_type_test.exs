@@ -1,5 +1,5 @@
 defmodule ElvenGard.Protocol.Textual.IntegerTypeTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias ElvenGard.Protocol.Textual.IntegerType
 
