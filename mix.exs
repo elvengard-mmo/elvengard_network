@@ -70,13 +70,14 @@ defmodule ElvenGard.MixProject do
 
   defp deps() do
     [
+      # TODO: Bump ranch version to 2.0
       {:ranch, "~> 1.7"},
       {:elixir_uuid, "~> 1.2"},
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.23", only: :dev, runtime: false},
       {:dialyxir, "~> 1.0", optional: true, only: [:dev, :test], runtime: false},
-      {:credo, "~> 1.1", optional: true, only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.5", optional: true, only: [:dev, :test], runtime: false},
       {:inch_ex, "~> 2.0", optional: true, only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.11", only: :test, runtime: false}
+      {:excoveralls, "~> 0.13", only: :test, runtime: false}
     ]
   end
 
