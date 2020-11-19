@@ -17,8 +17,8 @@ defmodule ElvenGard.Structures.PacketDefinition do
   Create a new structure
   """
   @spec new(String.t(), empty_string) :: __MODULE__.t()
-  def new(name, desc \\ nil) do
-    %__MODULE__{name: name, description: trim_string(desc), fields: [], tags: []}
+  def new(name, desc \\ nil, tags \\ []) do
+    %__MODULE__{name: name, description: trim_string(desc), fields: [], tags: tags}
   end
 
   @doc """
