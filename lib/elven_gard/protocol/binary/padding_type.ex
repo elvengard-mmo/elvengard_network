@@ -5,8 +5,6 @@ defmodule ElvenGard.Protocol.Binary.PaddingType do
 
   use ElvenGard.Type
 
-  alias ElvenGard.TypeOptionError
-
   @impl ElvenGard.Type
   @spec encode(term, list) :: bitstring
   def encode(val, opts) do
@@ -25,7 +23,7 @@ defmodule ElvenGard.Protocol.Binary.PaddingType do
     bytes = Keyword.get(opts, :bytes)
 
     if bits == nil and bytes == nil and fill == nil do
-      raise TypeOptionError, "you must specify a size (bytes/bits/fill) for a padding"
+      raise ArgumentError, "you must specify a size (bytes/bits/fill) for a padding"
     end
 
     case {fill, bits, bytes} do

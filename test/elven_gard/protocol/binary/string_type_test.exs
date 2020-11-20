@@ -14,7 +14,7 @@ defmodule ElvenGard.Protocol.Binary.StringTypeTest do
 
   describe "Decode binary string type:" do
     test "raise without length" do
-      assert_raise ElvenGard.TypeOptionError, fn ->
+      assert_raise ArgumentError, fn ->
         StringType.decode("no length")
       end
     end

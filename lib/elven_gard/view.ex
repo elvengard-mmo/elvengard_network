@@ -10,22 +10,19 @@ defmodule ElvenGard.View do
   @doc """
   Build a packet to send to the client
   """
-  @callback render(type :: atom, opts :: map) :: term
+  @callback render(type :: atom(), opts :: map()) :: any()
 
   @doc false
   defmacro __using__(_) do
-    parent = __MODULE__
-
     quote do
-      @behaviour unquote(parent)
-
-      @before_compile unquote(parent)
+      @behaviour unquote(__MODULE__)
+      @before_compile unquote(__MODULE__)
     end
   end
 
   @doc false
   defmacro __before_compile__(_env) do
-    parent = __CALLER__.module
+    caller = __CALLER__.module
 
     # We are using @anno because we don't want warnings coming from
     # `c:render/2` to be reported in case the user has defined a catch-all
@@ -35,7 +32,7 @@ defmodule ElvenGard.View do
     # https://github.com/phoenixframework/phoenix/blob/master/lib/phoenix/view.ex
     quote @anno do
       def render(type, _args) do
-        raise UnknownViewError, parent: unquote(parent), type: type
+        raise UnknownViewError, parent: unquote(caller), type: type
       end
     end
   end

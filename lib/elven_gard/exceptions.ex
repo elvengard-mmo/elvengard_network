@@ -1,11 +1,3 @@
-defmodule ElvenGard.TypeOptionError do
-  @moduledoc """
-  Exception raised when wrong options are given to `c:ElvenGard.Type.encode/2` or `c:ElvenGard.Type.decode/2`
-  """
-
-  defexception [:message]
-end
-
 defmodule ElvenGard.UnknownViewError do
   @moduledoc """
   Exception raised when a view is not found

@@ -5,8 +5,6 @@ defmodule ElvenGard.Protocol.Binary.StringType do
 
   use ElvenGard.Type
 
-  alias ElvenGard.TypeOptionError
-
   @impl ElvenGard.Type
   @spec encode(String.t(), list) :: bitstring
   def encode(str, _opts) do
@@ -20,7 +18,7 @@ defmodule ElvenGard.Protocol.Binary.StringType do
     bytes = Keyword.get(opts, :bytes)
 
     if bits == nil and bytes == nil do
-      raise TypeOptionError, "you must specify a size in bytes/bits for a string"
+      raise ArgumentError, "you must specify a size in bytes/bits for a string"
     end
 
     size = if bits != nil, do: Kernel.trunc(bits / 8), else: bytes
