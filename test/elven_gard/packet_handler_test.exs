@@ -75,6 +75,15 @@ defmodule ElvenGard.PacketHandlerTest do
 
   ## Introspection
 
+  test "context is cleared for each new packets" do
+    expected = [
+      %PacketDefinition{header: "WEIRD", description: nil, tags: [], fields: []},
+      %PacketDefinition{header: "TEST", description: nil, tags: [], fields: []}
+    ]
+
+    assert MyApp.WeirdPacketHandler.__defs__() == expected
+  end
+
   describe "__defs__/0" do
     test "returns an empty array if no packet handler" do
       assert MyApp.EmptyPacketHandler.__defs__() == []

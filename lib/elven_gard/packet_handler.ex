@@ -62,6 +62,7 @@ defmodule ElvenGard.PacketHandler do
       unquote(create_definition(header))
       unquote(exp)
       unquote(persist_definition())
+      unquote(reset_context())
     end
   end
 
@@ -92,6 +93,7 @@ defmodule ElvenGard.PacketHandler do
     quote do
       unquote(create_definition(header, [:ignored]))
       unquote(persist_definition())
+      unquote(reset_context())
 
       unquote(create_ignore_handler(header))
     end
@@ -132,11 +134,22 @@ defmodule ElvenGard.PacketHandler do
   @doc false
   defp prelude() do
     quote do
-      # Module.register_attribute(__MODULE__, :elven_packet, [])
-      # Module.register_attribute(__MODULE__, :elven_header, [])
-      Module.register_attribute(__MODULE__, :elven_args, accumulate: true)
       Module.register_attribute(__MODULE__, :elven_defs, accumulate: true)
-      Module.register_attribute(__MODULE__, :desc, [])
+      unquote(reset_context())
+    end
+  end
+
+  @doc false
+  defp reset_context() do
+    quote do
+      Module.delete_attribute(__MODULE__, :elven_packet)
+      Module.delete_attribute(__MODULE__, :elven_header)
+      Module.delete_attribute(__MODULE__, :desc)
+
+      # Defined by the `packet/2` macro
+      # @elven_packet nil
+      # @elven_header nil
+      @desc nil
     end
   end
 

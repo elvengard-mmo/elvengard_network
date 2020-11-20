@@ -4,6 +4,16 @@ defmodule MyApp.EmptyPacketHandler do
   use ElvenGard.PacketHandler
 end
 
+defmodule MyApp.WeirdPacketHandler do
+  use ElvenGard.PacketHandler
+
+  packet "WEIRD" do
+    @desc "Weird desc"
+  end
+
+  packet "TEST", do: :ok
+end
+
 defmodule MyApp.DefaultIgnorePacketHandler do
   use ElvenGard.PacketHandler
 
