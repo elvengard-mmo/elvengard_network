@@ -83,6 +83,7 @@ defmodule ElvenGard.PacketHandler do
   defmacro resolve(callback) do
     quote do
       unquote(create_resolver(callback))
+      unquote(save_resolver(callback))
     end
   end
 
@@ -114,6 +115,18 @@ defmodule ElvenGard.PacketHandler do
   defmacro ignore_packet_callback(do: exp) do
     quote do
       unquote(create_callback(:handle_ignore, exp))
+    end
+  end
+
+  @doc """
+  Allows you to extend your PacketHandler with packet handlers from another PacketHandler
+  """
+  defmacro defextension(mod) do
+    expanded_mod = Macro.expand(mod, __CALLER__)
+    defs = expanded_mod.__defs__()
+
+    quote do
+      unquote(Enum.map(defs, &extend_with_def(&1)))
     end
   end
 
@@ -220,6 +233,15 @@ defmodule ElvenGard.PacketHandler do
   end
 
   @doc false
+  defp save_resolver(resolver) do
+    callback = Macro.escape(resolver)
+
+    quote do
+      @elven_packet PacketDefinition.set_resolver(@elven_packet, unquote(callback))
+    end
+  end
+
+  @doc false
   defp create_ignore_handler(header) do
     quote do
       def handle_packet(unquote(header), args, socket) do
@@ -262,6 +284,44 @@ defmodule ElvenGard.PacketHandler do
       {true, _} -> acc
       {_, nil} -> [{name, {:_, [], Elixir}} | acc]
       {_, val} -> [{name, val} | acc]
+    end
+  end
+
+  @doc false
+  defp extend_with_def(%PacketDefinition{} = def) do
+    if :ignored in def.tags do
+      extend_with_ignore(def)
+    else
+      extend_with_packet(def)
+    end
+  end
+
+  @doc false
+  defp extend_with_ignore(def) do
+    quote do
+      @desc unquote(def.description)
+      ignore_packet(unquote(def.header))
+    end
+  end
+
+  @doc false
+  defp extend_with_packet(def) do
+    fields = Macro.escape(def.fields)
+
+    quote do
+      @desc unquote(def.description)
+      packet unquote(def.header) do
+        # Define each fields
+        Enum.each(unquote(fields), fn x ->
+          @desc x.description
+          field x.name, x.type, x.opts
+        end)
+
+        # Define the resolver
+        if unquote(def.resolver) != nil do
+          resolve unquote(def.resolver)
+        end
+      end
     end
   end
 end

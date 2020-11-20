@@ -137,6 +137,61 @@ defmodule ElvenGard.PacketHandlerTest do
     end
   end
 
+  ## Extension
+
+  describe "defextension/1" do
+    test "can delegate ignored packets" do
+      assert MyApp.ExtendedPacketHandler.handle_packet("USELESS", %{}, 123) == {:cont, 123}
+    end
+
+    test "can delegate packets without fields" do
+      assert MyApp.ExtendedPacketHandler.handle_packet("PING", %{}, 123) ==
+               {:ping, "PING", %{}, 123}
+    end
+
+    test "can delegate packets with fields" do
+      args = %{username: "user", password: "password"}
+      assert MyApp.ExtendedPacketHandler.handle_packet("LOGIN", args, 123) == :connect
+    end
+
+    test "can delegate packets packets with options" do
+      args = %{username: "admin", password: "password"}
+      assert MyApp.ExtendedPacketHandler.handle_packet("LOGIN", args, 123) == :connect_admin
+    end
+
+    test "returns valid definitions" do
+      expected = [
+        %PacketDefinition{
+          header: "USELESS",
+          description: "Packet ignored",
+          tags: [:ignored],
+          fields: []
+        },
+        %PacketDefinition{
+          header: "PING",
+          description: "Simple ping",
+          tags: [],
+          fields: [
+            %FieldDefinition{
+              name: :target,
+              type: :string,
+              description: nil,
+              opts: []
+            },
+            %FieldDefinition{
+              name: :count,
+              type: :integer,
+              description: "Counter",
+              opts: [optional: true, some_tag: 1]
+            }
+          ]
+        }
+      ]
+
+      assert MyApp.ExtendedDocPacketHandler.__defs__() == expected
+    end
+  end
+
   ## TODO: Test documentation with custom types
 
   ## Helpers

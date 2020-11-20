@@ -96,3 +96,53 @@ defmodule MyApp.SimplePacketHandler do
   def connect_admin(_header, _args, _socket), do: :connect_admin
   def connect_user(_header, _args, _socket), do: :connect_user
 end
+
+defmodule MyApp.PingPacketHandlerExtension do
+  use ElvenGard.PacketHandler
+
+  packet "PING" do
+    resolve &{:ping, &1, &2, &3}
+  end
+end
+
+defmodule MyApp.LoginPacketHandlerExtension do
+  use ElvenGard.PacketHandler
+
+  alias __MODULE__
+
+  ## Packet definitions
+
+  ignore_packet "USELESS"
+
+  packet "LOGIN" do
+    field :username, :string, match: "admin"
+    field :password, :string
+    resolve &LoginPacketHandlerExtension.connect_admin/3
+  end
+
+  packet "LOGIN" do
+    field :username, :string
+    field :password, :string
+    resolve &LoginPacketHandlerExtension.connect/3
+  end
+
+  ## Callbacks
+
+  def connect(_header, _args, _socket), do: :connect
+  def connect_admin(_header, _args, _socket), do: :connect_admin
+end
+
+defmodule MyApp.ExtendedPacketHandler do
+  use ElvenGard.PacketHandler
+
+  alias MyApp.{LoginPacketHandlerExtension, PingPacketHandlerExtension}
+
+  defextension LoginPacketHandlerExtension
+  defextension PingPacketHandlerExtension
+end
+
+defmodule MyApp.ExtendedDocPacketHandler do
+  use ElvenGard.PacketHandler
+
+  defextension MyApp.DocumentedPacketHandler
+end
