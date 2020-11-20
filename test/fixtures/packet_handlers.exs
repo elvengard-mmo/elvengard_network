@@ -1,3 +1,5 @@
+Code.require_file("custom_types.exs", __DIR__)
+
 defmodule MyApp.EmptyPacketHandler do
   use ElvenGard.PacketHandler
 end
@@ -6,6 +8,16 @@ defmodule MyApp.DefaultIgnorePacketHandler do
   use ElvenGard.PacketHandler
 
   ignore_packet "USELESS"
+end
+
+defmodule MyApp.CustomTypePacketHandler do
+  use ElvenGard.PacketHandler
+
+  alias MyApp.BasicType
+
+  packet "TEST" do
+    field :field, BasicType
+  end
 end
 
 defmodule MyApp.DocumentedPacketHandler do

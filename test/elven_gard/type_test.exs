@@ -1,23 +1,15 @@
+Code.require_file("../fixtures/custom_types.exs", __DIR__)
+
 defmodule ElvenGard.TypeTest do
   use ExUnit.Case, async: true
 
-  defmodule BasicType do
-    use ElvenGard.Type
-
-    @impl ElvenGard.Type
-    def encode(val, _opts), do: val
-
-    @impl ElvenGard.Type
-    def decode(val, _opts), do: val
-  end
-
-  describe "Type behaviour defines:" do
-    test "encode/1" do
-      assert :erlang.function_exported(BasicType, :encode, 1)
+  describe "__using__/1" do
+    test "generate encode/1 which redirects on encode/2" do
+      assert MyApp.BasicType.encode(123) == {123, []}
     end
 
-    test "decode/1" do
-      assert :erlang.function_exported(BasicType, :decode, 1)
+    test "generate decode/1 which redirects on encode/2" do
+      assert MyApp.BasicType.decode(456) == {456, []}
     end
   end
 end

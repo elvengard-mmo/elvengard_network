@@ -80,6 +80,21 @@ defmodule ElvenGard.PacketHandlerTest do
       assert MyApp.EmptyPacketHandler.__defs__() == []
     end
 
+    test "support custom types" do
+      expected = [
+        %PacketDefinition{
+          header: "TEST",
+          description: nil,
+          tags: [],
+          fields: [
+            %FieldDefinition{name: :field, type: MyApp.BasicType, description: nil, opts: []}
+          ]
+        }
+      ]
+
+      assert MyApp.CustomTypePacketHandler.__defs__() == expected
+    end
+
     test "returns a correct structure for multiple definitions" do
       expected = [
         %PacketDefinition{
