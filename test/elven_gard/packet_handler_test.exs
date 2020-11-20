@@ -3,6 +3,8 @@ Code.require_file("../fixtures/packet_handlers.exs", __DIR__)
 defmodule ElvenGard.PacketHandlerTest do
   use ExUnit.Case, async: true
 
+  alias ElvenGard.Structures.{FieldDefinition, PacketDefinition}
+
   ## General behaviour
 
   describe "__using__/1" do
@@ -71,7 +73,47 @@ defmodule ElvenGard.PacketHandlerTest do
     end
   end
 
-  ## TODO: Test documentation & definitions generator
+  ## Introspection
+
+  describe "__defs__/0" do
+    test "returns an empty array if no packet handler" do
+      assert MyApp.EmptyPacketHandler.__defs__() == []
+    end
+
+    test "returns a correct structure for multiple definitions" do
+      expected = [
+        %PacketDefinition{
+          header: "USELESS",
+          description: "Packet ignored",
+          tags: [:ignored],
+          fields: []
+        },
+        %PacketDefinition{
+          header: "PING",
+          description: "Simple ping",
+          tags: [],
+          fields: [
+            %FieldDefinition{
+              name: :target,
+              type: :string,
+              description: nil,
+              opts: []
+            },
+            %FieldDefinition{
+              name: :count,
+              type: :integer,
+              description: "Counter",
+              opts: [optional: true, some_tag: 1]
+            }
+          ]
+        }
+      ]
+
+      assert MyApp.DocumentedPacketHandler.__defs__() == expected
+    end
+  end
+
+  ## TODO: Test documentation with custom types
 
   ## Helpers
 

@@ -8,6 +8,22 @@ defmodule MyApp.DefaultIgnorePacketHandler do
   ignore_packet "USELESS"
 end
 
+defmodule MyApp.DocumentedPacketHandler do
+  use ElvenGard.PacketHandler
+
+  @desc """
+  Packet ignored
+  """
+  ignore_packet "USELESS"
+
+  @desc "Simple ping"
+  packet "PING" do
+    field :target, :string
+    @desc "Counter"
+    field :count, :integer, optional: true, some_tag: 1
+  end
+end
+
 defmodule MyApp.SimplePacketHandler do
   use ElvenGard.PacketHandler
 

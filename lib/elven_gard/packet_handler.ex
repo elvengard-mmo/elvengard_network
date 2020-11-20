@@ -61,6 +61,7 @@ defmodule ElvenGard.PacketHandler do
     quote do
       unquote(create_definition(header))
       unquote(exp)
+      unquote(persist_definition())
     end
   end
 
@@ -90,6 +91,8 @@ defmodule ElvenGard.PacketHandler do
   defmacro ignore_packet(header) do
     quote do
       unquote(create_definition(header, [:ignored]))
+      unquote(persist_definition())
+
       unquote(create_ignore_handler(header))
     end
   end
@@ -115,8 +118,11 @@ defmodule ElvenGard.PacketHandler do
   ## Internal macros
 
   @doc false
-  defmacro __before_compile__(_env) do
+  defmacro __before_compile__(env) do
+    definitions = env.module |> Module.get_attribute(:elven_defs) |> Enum.reverse()
+
     quote do
+      unquote(create_introspection_helpers(definitions))
       unquote(create_default_callbacks())
     end
   end
@@ -129,7 +135,16 @@ defmodule ElvenGard.PacketHandler do
       # Module.register_attribute(__MODULE__, :elven_packet, [])
       # Module.register_attribute(__MODULE__, :elven_header, [])
       Module.register_attribute(__MODULE__, :elven_args, accumulate: true)
+      Module.register_attribute(__MODULE__, :elven_defs, accumulate: true)
       Module.register_attribute(__MODULE__, :desc, [])
+    end
+  end
+
+  @doc false
+  defp create_introspection_helpers(definitions) do
+    quote do
+      @doc false
+      def __defs__(), do: unquote(Macro.escape(definitions))
     end
   end
 
@@ -164,6 +179,13 @@ defmodule ElvenGard.PacketHandler do
       @elven_header unquote(header)
       @elven_packet PacketDefinition.new(unquote(header), @desc, unquote(tags))
       @desc nil
+    end
+  end
+
+  @doc false
+  defp persist_definition() do
+    quote do
+      @elven_defs @elven_packet
     end
   end
 

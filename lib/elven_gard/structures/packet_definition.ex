@@ -5,7 +5,7 @@ defmodule ElvenGard.Structures.PacketDefinition do
 
   alias ElvenGard.Structures.FieldDefinition
 
-  @keys [:name, :description, :fields, :tags]
+  @keys [:header, :description, :fields, :tags]
   @enforce_keys @keys
 
   defstruct @keys
@@ -17,8 +17,8 @@ defmodule ElvenGard.Structures.PacketDefinition do
   Create a new structure
   """
   @spec new(String.t(), empty_string) :: __MODULE__.t()
-  def new(name, desc \\ nil, tags \\ []) do
-    %__MODULE__{name: name, description: trim_string(desc), fields: [], tags: tags}
+  def new(header, desc \\ nil, tags \\ []) do
+    %__MODULE__{header: header, description: trim_string(desc), fields: [], tags: tags}
   end
 
   @doc """
