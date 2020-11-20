@@ -54,7 +54,7 @@ defmodule ElvenGard.Protocol do
 
   NOTE: This function must return a tuple starting with your packet header followed by
   params or a list of tuple.  
-  The result of this function will then be used by `c:ElvenGard.Packet.handle_packet/3`
+  The result of this function will then be used by `c:ElvenGard.PacketHandler.handle_packet/3`
   """
   @callback post_decode(data :: term, client :: Client.t()) :: {term, map} | list(tuple)
 
