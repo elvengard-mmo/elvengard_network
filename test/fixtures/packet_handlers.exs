@@ -108,8 +108,6 @@ end
 defmodule MyApp.LoginPacketHandlerExtension do
   use ElvenGard.PacketHandler
 
-  alias __MODULE__
-
   ## Packet definitions
 
   ignore_packet "USELESS"
@@ -117,13 +115,13 @@ defmodule MyApp.LoginPacketHandlerExtension do
   packet "LOGIN" do
     field :username, :string, match: "admin"
     field :password, :string
-    resolve &LoginPacketHandlerExtension.connect_admin/3
+    resolve &connect_admin/3
   end
 
   packet "LOGIN" do
     field :username, :string
     field :password, :string
-    resolve &LoginPacketHandlerExtension.connect/3
+    resolve &connect/3
   end
 
   ## Callbacks
@@ -137,7 +135,7 @@ defmodule MyApp.ExtendedPacketHandler do
 
   alias MyApp.{LoginPacketHandlerExtension, PingPacketHandlerExtension}
 
-  defextension LoginPacketHandlerExtension
+  defextension LoginPacketHandlerExtension, import: true
   defextension PingPacketHandlerExtension
 end
 

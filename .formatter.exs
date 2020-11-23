@@ -5,7 +5,8 @@ locals_without_parens = [
   field: 3,
   resolve: 1,
   ignore_packet: 1,
-  defextension: 1
+  defextension: 1,
+  defextension: 2
 ]
 
 [

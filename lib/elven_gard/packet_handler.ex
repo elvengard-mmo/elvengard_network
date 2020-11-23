@@ -121,12 +121,19 @@ defmodule ElvenGard.PacketHandler do
   @doc """
   Allows you to extend your PacketHandler with packet handlers from another PacketHandler
   """
-  defmacro defextension(mod) do
+  defmacro defextension(mod, opts \\ []) do
     expanded_mod = Macro.expand(mod, __CALLER__)
     defs = expanded_mod.__defs__()
 
-    quote do
-      unquote(Enum.map(defs, &extend_with_def(&1)))
+    if Keyword.get(opts, :import) == true do
+      quote do
+        import unquote(expanded_mod), except: [handle_ignore: 3, handle_packet: 3]
+        unquote(Enum.map(defs, &extend_with_def(&1)))
+      end
+    else
+      quote do
+        unquote(Enum.map(defs, &extend_with_def(&1)))
+      end
     end
   end
 
