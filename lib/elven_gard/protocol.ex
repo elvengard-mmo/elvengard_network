@@ -3,60 +3,39 @@ defmodule ElvenGard.Protocol do
   Transform a raw packet (packet received by a client) into a packet that can be
   pattern match by a PacketHandler
 
-  /!\\ No side effect: Cannot change or modify the current `ElvenGard.Structures.Client`
-
-  TODO: I don't really know if it's usefull to add `pre` and `post` hooks for `encode` and
-  `decode`. I'll probably remove them later.
+  /!\\ No side effect: Cannot change or modify the current `ElvenGard.Socket`
   """
 
-  alias ElvenGard.Structures.Client
+  alias ElvenGard.Socket
+
+  @typedoc "Represents a packet header"
+  @type packet_header :: term
 
   @doc """
   Define customs aliases for fields types
   """
-  @callback aliases() :: [{atom, atom}]
-
-  @doc """
-  Prepare the packet to be sent for the encode function
-
-  NOTE: This function is called by `ElvenGard.Structures.Client.send/2`
-  """
-  @callback pre_encode(data :: term, client :: Client.t()) :: term
+  @callback aliases() :: [{atom, atom}, ...]
 
   @doc """
   Transforms a term into a packet that can be sent to the client
 
-  You can, for example, apply your cryptographic algorithm.
+  You can, for example, apply your cryptographic algorithm (encryption).
+
+  NOTE: This function is called by `ElvenGard.Socket.send/2`
   """
-  @callback encode(data :: term) :: term
+  @callback encode(data :: term, socket :: Socket.t()) :: binary
 
   @doc """
-  If not already done by the `c:encode/1` function, this function will transform his
-  result into a binary.
-  """
-  @callback post_encode(data :: term, client :: Client.t()) :: binary
+  Transform a raw packet to an understandable packet
 
-  @doc """
-  Prepare the raw packet for the decode function
-  """
-  @callback pre_decode(data :: binary, client :: Client.t()) :: term
-
-  @doc """
-  Transform a raw packet to an understandable packet.
-
-  You can, for example, apply your cryptographic algorithm and split your packet.
-  """
-  @callback decode(data :: term) :: term
-
-  @doc """
-  If not already done by the `c:decode/1` function, this function will transform his
-  result into a tuple.
+  You can, for example, apply your cryptographic algorithm (decryption) and split your packet.
 
   NOTE: This function must return a tuple starting with your packet header followed by
   params or a list of tuple.  
   The result of this function will then be used by `c:ElvenGard.PacketHandler.handle_packet/3`
   """
-  @callback post_decode(data :: term, client :: Client.t()) :: {term, map} | list(tuple)
+  @callback decode(data :: binary, socket :: Socket.t()) ::
+              {:error, term} | {packet_header, map} | [{packet_header, map}, ...]
 
   @doc """
   Use ElvenGard.Protocol behaviour
@@ -67,33 +46,9 @@ defmodule ElvenGard.Protocol do
     quote do
       @behaviour unquote(parent)
 
-      alias ElvenGard.Structures.Client
+      alias ElvenGard.Socket
 
-      @before_compile unquote(parent)
-
-      @doc """
-      Successively applies functions `pre_encode`, `encode` and `post_encode`
-      """
-      @spec complete_encode(term, Client.t()) :: binary
-      def complete_encode(data, %Client{} = client) do
-        data
-        |> pre_encode(client)
-        |> encode()
-        |> post_encode(client)
-      end
-
-      @doc """
-      Successively applies functions `pre_decode`, `decode` and `post_decode`
-
-      NOTE: Can return a packet list
-      """
-      @spec complete_decode(binary, Client.t()) :: tuple | list(tuple)
-      def complete_decode(data, %Client{} = client) do
-        data
-        |> pre_decode(client)
-        |> decode()
-        |> post_decode(client)
-      end
+      @after_compile unquote(parent)
 
       #
       # Protocol behaviour
@@ -102,51 +57,41 @@ defmodule ElvenGard.Protocol do
       @impl true
       def aliases(), do: []
 
-      @impl true
-      def pre_encode(data, _client), do: data
-
-      @impl true
-      def post_encode(data, _client), do: data
-
-      @impl true
-      def pre_decode(data, _client), do: data
-
-      @impl true
-      def post_decode(data, _client), do: data
-
-      defoverridable aliases: 0,
-                     pre_encode: 2,
-                     post_encode: 2,
-                     pre_decode: 2,
-                     post_decode: 2,
-                     complete_encode: 2,
-                     complete_decode: 2
+      defoverridable aliases: 0
     end
   end
 
-  defmacro __before_compile__(env) do
-    unless Module.defines?(env.module, {:encode, 1}) do
+  defmacro __after_compile__(env, _bytecode) do
+    unless Kernel.function_exported?(env.module, :encode, 2) do
       raise """
-      function encode/1 required by behaviour #{__MODULE__} is not implemented \
-      (in module #{env.module}).
+      function encode/2 required by behaviour #{inspect(__MODULE__)} is not implemented \
+      (in module #{inspect(env.module)}).
 
       Example:
-        def encode(data) do
+        @impl #{inspect(__MODULE__)}
+        def encode(data, _socket) do
           Crypto.encrypt(data)
         end
       """
     end
 
-    unless Module.defines?(env.module, {:decode, 1}) do
+    unless Kernel.function_exported?(env.module, :decode, 2) do
       raise """
-      function decode/1 required by behaviour #{__MODULE__} is not implemented \
+      function decode/2 required by behaviour #{inspect(__MODULE__)} is not implemented \
       (in module #{env.module}).
 
       Example:
-        def decode(data) do
-          data
-          |> Crypto.decrypt()
-          |> String.split(" ")
+        @impl #{inspect(__MODULE__)}
+        def decode(data, _socket) do
+          res =
+            data
+            |> String.trim()
+            |> String.split(" ", parts: 2)
+
+          case res do
+            [header] -> {header, %{}}
+            [header, params] -> {header, %{params: params}}
+          end
         end
       """
     end

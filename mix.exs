@@ -39,7 +39,7 @@ defmodule ElvenGard.MixProject do
 
   def application() do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger, :crypto]
     ]
   end
 
@@ -72,11 +72,11 @@ defmodule ElvenGard.MixProject do
     [
       # TODO: Bump ranch version to 2.0
       {:ranch, "~> 1.7"},
-      {:elixir_uuid, "~> 1.2"},
+      {:nimble_parsec, "~> 1.1"},
+      {:mox, "~> 1.0", only: :test, runtime: false},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
       {:dialyxir, "~> 1.0", optional: true, only: [:dev, :test], runtime: false},
       {:credo, "~> 1.5", optional: true, only: [:dev, :test], runtime: false},
-      {:inch_ex, "~> 2.0", optional: true, only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.13", only: :test, runtime: false}
     ]
   end

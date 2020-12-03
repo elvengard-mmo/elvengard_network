@@ -7,7 +7,7 @@ In this guide, we will see the basics of using ElvenGard to create a simple logi
 
 For more details on other protocols or features, please refer to the other guides
 
-## Adding ElvenGard to an application 
+## Adding ElvenGard to an application
 
 Let's start creating a new Elixir application by running this command:
 
@@ -50,7 +50,7 @@ defmodule LoginServer.Frontend do
     packet_protocol: LoginServer.PacketProtocol,
     packet_handler: LoginServer.PacketHandler
 
-  alias ElvenGard.Structures.Client
+  alias ElvenGard.Socket
 
   require Logger
 
@@ -63,21 +63,21 @@ defmodule LoginServer.Frontend do
   end
 
   @impl ElvenGard.Frontend
-  def handle_connection(client) do
-    Logger.info("New connection: #{client.id}")
-    {:ok, client}
+  def handle_connection(socket) do
+    Logger.info("New connection: #{socket.id}")
+    {:ok, socket}
   end
 
   @impl ElvenGard.Frontend
-  def handle_disconnection(%Client{id: id} = client, reason) do
+  def handle_disconnection(%Socket{id: id} = socket, reason) do
     Logger.info("#{id} is now disconnected (reason: #{inspect(reason)})")
-    {:ok, client}
+    {:ok, socket}
   end
 
   @impl ElvenGard.Frontend
-  def handle_message(%Client{id: id} = client, message) do
+  def handle_message(%Socket{id: id} = socket, message) do
     Logger.info("New message from #{id} (len: #{byte_size(message)})")
-    {:ok, client}
+    {:ok, socket}
   end
 end
 ```
@@ -156,7 +156,7 @@ Let's create a new file at `lib/login_server/packet_handler.ex` :
 defmodule LoginServer.PacketHandler do
   @moduledoc false
 
-  use ElvenGard.Packet
+  use ElvenGard.PacketHandler
 
   alias LoginServer.Auth.Actions
 
@@ -226,24 +226,24 @@ To do this, create the file `lib/login_server/auth/actions.ex` with the followin
 defmodule LoginServer.Auth.Actions do
   @moduledoc false
 
-  alias ElvenGard.Structures.Client
+  alias ElvenGard.Socket
   alias LoginServer.Auth.Views
 
   @doc false
-  @spec ping(Client.t(), String.t(), map) :: String.t()
-  def ping(client, _header, _params) do
+  @spec ping(Socket.t(), String.t(), map) :: String.t()
+  def ping(socket, _header, _params) do
     render = Views.render(:pong, nil)
     
     # Send the response to the client
-    Client.send(client, render)
+    Socket.send(socket, render)
     
     # We continue to receive packets from the client
-    {:cont, client}
+    {:cont, socket}
   end
   
   @doc false
-  @spec player_connect(Client.t(), String.t(), map) :: String.t()
-  def player_connect(client, _header, params) do
+  @spec player_connect(Socket.t(), String.t(), map) :: String.t()
+  def player_connect(socket, _header, params) do
     %{
       username: username,
       password: password
@@ -257,10 +257,10 @@ defmodule LoginServer.Auth.Actions do
       end
 
     # Send the response to the client
-    Client.send(client, render)
+    Socket.send(socket, render)
 
     # Requests the client's disconnection, stating that there has been no error
-    {:halt, {:ok, :normal}, client}
+    {:halt, {:ok, :normal}, socket}
   end
 end
 ```

@@ -29,11 +29,12 @@ defmodule ElvenGard.PacketHandler do
   I'm not currently sure if it's a bug or a feature.
   """
 
-  alias ElvenGard.Structures.{Client, FieldDefinition, PacketDefinition}
+  alias ElvenGard.Socket
+  alias ElvenGard.Structures.{FieldDefinition, PacketDefinition}
 
   @type header() :: any()
   @type args() :: map()
-  @type socket() :: Client.t()
+  @type socket() :: Socket.t()
   @type reason() :: term()
   @type callback_response() :: {:cont, socket()} | {:halt, reason(), socket()}
 

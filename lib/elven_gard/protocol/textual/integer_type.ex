@@ -21,7 +21,6 @@ defmodule ElvenGard.Protocol.Textual.IntegerType do
     raise ArgumentError, "value to decode must be a string (got: #{inspect(raw)})"
   end
 
-  def decode(raw, []), do: norm_decode(raw)
   def decode(raw, separator: nil), do: norm_decode(raw)
 
   def decode(raw, separator: sep) when is_binary(sep) do
@@ -33,6 +32,8 @@ defmodule ElvenGard.Protocol.Textual.IntegerType do
   def decode(_raw, separator: sep) do
     raise ArgumentError, "separator must be a string (got: #{inspect(sep)})"
   end
+
+  def decode(raw, _), do: norm_decode(raw)
 
   ## Private functions
 

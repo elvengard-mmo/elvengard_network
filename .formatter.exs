@@ -9,8 +9,14 @@ locals_without_parens = [
   defextension: 2
 ]
 
+inputs =
+  Enum.flat_map(
+    ["{mix,.formatter}.exs", "{config,lib,test}/**/*.{ex,exs}"],
+    &Path.wildcard(&1, match_dot: true)
+  ) -- ["lib/elven_gard/uuid.ex"]
+
 [
-  inputs: ["{mix,.formatter}.exs", "{config,lib,test}/**/*.{ex,exs}"],
+  inputs: inputs,
   locals_without_parens: locals_without_parens,
   export: [locals_without_parens: locals_without_parens]
 ]

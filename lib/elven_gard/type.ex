@@ -19,7 +19,7 @@ defmodule ElvenGard.Type do
   This functions returns a tuple with 2 elements. The first one is the decoded term and the
   second is the remaining bytes.
 
-  NOTE: The result of this function will then be used by `c:ElvenGard.Protocol.decode/1`
+  NOTE: The result of this function will then be used by `c:ElvenGard.Protocol.decode/2`
   """
   @callback decode(raw :: encoded_term(), opts :: keyword()) :: {decoded_term(), encoded_term()}
 

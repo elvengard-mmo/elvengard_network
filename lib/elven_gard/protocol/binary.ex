@@ -3,8 +3,8 @@ defmodule ElvenGard.Protocol.Binary do
   TODO: Documentation for ElvenGard.Protocol.Binary
   """
 
-  alias ElvenGard.FieldTypeError
-  alias ElvenGard.Structures.{Client, PacketDefinition}
+  alias ElvenGard.{FieldTypeError, Socket}
+  alias ElvenGard.Structures.PacketDefinition
 
   @aliases [
     byte: ElvenGard.Protocol.Binary.ByteType,
@@ -18,7 +18,7 @@ defmodule ElvenGard.Protocol.Binary do
   @doc false
   defmacro __using__(model: model) do
     expanded_model = Macro.expand(model, __CALLER__)
-    defs = expanded_model.fetch_definitions()
+    defs = expanded_model.__defs__()
 
     :ok = check_types!(defs)
 
@@ -31,16 +31,16 @@ defmodule ElvenGard.Protocol.Binary do
       end
 
       ## Principal decoder
-      def complete_decode(data, %Client{} = client) do
+      def complete_decode(data, %Socket{} = socket) do
         data
-        |> pre_decode(client)
+        |> pre_decode(socket)
         |> decode()
-        |> post_decode(client)
+        |> post_decode(socket)
         |> binary_decode()
       end
 
       ## Define sub decoders
-      Enum.each(unquote(model).fetch_definitions(), fn packet ->
+      Enum.each(unquote(model).__defs__(), fn packet ->
         name = packet.name
         fields = Macro.escape(packet.fields)
 
@@ -90,7 +90,7 @@ defmodule ElvenGard.Protocol.Binary do
   @spec check_type!(atom, atom, term) :: term
   defp check_type!(type, name, def_name) do
     unless Keyword.has_key?(type.__info__(:functions), :decode) do
-      raise FieldTypeError, field_type: type, field_name: name, packet_name: def_name
+      raise FieldTypeError, field_type: type, field_name: name, packet_header: def_name
     end
   end
 end

@@ -17,11 +17,11 @@ defmodule ElvenGard.FieldTypeError do
   Exception raised when the type of a protocol field is not defined
   """
 
-  defexception [:field_name, :field_type, :packet_name]
+  defexception [:field_name, :field_type, :packet_header]
 
   @impl true
-  def message(%{field_name: field_name, field_type: field_type, packet_name: packet_name}) do
+  def message(%{field_name: field_name, field_type: field_type, packet_header: packet_header}) do
     "invalid type #{inspect(field_type)} for the field #{inspect(field_name)} " <>
-      "(packet: #{inspect(packet_name)})"
+      "(packet: #{inspect(packet_header)})"
   end
 end
