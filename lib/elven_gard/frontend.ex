@@ -60,7 +60,7 @@ defmodule ElvenGard.Frontend.RanchProtocol do
     packet_handler = Keyword.fetch!(protocol_options, :packet_handler)
 
     :ok = :ranch.accept_ack(ref)
-    :ok = transport.setopts(socket, [{:active, true}])
+    :ok = transport.setopts(socket, active: true, nodelay: true)
 
     {:ok, socket} =
       socket

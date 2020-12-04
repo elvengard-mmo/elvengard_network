@@ -13,7 +13,7 @@ defmodule ElvenGard.PacketHandler do
     packet "LOGIN" do
       field :username, :string
       field :password, :string
-      resolve &__MODULE__.connect/3
+      resolve &connect/3
     end
 
   Here, the correct way to call our packet handler is:
@@ -30,7 +30,7 @@ defmodule ElvenGard.PacketHandler do
   """
 
   alias ElvenGard.Socket
-  alias ElvenGard.Structures.{FieldDefinition, PacketDefinition}
+  alias ElvenGard.PacketHandler.{FieldDefinition, PacketDefinition}
 
   @type header() :: any()
   @type args() :: map()

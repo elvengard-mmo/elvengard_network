@@ -1,9 +1,10 @@
-defmodule ElvenGard.Structures.PacketDefinition do
+defmodule ElvenGard.PacketHandler.PacketDefinition do
   @moduledoc """
   Structure for a packet's definition
   """
 
-  alias ElvenGard.Structures.FieldDefinition
+  alias ElvenGard.{PacketHandler, Socket}
+  alias ElvenGard.PacketHandler.FieldDefinition
 
   @enforce_keys [:header]
 
@@ -13,12 +14,13 @@ defmodule ElvenGard.Structures.PacketDefinition do
             fields: [],
             tags: []
 
-  @type description() :: String.t() | nil
-  @type resolver() :: any()
+  @type nullable_string :: String.t() | nil
+  @type resolver_result :: PacketHandler.callback_response()
+  @type resolver :: (header :: any(), args :: map(), socket :: Socket.t() -> resolver_result())
 
-  @type t() :: %__MODULE__{
+  @type t :: %__MODULE__{
           header: any(),
-          description: description(),
+          description: nullable_string(),
           resolver: resolver(),
           fields: [FieldDefinition.t(), ...],
           tags: [atom(), ...]
@@ -27,7 +29,7 @@ defmodule ElvenGard.Structures.PacketDefinition do
   @doc """
   Create a new structure
   """
-  @spec new(String.t(), description(), [atom(), ...]) :: __MODULE__.t()
+  @spec new(String.t(), nullable_string(), [atom(), ...]) :: __MODULE__.t()
   def new(header, desc \\ nil, tags \\ []) do
     %__MODULE__{
       header: header,
@@ -57,7 +59,7 @@ defmodule ElvenGard.Structures.PacketDefinition do
   @doc """
   Set the `description` value for the given structure
   """
-  @spec set_description(__MODULE__.t(), description()) :: __MODULE__.t()
+  @spec set_description(__MODULE__.t(), nullable_string()) :: __MODULE__.t()
   def set_description(%__MODULE__{} = def, desc) do
     %__MODULE__{def | description: norm_description(desc)}
   end
@@ -73,8 +75,7 @@ defmodule ElvenGard.Structures.PacketDefinition do
   ## Privates function
 
   @doc false
-  @spec norm_description(String.t()) :: String.t()
-  defp norm_description(str) do
-    if str, do: String.trim(str), else: str
-  end
+  @spec norm_description(nullable_string()) :: nullable_string()
+  defp norm_description(nil), do: nil
+  defp norm_description(str), do: String.trim(str)
 end

@@ -4,7 +4,7 @@ defmodule ElvenGard.Protocol.Binary do
   """
 
   alias ElvenGard.{FieldTypeError, Socket}
-  alias ElvenGard.Structures.PacketDefinition
+  alias ElvenGard.PacketHandler.PacketDefinition
 
   @aliases [
     byte: ElvenGard.Protocol.Binary.ByteType,

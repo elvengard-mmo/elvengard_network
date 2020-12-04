@@ -3,7 +3,7 @@ Code.require_file("../fixtures/packet_handlers.exs", __DIR__)
 defmodule ElvenGard.PacketHandlerTest do
   use ExUnit.Case, async: true
 
-  alias ElvenGard.Structures.{FieldDefinition, PacketDefinition}
+  alias ElvenGard.PacketHandler.{FieldDefinition, PacketDefinition}
 
   ## General behaviour
 

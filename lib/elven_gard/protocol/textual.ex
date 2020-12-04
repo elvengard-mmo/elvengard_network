@@ -4,7 +4,7 @@ defmodule ElvenGard.Protocol.Textual do
   """
 
   alias ElvenGard.{FieldTypeError, Protocol, Socket}
-  alias ElvenGard.Structures.PacketDefinition
+  alias ElvenGard.PacketHandler.PacketDefinition
 
   @aliases [
     integer: ElvenGard.Protocol.Textual.IntegerType,

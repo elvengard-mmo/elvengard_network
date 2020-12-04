@@ -89,12 +89,12 @@ defmodule ElvenGard.MixProject do
       # logo: "path/to/logo.png",
       extra_section: "GUIDES",
       extras: extras(),
-      groups_for_extras: groups_for_extras(),
-      groups_for_modules: [
-        "Textual protocol specs": ~r/ElvenGard\.Protocol\.Textual\.?/,
-        "Binary protocol specs": ~r/ElvenGard\.Protocol\.Binary\.?/,
-        Structures: ~r/ElvenGard\.Structures\./
-      ]
+      groups_for_extras: groups_for_extras()
+      # groups_for_modules: [
+      #   "Textual protocol specs": ~r/ElvenGard\.Protocol\.Textual\.?/,
+      #   "Binary protocol specs": ~r/ElvenGard\.Protocol\.Binary\.?/,
+      #   PacketHandler: ~r/ElvenGard\.PacketHandler\./
+      # ]
     ]
   end
 
