@@ -50,7 +50,8 @@ defmodule ElvenGard.Socket do
   Send a packet to the client.
 
   If a serializer is found, the function `c:ElvenGard.Codec.encode/2` 
-  will be called first to encode the message.  
+  will be called first with Socket's assigns as the second parameter
+  to encode the message.
 
   The message will then be sent directly to the client if no 
   frontend is found or, otherwise, the corresponding frontend 
