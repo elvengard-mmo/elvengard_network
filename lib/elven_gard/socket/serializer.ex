@@ -31,4 +31,25 @@ defmodule ElvenGard.Socket.Serializer do
   """
   @callback decode!(data :: bitstring(), socket :: Socket.t()) ::
               {any(), list()} | [{any(), list()}, ...]
+
+  ## Define some helpers
+
+  @doc false
+  defmacro __using__(_) do
+    quote do
+      @behaviour unquote(__MODULE__)
+
+      @doc """
+      Returns the module associated to an alias or the given value if no alias has been found
+      """
+      @spec alias_for(atom() | module()) :: atom() | module()
+      def alias_for(value), do: Keyword.get(aliases(), value, value)
+
+      @doc """
+      Same as `alias_for/1` but raise an Exception if no alias has been found
+      """
+      @spec alias_for!(atom()) :: module()
+      def alias_for!(value), do: Keyword.fetch!(aliases(), value)
+    end
+  end
 end
