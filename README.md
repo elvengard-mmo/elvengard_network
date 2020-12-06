@@ -1,7 +1,7 @@
 # ElvenGard
 
 [![Build Status](https://github.com/ImNotAVirus/elvengard-network/workflows/CI/badge.svg?branch=master)](https://github.com/ImNotAVirus/elvengard-network/actions)
-[![Coverage Status](https://coveralls.io/repos/github/ImNotAVirus/elvengard-network/badge.svg?branch=master)](https://coveralls.io/github/ImNotAVirus/elvengard-network?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/ImNotAVirus/elvengard-network/badge.svg?branch=master)](https://coveralls.io/github/ImNotAVirus/elvengard-network)
 
 ## What is ElvenGard
 
