@@ -18,11 +18,11 @@ defmodule ElvenGard.Socket.TextualSerializerTest do
     end
 
     test "can encode structs" do
-      assert encode_packet(%MyApp.PingView{}) == "PING"
+      assert encode_packet(%MyApp.PingPacket{}) == "PING"
 
-      assert encode_packet(%MyApp.HelloView{}) == "HELLO nil"
-      assert encode_packet(%MyApp.HelloView{msg: "WORLD"}) == "HELLO WORLD"
-      assert encode_packet(%MyApp.HelloView{msg: 123}) == "HELLO 123"
+      assert encode_packet(%MyApp.HelloPacket{}) == "HELLO nil"
+      assert encode_packet(%MyApp.HelloPacket{msg: "WORLD"}) == "HELLO WORLD"
+      assert encode_packet(%MyApp.HelloPacket{msg: 123}) == "HELLO 123"
     end
   end
 
