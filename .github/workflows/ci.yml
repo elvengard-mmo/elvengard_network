@@ -1,0 +1,53 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  tests:
+    name: Run Tests
+
+    runs-on: ubuntu-latest
+    container: elixir:${{ matrix.elixir_version }}-slim
+
+    strategy:
+      matrix:
+        elixir_version: ["1.8", "1.9", "1.10", "1.11"]
+
+    env:
+      MIX_ENV: test
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Get deps cache
+        uses: actions/cache@v2
+        with:
+         path: deps
+         key: ${{ runner.os }}-deps-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+         restore-keys: ${{ runner.os }}-deps-
+
+      - name: Get build cache
+        uses: actions/cache@v2
+        with:
+         path: _build/test
+         key: ${{ runner.os }}-build-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+         restore-keys: ${{ runner.os }}-build-
+
+      - name: Install and Compile Dependencies
+        run: |
+          apt-get update
+          # Needed for coveralls
+          apt-get install -y git
+          mix local.hex --force
+          mix local.rebar --force
+          mix deps.get
+          mix compile
+
+      - name: Run Tests
+        run: |
+          mix format --dry-run --check-formatted
+          mix test --trace
+
+      - name: Post Coverage
+        run: mix coveralls.github

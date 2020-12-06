@@ -9,7 +9,7 @@ defmodule ElvenGard.MixProject do
     [
       app: :elven_gard,
       version: @version,
-      elixir: "~> 1.10",
+      elixir: "~> 1.8",
       deps: deps(),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
