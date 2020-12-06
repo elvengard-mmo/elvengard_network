@@ -3,7 +3,7 @@ defmodule ElvenGard.MixProject do
 
   @app_name "ElvenGard"
   @version "0.1.0-alpha"
-  @github_link "https://github.com/ImNotAVirus/ElvenGard_V2"
+  @github_link "https://github.com/ImNotAVirus/elvengard-network"
 
   def project do
     [
