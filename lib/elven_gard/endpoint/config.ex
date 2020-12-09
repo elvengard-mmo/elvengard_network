@@ -75,9 +75,6 @@ defmodule ElvenGard.Endpoint.Config do
       Keyword.keyword?(v1) and Keyword.keyword?(v2) ->
         Keyword.merge(v1, v2, &merger/3)
 
-      is_map(v1) and is_map(v2) ->
-        Map.merge(v1, v2, &merger/3)
-
       true ->
         v2
     end
