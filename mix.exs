@@ -70,8 +70,7 @@ defmodule ElvenGard.MixProject do
 
   defp deps() do
     [
-      # TODO: Bump ranch version to 2.0
-      {:ranch, "~> 1.7"},
+      {:ranch, "~> 2.0"},
       {:nimble_parsec, "~> 1.1"},
       {:mox, "~> 1.0", only: :test, runtime: false},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
@@ -100,16 +99,25 @@ defmodule ElvenGard.MixProject do
 
   defp dialyzer() do
     [
-      plt_add_apps: [:elven_gard],
-      plt_add_deps: :apps_direct,
-      flags: [
-        :unmatched_returns,
-        :error_handling,
-        :race_conditions,
-        :no_opaque,
-        :unknown,
-        :no_return
-      ]
+      plt_core_path: "priv/plts",
+      plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
+      # plt_add_apps: [:elven_gard],
+      plt_add_deps: :app_tree
+      # flags: [
+      #   :no_return,
+      #   :no_unused,
+      #   :no_improper_lists,
+      #   :no_fun_app,
+      #   :no_match,
+      #   :no_opaque,
+      #   :no_fail_call,
+      #   :no_contracts,
+      #   :no_behaviours,
+      #   :no_undefined_callbacks,
+      #   :unmatched_returns,
+      #   :error_handling,
+      #   :race_conditions
+      # ]
     ]
   end
 
