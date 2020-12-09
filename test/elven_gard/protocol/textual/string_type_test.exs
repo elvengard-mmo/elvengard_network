@@ -3,19 +3,19 @@ defmodule ElvenGard.Protocol.Textual.StringTypeTest do
 
   alias ElvenGard.Protocol.Textual.StringType
 
-  describe "encode/2" do
-    test "returns an encoded string" do
-      expected = "Some string"
-      got = StringType.encode("Some string", [])
-      assert got == expected
-    end
+  # describe "encode/2" do
+  #   test "returns an encoded string" do
+  #     expected = "Some string"
+  #     got = StringType.encode("Some string", [])
+  #     assert got == expected
+  #   end
 
-    test "must raise if the value is not a string" do
-      assert_raise ArgumentError, ~r"must be a string", fn ->
-        StringType.encode(123, [])
-      end
-    end
-  end
+  #   test "must raise if the value is not a string" do
+  #     assert_raise ArgumentError, ~r"must be a string", fn ->
+  #       StringType.encode(123, [])
+  #     end
+  #   end
+  # end
 
   describe "decode/2" do
     test "without option" do

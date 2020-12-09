@@ -3,14 +3,14 @@ defmodule ElvenGard.Protocol.Binary.StringTypeTest do
 
   alias ElvenGard.Protocol.Binary.StringType
 
-  describe "Encode binary string type:" do
-    test "basic behaviour" do
-      got = StringType.encode("first test")
-      expected = "first test"
+  # describe "Encode binary string type:" do
+  #   test "basic behaviour" do
+  #     got = StringType.encode("first test")
+  #     expected = "first test"
 
-      assert got == expected
-    end
-  end
+  #     assert got == expected
+  #   end
+  # end
 
   describe "Decode binary string type:" do
     test "raise without length" do

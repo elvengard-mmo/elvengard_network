@@ -1,19 +1,19 @@
 defmodule ElvenGard.Protocol.Textual.StringType do
-  @moduledoc """
+  @moduledoc ~S"""
   Define a custom string type for text based protocols
   """
 
-  use ElvenGard.Type
+  use ElvenGard.FieldType
 
   ## Public API
 
-  @impl true
-  @spec encode(String.t(), keyword()) :: String.t()
-  def encode(value, _opts) when is_binary(value), do: value
+  # @impl true
+  # @spec encode(String.t(), keyword()) :: String.t()
+  # def encode(value, _opts) when is_binary(value), do: value
 
-  def encode(value, _opts) do
-    raise ArgumentError, "value to encode must be a string (got: #{inspect(value)})"
-  end
+  # def encode(value, _opts) do
+  #   raise ArgumentError, "value to encode must be a string (got: #{inspect(value)})"
+  # end
 
   @impl true
   @spec decode(String.t(), keyword()) :: {String.t(), String.t()}

@@ -1,19 +1,19 @@
 defmodule ElvenGard.Protocol.Textual.IntegerType do
-  @moduledoc """
+  @moduledoc ~S"""
   Define a custom integer type for text based protocols
   """
 
-  use ElvenGard.Type
+  use ElvenGard.FieldType
 
   ## Public API
 
-  @impl true
-  @spec encode(integer(), keyword()) :: String.t()
-  def encode(value, _opts) when is_integer(value), do: Integer.to_string(value)
+  # @impl true
+  # @spec encode(integer(), keyword()) :: String.t()
+  # def encode(value, _opts) when is_integer(value), do: Integer.to_string(value)
 
-  def encode(value, _opts) do
-    raise ArgumentError, "the value to encode must be an integer (got: #{inspect(value)})"
-  end
+  # def encode(value, _opts) do
+  #   raise ArgumentError, "the value to encode must be an integer (got: #{inspect(value)})"
+  # end
 
   @impl true
   @spec decode(String.t(), keyword()) :: {integer(), String.t()}

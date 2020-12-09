@@ -1,21 +1,21 @@
 defmodule ElvenGard.Protocol.Binary.StringType do
-  @moduledoc """
+  @moduledoc ~S"""
   Define a custom string type (utf8) for game protocols
   """
 
-  use ElvenGard.Type
+  use ElvenGard.FieldType
 
-  @impl ElvenGard.Type
-  @spec encode(String.t(), list) :: bitstring
-  def encode(str, _opts) do
-    <<str::binary>>
-  end
+  # @impl ElvenGard.FieldType
+  # @spec encode(String.t(), list) :: bitstring
+  # def encode(str, _opts) do
+  #   <<str::binary>>
+  # end
 
-  @impl ElvenGard.Type
+  @impl ElvenGard.FieldType
   @spec decode(bitstring, list) :: {String.t(), bitstring}
   def decode(bin, opts) do
-    bits = Keyword.get(opts, :bits)
-    bytes = Keyword.get(opts, :bytes)
+    bits = opts[:bits]
+    bytes = opts[:bytes]
 
     if bits == nil and bytes == nil do
       raise ArgumentError, "you must specify a size in bytes/bits for a string"

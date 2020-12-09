@@ -3,19 +3,19 @@ defmodule ElvenGard.Protocol.Textual.FloatTypeTest do
 
   alias ElvenGard.Protocol.Textual.FloatType
 
-  describe "encode/2" do
-    test "returns an encoded string" do
-      expected = "13.37"
-      got = FloatType.encode(13.37, [])
-      assert got == expected
-    end
+  # describe "encode/2" do
+  #   test "returns an encoded string" do
+  #     expected = "13.37"
+  #     got = FloatType.encode(13.37, [])
+  #     assert got == expected
+  #   end
 
-    test "must raise if the value is not a float" do
-      assert_raise ArgumentError, ~r"must be a float", fn ->
-        FloatType.encode("123", [])
-      end
-    end
-  end
+  #   test "must raise if the value is not a float" do
+  #     assert_raise ArgumentError, ~r"must be a float", fn ->
+  #       FloatType.encode("123", [])
+  #     end
+  #   end
+  # end
 
   describe "decode/2" do
     test "without option" do

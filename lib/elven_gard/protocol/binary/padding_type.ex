@@ -1,26 +1,26 @@
 defmodule ElvenGard.Protocol.Binary.PaddingType do
-  @moduledoc """
+  @moduledoc ~S"""
   Define a custom padding type for game protocols
   """
 
-  use ElvenGard.Type
+  use ElvenGard.FieldType
 
-  @impl ElvenGard.Type
-  @spec encode(term, list) :: bitstring
-  def encode(val, opts) do
-    bits = Keyword.get(opts, :bits)
-    bytes = Keyword.get(opts, :bytes)
-    size = if bits != nil, do: bits, else: bytes * 8
+  # @impl ElvenGard.FieldType
+  # @spec encode(term, list) :: bitstring
+  # def encode(val, opts) do
+  #   bits = Keyword.get(opts, :bits)
+  #   bytes = Keyword.get(opts, :bytes)
+  #   size = if bits != nil, do: bits, else: bytes * 8
 
-    <<val::size(size)>>
-  end
+  #   <<val::size(size)>>
+  # end
 
-  @impl ElvenGard.Type
+  @impl ElvenGard.FieldType
   @spec decode(bitstring, list) :: {bitstring, bitstring}
   def decode(bin, opts) do
-    fill = Keyword.get(opts, :fill)
-    bits = Keyword.get(opts, :bits)
-    bytes = Keyword.get(opts, :bytes)
+    fill = opts[:fill]
+    bits = opts[:bits]
+    bytes = opts[:bytes]
 
     if bits == nil and bytes == nil and fill == nil do
       raise ArgumentError, "you must specify a size (bytes/bits/fill) for a padding"

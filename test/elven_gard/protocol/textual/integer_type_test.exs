@@ -3,19 +3,19 @@ defmodule ElvenGard.Protocol.Textual.IntegerTypeTest do
 
   alias ElvenGard.Protocol.Textual.IntegerType
 
-  describe "encode/2" do
-    test "returns an encoded string" do
-      expected = "123"
-      got = IntegerType.encode(123, [])
-      assert got == expected
-    end
+  # describe "encode/2" do
+  #   test "returns an encoded string" do
+  #     expected = "123"
+  #     got = IntegerType.encode(123, [])
+  #     assert got == expected
+  #   end
 
-    test "must raise if the value is not an integer" do
-      assert_raise ArgumentError, ~r"must be an integer", fn ->
-        IntegerType.encode("123", [])
-      end
-    end
-  end
+  #   test "must raise if the value is not an integer" do
+  #     assert_raise ArgumentError, ~r"must be an integer", fn ->
+  #       IntegerType.encode("123", [])
+  #     end
+  #   end
+  # end
 
   describe "decode/2" do
     test "without option" do

@@ -1,5 +1,5 @@
-defmodule ElvenGard.Type do
-  @moduledoc """
+defmodule ElvenGard.FieldType do
+  @moduledoc ~S"""
   Define a behaviour for custom type (packet parsing)
   """
 
@@ -7,11 +7,6 @@ defmodule ElvenGard.Type do
   @type encoded_term() :: bitstring()
   @typedoc "Represents the term that this class provides"
   @type decoded_term() :: any()
-
-  @doc """
-  Transforms a term into a packet that can be sent to a client
-  """
-  @callback encode(value :: decoded_term(), opts :: keyword()) :: encoded_term()
 
   @doc """
   Transforms a packet received by a client into a term that can be used by `ElvenGard.Protocol`
@@ -28,16 +23,13 @@ defmodule ElvenGard.Type do
     quote do
       @behaviour unquote(__MODULE__)
 
-      @doc """
-      Encode a term without passing any options
-      """
-      @spec encode(value :: unquote(__MODULE__).decoded_term()) :: any()
-      def encode(val), do: encode(val, [])
+      @typep encoded_term() :: unquote(__MODULE__).encoded_term()
+      @typep decoded_term() :: unquote(__MODULE__).decoded_term()
 
       @doc """
       Decode a bitstring without passing any options
       """
-      @spec decode(raw :: unquote(__MODULE__).encoded_term()) :: any()
+      @spec decode(raw :: encoded_term()) :: {decoded_term(), encoded_term()}
       def decode(val), do: decode(val, [])
     end
   end

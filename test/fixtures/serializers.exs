@@ -11,17 +11,15 @@ defmodule MyApp.BasicSerializer do
   def decode!(data, _assigns), do: data
 end
 
-defmodule MyApp.LFSerializer do
-  @behaviour ElvenGard.Socket.Serializer
+defmodule MyApp.LineSerializer do
+  use ElvenGard.Socket.Serializer
 
   @impl true
-  def aliases(), do: []
-
-  @impl true
+  def encode!(data, endl: endl), do: [data, endl]
   def encode!(data, _opts), do: [data, "\n"]
 
   @impl true
-  def decode!(data, _assigns), do: {"HEADER", data}
+  def decode!(data, _assigns), do: {:decoded, data}
 end
 
 defmodule MyApp.SimpleTextSerializer do

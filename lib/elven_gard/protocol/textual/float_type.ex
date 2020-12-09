@@ -1,19 +1,19 @@
 defmodule ElvenGard.Protocol.Textual.FloatType do
-  @moduledoc """
+  @moduledoc ~S"""
   Define a custom float type for text based protocols
   """
 
-  use ElvenGard.Type
+  use ElvenGard.FieldType
 
   ## Public API
 
-  @impl true
-  @spec encode(float(), keyword()) :: String.t()
-  def encode(value, _opts) when is_float(value), do: Float.to_string(value)
+  # @impl true
+  # @spec encode(float(), keyword()) :: String.t()
+  # def encode(value, _opts) when is_float(value), do: Float.to_string(value)
 
-  def encode(value, _opts) do
-    raise ArgumentError, "the value to encode must be a float (got: #{inspect(value)})"
-  end
+  # def encode(value, _opts) do
+  #   raise ArgumentError, "the value to encode must be a float (got: #{inspect(value)})"
+  # end
 
   @impl true
   @spec decode(String.t(), keyword()) :: {float(), String.t()}

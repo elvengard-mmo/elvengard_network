@@ -1,17 +1,17 @@
 defmodule ElvenGard.Protocol.Binary.ByteType do
-  @moduledoc """
+  @moduledoc ~S"""
   Define a custom byte type (uint8_t) for game protocols
   """
 
-  use ElvenGard.Type
+  use ElvenGard.FieldType
 
-  @impl ElvenGard.Type
-  @spec encode(integer, list) :: bitstring
-  def encode(byte, _opts) do
-    <<byte::size(8)>>
-  end
+  # @impl ElvenGard.FieldType
+  # @spec encode(integer, list) :: bitstring
+  # def encode(byte, _opts) do
+  #   <<byte::size(8)>>
+  # end
 
-  @impl ElvenGard.Type
+  @impl ElvenGard.FieldType
   @spec decode(bitstring, list) :: {integer, bitstring}
   def decode(bin, _opts) do
     <<
