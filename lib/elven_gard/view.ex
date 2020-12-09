@@ -1,5 +1,5 @@
 defmodule ElvenGard.View do
-  @moduledoc """
+  @moduledoc ~S"""
   Define a custom behaviour for a view (packet sent from server to client)
   """
 

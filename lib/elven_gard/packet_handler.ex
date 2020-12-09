@@ -1,5 +1,5 @@
 defmodule ElvenGard.PacketHandler do
-  @moduledoc """
+  @moduledoc ~S"""
   Define a DSL to help create packet definitions
 
   Define a domain specific language (DSL) so you can create packet definitions more easily.  
@@ -126,7 +126,7 @@ defmodule ElvenGard.PacketHandler do
     expanded_mod = Macro.expand(mod, __CALLER__)
     defs = expanded_mod.__defs__()
 
-    if Keyword.get(opts, :import) == true do
+    if opts[:import] == true do
       quote do
         import unquote(expanded_mod), except: [handle_ignore: 3, handle_packet: 3]
         unquote(Enum.map(defs, &extend_with_def(&1)))

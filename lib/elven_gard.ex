@@ -1,5 +1,5 @@
 defmodule ElvenGard do
-  @moduledoc """
+  @moduledoc ~S"""
   Documentation for ElvenGard
   """
 end

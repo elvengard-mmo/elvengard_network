@@ -1,5 +1,5 @@
 defmodule ElvenGard.Protocol do
-  @moduledoc """
+  @moduledoc ~S"""
   Transform a raw packet (packet received by a client) into a packet that can be
   pattern match by a PacketHandler
 

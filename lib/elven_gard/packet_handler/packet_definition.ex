@@ -1,5 +1,5 @@
 defmodule ElvenGard.PacketHandler.PacketDefinition do
-  @moduledoc """
+  @moduledoc ~S"""
   Structure for a packet's definition
   """
 
@@ -21,7 +21,7 @@ defmodule ElvenGard.PacketHandler.PacketDefinition do
   @type t :: %__MODULE__{
           header: any(),
           description: nullable_string(),
-          resolver: resolver(),
+          resolver: resolver() | nil,
           fields: [FieldDefinition.t(), ...],
           tags: [atom(), ...]
         }

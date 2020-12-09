@@ -1,5 +1,5 @@
 defmodule ElvenGard.Socket do
-  @moduledoc """
+  @moduledoc ~S"""
   Manage a socket
 
   ## Socket fields
@@ -13,6 +13,8 @@ defmodule ElvenGard.Socket do
   """
 
   alias ElvenGard.{Socket, UUID}
+
+  @default_timeout 5_000
 
   # @enforce_keys [:id, :socket, :transport]
 
@@ -60,23 +62,23 @@ defmodule ElvenGard.Socket do
   ## Examples
 
       iex> send(socket, "data")
+      iex> send(socket, "data", foo: :bar)
   """
-  @spec send(Socket.t(), any()) :: :ok | {:error, atom()}
-  def send(%Socket{serializer: serializer} = socket, message)
-      when not is_nil(serializer) do
-    encoded_msg = serializer.encode!(message, socket.assigns)
-    Socket.send(%Socket{socket | serializer: nil}, encoded_msg)
+  @spec send(Socket.t(), any(), keyword()) :: :ok | {:error, atom()}
+  def send(socket, message, opts \\ []) do
+    message
+    |> serialize_message(opts, socket)
+    |> send_message(socket)
   end
 
-  def send(%Socket{frontend_pid: frontend_pid} = socket, message)
-      when is_nil(frontend_pid)
-      when frontend_pid == self() do
-    %Socket{transport_pid: transport_pid, transport: transport} = socket
-    transport.send(transport_pid, message)
-  end
+  @doc """
 
-  def send(%Socket{} = socket, message) do
-    frontend_mod().send(socket, message)
+  """
+  @spec recv(Socket.t(), non_neg_integer(), timeout()) :: any()
+  def recv(socket, length \\ 0, timeout \\ @default_timeout) do
+    socket
+    |> receive_message(length, timeout)
+    |> deserialize_message(socket)
   end
 
   @doc """
@@ -102,6 +104,46 @@ defmodule ElvenGard.Socket do
   end
 
   ## Private functions
+
+  @doc false
+  defp serialize_message(message, _opts, %Socket{serializer: nil}), do: message
+
+  defp serialize_message(message, opts, %Socket{} = socket) do
+    socket.serializer.encode!(message, opts)
+  end
+
+  @doc false
+  defp deserialize_message(message, %Socket{serializer: nil}), do: message
+  defp deserialize_message({:error, _} = error, %Socket{}), do: error
+
+  defp deserialize_message({:ok, message}, %Socket{} = socket) do
+    %Socket{serializer: serializer, assigns: assigns} = socket
+    {:ok, serializer.decode!(message, assigns)}
+  end
+
+  @doc false
+  defp send_message(message, %Socket{frontend_pid: frontend_pid} = socket)
+       when is_nil(frontend_pid)
+       when frontend_pid == self() do
+    %Socket{transport: transport, transport_pid: transport_pid} = socket
+    transport.send(transport_pid, message)
+  end
+
+  defp send_message(message, %Socket{} = socket) do
+    frontend_mod().send(socket, message)
+  end
+
+  @doc false
+  defp receive_message(%Socket{frontend_pid: frontend_pid} = socket, length, timeout)
+       when is_nil(frontend_pid)
+       when frontend_pid == self() do
+    %Socket{transport: transport, transport_pid: transport_pid} = socket
+    transport.recv(transport_pid, length, timeout)
+  end
+
+  defp receive_message(%Socket{} = socket, length, timeout) do
+    frontend_mod().recv(socket, length, timeout)
+  end
 
   @doc false
   defp frontend_mod() do

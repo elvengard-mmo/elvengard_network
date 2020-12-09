@@ -1,5 +1,5 @@
 defmodule ElvenGard.UUID do
-  @moduledoc """
+  @moduledoc ~S"""
   UUID helpers inspired by `zyro/elixir-uuid`
   """
 

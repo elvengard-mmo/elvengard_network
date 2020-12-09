@@ -1,5 +1,5 @@
 defmodule ElvenGard.Protocol.Textual do
-  @moduledoc """
+  @moduledoc ~S"""
   TODO: Documentation for ElvenGard.Protocol.Textual
   """
 

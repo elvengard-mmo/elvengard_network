@@ -1,5 +1,5 @@
 defmodule ElvenGard.Socket.TextualSerializer do
-  @moduledoc """
+  @moduledoc ~S"""
   WARN: This module will soon be deprecated.
   """
 

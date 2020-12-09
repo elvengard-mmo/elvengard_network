@@ -1,5 +1,5 @@
 defmodule ElvenGard.PacketHandler.FieldDefinition do
-  @moduledoc """
+  @moduledoc ~S"""
   Structure for a packet field's definition
   """
 

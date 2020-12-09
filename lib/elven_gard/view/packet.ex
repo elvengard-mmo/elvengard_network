@@ -1,5 +1,5 @@
 defmodule ElvenGard.View.Packet do
-  @moduledoc """
+  @moduledoc ~S"""
   TODO: Documentation
   """
 

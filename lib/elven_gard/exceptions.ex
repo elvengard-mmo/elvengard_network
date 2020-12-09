@@ -1,5 +1,5 @@
 defmodule ElvenGard.UnknownViewError do
-  @moduledoc """
+  @moduledoc ~S"""
   Exception raised when a view is not found
   """
 
@@ -13,7 +13,7 @@ defmodule ElvenGard.UnknownViewError do
 end
 
 defmodule ElvenGard.FieldTypeError do
-  @moduledoc """
+  @moduledoc ~S"""
   Exception raised when the type of a protocol field is not defined
   """
 

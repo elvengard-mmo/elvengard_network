@@ -201,7 +201,7 @@ defmodule ElvenGard.Frontend.RanchProtocol do
 end
 
 defmodule ElvenGard.Frontend do
-  @moduledoc """
+  @moduledoc ~S"""
   TODO: Documentation for ElvenGard.Frontend
   """
 
@@ -225,23 +225,14 @@ defmodule ElvenGard.Frontend do
   @callback handle_halt_error(socket :: Socket.t(), error :: conn_error) :: handle_return
 
   @callback send(socket :: Socket.t(), message :: any()) :: :ok | {:error, atom()}
+  @callback recv(socket :: Socket.t(), length :: non_neg_integer(), timeout :: timeout()) :: any()
 
   @doc false
   defmacro __using__(opts) do
     caller = __CALLER__.module
     port = Keyword.get(opts, :port, 3000)
-    protocol = Keyword.get(opts, :packet_protocol)
-    handler = Keyword.get(opts, :packet_handler)
-
-    # Check if there is any protocol
-    unless protocol do
-      raise "please, specify a packet_protocol for #{caller}"
-    end
-
-    # Check if there is any handler
-    unless handler do
-      raise "please, specify a packet_handler for #{caller}"
-    end
+    protocol = opts[:packet_protocol] || raise "please, specify a packet_protocol for #{caller}"
+    handler = opts[:packet_handler] || raise "please, specify a packet_handler for #{caller}"
 
     quote do
       @behaviour unquote(__MODULE__)
