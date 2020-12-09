@@ -8,7 +8,7 @@ defmodule ElvenGard.SocketTest do
   import Mox
 
   setup_all do
-    %{server_pid: start_supervised!({MyApp.EchoEndpoint, 4545})}
+    %{server_pid: start_supervised!(MyApp.EchoEndpoint)}
   end
 
   # Make sure mocks are verified when the test exits
@@ -106,11 +106,14 @@ defmodule ElvenGard.SocketTest do
       socket = %ElvenGard.Socket{
         transport_pid: MyApp.EchoEndpoint.subscribe(server_pid),
         transport: :gen_tcp,
-        serializer: MyApp.LFSerializer
+        serializer: MyApp.LineSerializer
       }
 
       assert ElvenGard.Socket.send(socket, "message") == :ok
       assert_receive {:new_message, "message\n"}
+
+      assert ElvenGard.Socket.send(socket, "message", endl: "\r") == :ok
+      assert_receive {:new_message, "message\r"}
     end
 
     test "directly send the packet if self is the frontend", %{server_pid: server_pid} do
@@ -155,6 +158,48 @@ defmodule ElvenGard.SocketTest do
 
       socket = Task.await(task)
       assert_receive {:send_to, ^socket, "message"}
+    end
+  end
+
+  ## recv
+
+  describe "recv/3" do
+    test "can receive a message", %{server_pid: server_pid} do
+      socket = %ElvenGard.Socket{
+        transport_pid: MyApp.EchoEndpoint.subscribe(server_pid),
+        transport: :gen_tcp
+      }
+
+      # Receive available buffer
+      :ok = MyApp.EchoEndpoint.send_message(server_pid, "foo")
+      assert ElvenGard.Socket.recv(socket) == {:ok, "foo"}
+
+      # Receive only some bytes
+      :ok = MyApp.EchoEndpoint.send_message(server_pid, "bar")
+      assert ElvenGard.Socket.recv(socket, 1) == {:ok, "b"}
+      assert ElvenGard.Socket.recv(socket, 2) == {:ok, "ar"}
+
+      # Set timeout option
+      :ok = MyApp.EchoEndpoint.send_message(server_pid, "abc", 500)
+      assert ElvenGard.Socket.recv(socket, 0, 100) == {:error, :timeout}
+      assert ElvenGard.Socket.recv(socket, 0, 600) == {:ok, "abc"}
+    end
+
+    test "can use a serializer", %{server_pid: server_pid} do
+      socket = %ElvenGard.Socket{
+        transport_pid: MyApp.EchoEndpoint.subscribe(server_pid),
+        transport: :gen_tcp,
+        serializer: MyApp.LineSerializer
+      }
+
+      # Basic example
+      :ok = MyApp.EchoEndpoint.send_message(server_pid, "foo")
+      assert ElvenGard.Socket.recv(socket) == {:ok, {:decoded, "foo"}}
+
+      # Support errors
+      assert ElvenGard.Socket.recv(socket, 1) == {:error, :timeout}
+
+      raise "todo"
     end
   end
 end
