@@ -33,8 +33,17 @@ defmodule ElvenGard.EndpointTest do
     use ElvenGard.Endpoint, otp_app: :elven_gard
 
     # Assert endpoint variables
-    assert is_list(config)
     assert @otp_app == :elven_gard
+    assert is_list(config)
+
+    @impl true
+    def handle_init(state) do
+      %{transport: transport, transport_pid: transport_pid} = state
+      :ok = transport.setopts(transport_pid, active: :once, packet: :raw, reuseaddr: true)
+
+      transport.send(transport_pid, "init done!")
+      {:ok, state}
+    end
   end
 
   defmodule NoConfigEndpoint do
@@ -62,5 +71,39 @@ defmodule ElvenGard.EndpointTest do
              },
              type: :supervisor
            }
+  end
+
+  test "warns if there is no configuration for an endpoint" do
+    assert ExUnit.CaptureLog.capture_log(fn ->
+             NoConfigEndpoint.start_link()
+           end) =~ "no configuration"
+  end
+
+  test "accepts connexions" do
+    assert {:ok, _} = connect_to_endpoint()
+  end
+
+  test "c:handle_init/1 is called" do
+    transport_pid = connect_to_endpoint!()
+    assert_receive {:tcp, ^transport_pid, "init done!"}, 3000
+  end
+
+  ## Private functions
+
+  defp connect_to_endpoint() do
+    ip = {127, 0, 0, 1}
+    port = Endpoint.get_port()
+    timeout = 1_000
+
+    :gen_tcp.connect(ip, port, [:binary, active: :once], timeout)
+  end
+
+  defp connect_to_endpoint!() do
+    {:ok, transport_pid} = connect_to_endpoint()
+    transport_pid
+  end
+
+  defp send_data(transport_pid, data) do
+    :gen_tcp.send(transport_pid, data)
   end
 end
