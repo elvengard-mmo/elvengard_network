@@ -102,7 +102,7 @@ defmodule ElvenGard.SocketTest do
       assert_receive {:new_message, "message"}
     end
 
-    test "can use a serializer", %{server_pid: server_pid} do
+    test "can serialize a message", %{server_pid: server_pid} do
       socket = %ElvenGard.Socket{
         transport_pid: MyApp.EchoEndpoint.subscribe(server_pid),
         transport: :gen_tcp,
@@ -180,12 +180,12 @@ defmodule ElvenGard.SocketTest do
       assert ElvenGard.Socket.recv(socket, 2) == {:ok, "ar"}
 
       # Set timeout option
-      :ok = MyApp.EchoEndpoint.send_message(server_pid, "abc", 500)
-      assert ElvenGard.Socket.recv(socket, 0, 100) == {:error, :timeout}
-      assert ElvenGard.Socket.recv(socket, 0, 600) == {:ok, "abc"}
+      :ok = MyApp.EchoEndpoint.send_message(server_pid, "abc", 100)
+      assert ElvenGard.Socket.recv(socket, 0, 1) == {:error, :timeout}
+      assert ElvenGard.Socket.recv(socket, 0, 200) == {:ok, "abc"}
     end
 
-    test "can use a serializer", %{server_pid: server_pid} do
+    test "can deserialize a message", %{server_pid: server_pid} do
       socket = %ElvenGard.Socket{
         transport_pid: MyApp.EchoEndpoint.subscribe(server_pid),
         transport: :gen_tcp,
@@ -197,7 +197,7 @@ defmodule ElvenGard.SocketTest do
       assert ElvenGard.Socket.recv(socket) == {:ok, {:decoded, "foo"}}
 
       # Support errors
-      assert ElvenGard.Socket.recv(socket, 1) == {:error, :timeout}
+      assert ElvenGard.Socket.recv(socket, 1, 1) == {:error, :timeout}
 
       # raise "todo"
     end
