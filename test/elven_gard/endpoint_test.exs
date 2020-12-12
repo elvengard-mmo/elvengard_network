@@ -1,3 +1,5 @@
+Code.require_file("../fixtures/frontend_protocols.exs", __DIR__)
+
 defmodule ElvenGard.EndpointTest do
   use ExUnit.Case, async: true
 
@@ -24,7 +26,8 @@ defmodule ElvenGard.EndpointTest do
     transport_opts: [
       ip: {127, 0, 0, 1},
       port: 0
-    ]
+    ],
+    protocol: MyApp.FrontendProtocol
   ]
 
   Application.put_env(:elven_gard, __MODULE__.Endpoint, @config)
@@ -35,15 +38,6 @@ defmodule ElvenGard.EndpointTest do
     # Assert endpoint variables
     assert @otp_app == :elven_gard
     assert is_list(config)
-
-    @impl true
-    def handle_init(state) do
-      %{transport: transport, transport_pid: transport_pid} = state
-      :ok = transport.setopts(transport_pid, active: :once, packet: :raw, reuseaddr: true)
-
-      transport.send(transport_pid, "init done!")
-      {:ok, state}
-    end
   end
 
   defmodule NoConfigEndpoint do
@@ -65,7 +59,7 @@ defmodule ElvenGard.EndpointTest do
                  {__MODULE__.Endpoint, :endpoint_test},
                  :ranch_tcp,
                  %{socket_opts: [ip: {127, 0, 0, 1}, port: 0]},
-                 __MODULE__.Endpoint,
+                 MyApp.FrontendProtocol,
                  []
                ]
              },

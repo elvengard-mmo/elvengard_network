@@ -3,18 +3,13 @@ defmodule ElvenGard.Endpoint do
   TODO: Documentation for ElvenGard.Endpoint
   """
 
-  alias ElvenGard.Socket
-
   @doc false
   defmacro __using__(opts) do
     quote do
-      use ElvenGard.Endpoint.Protocol
-
       require Logger
 
       unquote(config(opts))
       unquote(listener())
-      unquote(protocol())
     end
   end
 
@@ -96,29 +91,6 @@ defmodule ElvenGard.Endpoint do
       """
       def get_port() do
         :ranch.get_port(__listener_name__())
-      end
-    end
-  end
-
-  defp protocol() do
-    quote location: :keep do
-      @doc false
-      def start_link(ref, transport, opts) do
-        pid = :proc_lib.spawn_link(__MODULE__, :init, [{ref, transport, opts}])
-        {:ok, pid}
-      end
-
-      @impl true
-      def init({ref, transport, _opts}) do
-        {:ok, transport_pid} = :ranch.handshake(ref)
-        socket = Socket.new(transport_pid, transport, nil, self())
-        state = %{socket: socket, transport: transport, transport_pid: transport_pid}
-
-        case handle_init(state) do
-          {:ok, state} -> :gen_server.enter_loop(__MODULE__, [], state)
-          {:ok, state, timeout} -> :gen_server.enter_loop(__MODULE__, [], state, timeout)
-          _ -> raise "handle_init/2 must return a `{:ok, state}` or `{:ok, state, timeout}`"
-        end
       end
     end
   end
