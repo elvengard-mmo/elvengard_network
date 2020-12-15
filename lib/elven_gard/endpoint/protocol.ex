@@ -36,14 +36,16 @@ defmodule ElvenGard.Endpoint.Protocol do
       @behaviour unquote(__MODULE__)
       @behaviour :ranch_protocol
 
-      unquote(protocol())
       unquote(defs())
+      unquote(message_callbacks())
+      unquote(halt_callbacks())
+      unquote(default_callbacks())
     end
   end
 
   ## Private functions
 
-  defp protocol() do
+  defp defs() do
     quote location: :keep do
       @doc false
       def start_link(ref, transport, opts) do
@@ -55,11 +57,7 @@ defmodule ElvenGard.Endpoint.Protocol do
       def init({ref, transport, opts}) do
         {:ok, transport_pid} = :ranch.handshake(ref)
         socket = Socket.new(transport_pid, transport, nil, self())
-        :gen_server.enter_loop(__MODULE__, [], socket, {:continue, :new_connection})
-      end
 
-      @impl true
-      def handle_continue(:new_connection, %Socket{} = socket) do
         case handle_connection(socket) do
           {:ok, new_socket} -> do_enter_loop(new_socket)
           {:ok, new_socket, timeout} -> do_enter_loop(new_socket, timeout)
@@ -68,6 +66,18 @@ defmodule ElvenGard.Endpoint.Protocol do
         end
       end
 
+      ## Helpers
+
+      defp do_enter_loop(%Socket{} = socket, timeout \\ :infinity) do
+        %Socket{transport: transport, transport_pid: transport_pid} = socket
+        transport.setopts(transport_pid, active: :once)
+        :gen_server.enter_loop(__MODULE__, [], socket, timeout)
+      end
+    end
+  end
+
+  defp message_callbacks() do
+    quote location: :keep do
       @impl true
       def handle_info({:tcp, transport_pid, data}, %Socket{} = socket) do
         %Socket{transport: transport} = socket
@@ -82,24 +92,24 @@ defmodule ElvenGard.Endpoint.Protocol do
         transport.setopts(transport_pid, active: :once)
         result
       end
+    end
+  end
 
+  defp halt_callbacks() do
+    quote location: :keep do
+      @impl true
       def handle_info({:tcp_closed, transport_pid}, %Socket{} = socket) do
         %Socket{transport: transport} = socket
         transport.close(transport_pid)
         do_handle_halt(:tcp_closed, socket)
       end
 
+      @impl true
       def handle_info(:timeout, %Socket{} = socket) do
         do_handle_halt(:timeout, socket)
       end
 
       ## Helpers
-
-      defp do_enter_loop(%Socket{} = socket, timeout \\ :infinity) do
-        %Socket{transport: transport, transport_pid: transport_pid} = socket
-        transport.setopts(transport_pid, active: :once)
-        :gen_server.enter_loop(__MODULE__, [], socket, timeout)
-      end
 
       defp do_handle_halt(reason, %Socket{} = socket) do
         case handle_halt(reason, socket) do
@@ -111,7 +121,7 @@ defmodule ElvenGard.Endpoint.Protocol do
     end
   end
 
-  defp defs() do
+  defp default_callbacks() do
     quote location: :keep do
       @impl true
       def handle_connection(socket), do: {:ok, socket}
