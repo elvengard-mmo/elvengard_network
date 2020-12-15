@@ -12,7 +12,9 @@ defmodule ElvenGard.Endpoint.Protocol do
             when new_socket: Socket.t()
 
   @callback handle_message(message :: binary(), socket :: Socket.t()) ::
-              :ignore | {:ignore, new_socket} | {:ok, new_socket}
+              :ignore
+              | {:ignore, new_socket}
+              | {:ok, new_socket}
             when new_socket: Socket.t()
 
   @callback handle_halt(reason :: term(), socket :: Socket.t()) ::
@@ -83,14 +85,12 @@ defmodule ElvenGard.Endpoint.Protocol do
 
       def handle_info({:tcp_closed, transport_pid}, %Socket{} = socket) do
         %Socket{transport: transport} = socket
-
         transport.close(transport_pid)
+        do_handle_halt(:tcp_closed, socket)
+      end
 
-        case handle_halt(:tcp_closed, socket) do
-          {:ok, new_socket} -> {:stop, :normal, new_socket}
-          {stop_reason, new_socket} -> {:stop, stop_reason, new_socket}
-          _ -> raise "handle_halt/2 must return `{:ok, socket}` or `{stop_reason, socket}`"
-        end
+      def handle_info(:timeout, %Socket{} = socket) do
+        do_handle_halt(:timeout, socket)
       end
 
       ## Helpers
@@ -99,6 +99,14 @@ defmodule ElvenGard.Endpoint.Protocol do
         %Socket{transport: transport, transport_pid: transport_pid} = socket
         transport.setopts(transport_pid, active: :once)
         :gen_server.enter_loop(__MODULE__, [], socket, timeout)
+      end
+
+      defp do_handle_halt(reason, %Socket{} = socket) do
+        case handle_halt(reason, socket) do
+          {:ok, new_socket} -> {:stop, :normal, new_socket}
+          {stop_reason, new_socket} -> {:stop, stop_reason, new_socket}
+          _ -> raise "handle_halt/2 must return `{:ok, socket}` or `{stop_reason, socket}`"
+        end
       end
     end
   end
