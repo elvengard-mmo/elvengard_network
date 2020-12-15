@@ -2,7 +2,7 @@ defmodule MyApp.FrontendProtocol do
   use ElvenGard.Endpoint.Protocol
 
   @impl true
-  def handle_connection(socket) do
+  def handle_init(socket) do
     %{transport: transport, transport_pid: transport_pid} = socket
     :ok = transport.setopts(transport_pid, packet: :raw, reuseaddr: true)
     transport.send(transport_pid, "init done!")

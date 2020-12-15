@@ -5,7 +5,7 @@ defmodule ElvenGard.Endpoint.Protocol do
 
   alias ElvenGard.Socket
 
-  @callback handle_connection(socket :: Socket.t()) ::
+  @callback handle_init(socket :: Socket.t()) ::
               {:ok, new_socket}
               | {:ok, new_socket, timeout() | :hibernate | {:continue, term()}}
               | {:stop, reason :: term(), new_socket}
@@ -22,7 +22,7 @@ defmodule ElvenGard.Endpoint.Protocol do
               | {stop_reason :: term(), new_socket}
             when new_socket: term()
 
-  @optional_callbacks handle_connection: 1,
+  @optional_callbacks handle_init: 1,
                       handle_message: 2,
                       handle_halt: 2
 
@@ -58,11 +58,11 @@ defmodule ElvenGard.Endpoint.Protocol do
         {:ok, transport_pid} = :ranch.handshake(ref)
         socket = Socket.new(transport_pid, transport, nil, self())
 
-        case handle_connection(socket) do
+        case handle_init(socket) do
           {:ok, new_socket} -> do_enter_loop(new_socket)
           {:ok, new_socket, timeout} -> do_enter_loop(new_socket, timeout)
           {:stop, reason, new_socket} -> {:stop, reason, new_socket}
-          _ -> raise "handle_connection/1 must return `{:ok, socket}` or `{:ok, socket, timeout}`"
+          _ -> raise "handle_init/1 must return `{:ok, socket}` or `{:ok, socket, timeout}`"
         end
       end
 
@@ -124,7 +124,7 @@ defmodule ElvenGard.Endpoint.Protocol do
   defp default_callbacks() do
     quote location: :keep do
       @impl true
-      def handle_connection(socket), do: {:ok, socket}
+      def handle_init(socket), do: {:ok, socket}
 
       @impl true
       def handle_message(_message, socket), do: {:ok, socket}
@@ -132,7 +132,7 @@ defmodule ElvenGard.Endpoint.Protocol do
       @impl true
       def handle_halt(_reason, socket), do: {:ok, socket}
 
-      defoverridable handle_connection: 1,
+      defoverridable handle_init: 1,
                      handle_message: 2,
                      handle_halt: 2
     end
