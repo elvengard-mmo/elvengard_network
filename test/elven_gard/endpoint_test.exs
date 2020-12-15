@@ -78,18 +78,18 @@ defmodule ElvenGard.EndpointTest do
   end
 
   test "c:handle_init/1 is called" do
-    connect_to_endpoint!()
-    |> wait_for_init()
+    transport_pid = connect_to_endpoint!()
+    assert_receive {:tcp, ^transport_pid, "init done!"}, 500
   end
 
   test "c:handle_halt/2 is called" do
-    # transport_pid =
-    connect_to_endpoint!()
-    |> wait_for_init()
-    |> close_connection()
+    transport_pid = connect_to_endpoint!() |> wait_for_init!()
+    pid = get_frontend_pid(transport_pid)
+    ref = Process.monitor(pid)
+    close_connection(transport_pid)
 
-    # TODO: Test here
-    # assert_receive {:tcp, ^transport_pid, "halt " <> _}, 2000
+    assert_receive {:tcp_closed, ^transport_pid}, 1000
+    assert_receive {:DOWN, ^ref, :process, ^pid, :normal}, 1000
   end
 
   ## Private functions
@@ -107,17 +107,22 @@ defmodule ElvenGard.EndpointTest do
     transport_pid
   end
 
-  defp wait_for_init(transport_pid) do
+  defp wait_for_init!(transport_pid) do
     assert_receive {:tcp, ^transport_pid, "init done!"}, 500
     transport_pid
   end
 
-  # defp send_data(transport_pid, data) do
-  #   :gen_tcp.send(transport_pid, data)
-  # end
+  defp send_data(transport_pid, data) do
+    :ok = :gen_tcp.send(transport_pid, data)
+  end
+
+  defp get_frontend_pid(transport_pid) do
+    send_data(transport_pid, "fpid")
+    assert_receive {:tcp, ^transport_pid, "fpid #PID" <> fpid}, 1000
+    fpid |> to_charlist() |> :erlang.list_to_pid()
+  end
 
   defp close_connection(transport_pid) do
-    :ok = :gen_tcp.close(transport_pid)
-    transport_pid
+    :ok = :gen_tcp.shutdown(transport_pid, :read_write)
   end
 end
