@@ -3,11 +3,17 @@ defmodule ElvenGard.Endpoint do
   TODO: Documentation for ElvenGard.Endpoint
   """
 
+  ## User callbacks
+
+  @callback init(config :: Keyword.t()) :: {:ok, Keyword.t()} | :ignore
+
+  @optional_callbacks init: 1
+
+  ## Public API
+
   @doc false
   defmacro __using__(opts) do
     quote do
-      require Logger
-
       unquote(config(opts))
       unquote(listener())
     end
@@ -23,32 +29,25 @@ defmodule ElvenGard.Endpoint do
   end
 
   defp listener() do
-    quote location: :keep, unquote: false do
-      config = Macro.escape(var!(config))
-
+    quote location: :keep do
       @doc false
-      # TODO: Maybe use ETS later for hot reload support
-      def __listener_name__(), do: {__MODULE__, unquote(config)[:listener_name]}
+      def __listener_name__() do
+        {__MODULE__, unquote(runtime_config(:runtime))[:listener_name]}
+      end
 
       @doc """
       Returns the child specification to start the endpoint
       under a supervision tree.
       """
       def child_spec(opts) do
-        # FIXME: Code duplication between `child_spec/1` and `start_link/1`
-        if is_nil(Application.get_env(@otp_app, __MODULE__)) do
-          Logger.warn(
-            "no configuration found for otp_app #{inspect(@otp_app)} " <>
-              "and module #{inspect(__MODULE__)}"
-          )
-        end
+        config = unquote(runtime_config(:supervisor))
 
         :ranch.child_spec(
           __listener_name__(),
-          unquote(config)[:transport],
-          unquote(config)[:transport_opts],
-          unquote(config)[:protocol],
-          unquote(config)[:protocol_opts]
+          config[:transport],
+          config[:transport_opts],
+          config[:protocol],
+          config[:protocol_opts]
         )
       end
 
@@ -56,21 +55,15 @@ defmodule ElvenGard.Endpoint do
       Starts the endpoint.
       """
       def start_link(_opts \\ []) do
-        # FIXME: Code duplication between `child_spec/1` and `start_link/1`
-        if is_nil(Application.get_env(@otp_app, __MODULE__)) do
-          Logger.warn(
-            "no configuration found for otp_app #{inspect(@otp_app)} " <>
-              "and module #{inspect(__MODULE__)}"
-          )
-        end
+        config = unquote(runtime_config(:supervisor))
 
         result =
           :ranch.start_listener(
             __listener_name__(),
-            unquote(config)[:transport],
-            unquote(config)[:transport_opts],
-            unquote(config)[:protocol],
-            unquote(config)[:protocol_opts]
+            config[:transport],
+            config[:transport_opts],
+            config[:protocol],
+            config[:protocol_opts]
           )
 
         # FIXME: Not sure if it's the better way to do this
@@ -92,6 +85,17 @@ defmodule ElvenGard.Endpoint do
       def get_port() do
         :ranch.get_port(__listener_name__())
       end
+    end
+  end
+
+  defp runtime_config(type) do
+    quote location: :keep, unquote: false, bind_quoted: [type: type] do
+      ElvenGard.Endpoint.Supervisor.runtime_config(
+        type,
+        __MODULE__,
+        @otp_app,
+        unquote(Macro.escape(var!(config)))
+      )
     end
   end
 end
