@@ -73,13 +73,23 @@ defmodule ElvenGard.EndpointTest do
            end) =~ "no configuration"
   end
 
-  test "accepts connexions" do
+  test "accepts connections" do
     assert {:ok, _} = connect_to_endpoint()
   end
 
   test "c:handle_init/1 is called" do
-    transport_pid = connect_to_endpoint!()
-    assert_receive {:tcp, ^transport_pid, "init done!"}, 3000
+    connect_to_endpoint!()
+    |> wait_for_init()
+  end
+
+  test "c:handle_halt/2 is called" do
+    # transport_pid =
+    connect_to_endpoint!()
+    |> wait_for_init()
+    |> close_connection()
+
+    # TODO: Test here
+    # assert_receive {:tcp, ^transport_pid, "halt " <> _}, 2000
   end
 
   ## Private functions
@@ -89,7 +99,7 @@ defmodule ElvenGard.EndpointTest do
     port = Endpoint.get_port()
     timeout = 1_000
 
-    :gen_tcp.connect(ip, port, [:binary, active: :once], timeout)
+    :gen_tcp.connect(ip, port, [:binary, active: true], timeout)
   end
 
   defp connect_to_endpoint!() do
@@ -97,7 +107,17 @@ defmodule ElvenGard.EndpointTest do
     transport_pid
   end
 
-  defp send_data(transport_pid, data) do
-    :gen_tcp.send(transport_pid, data)
+  defp wait_for_init(transport_pid) do
+    assert_receive {:tcp, ^transport_pid, "init done!"}, 500
+    transport_pid
+  end
+
+  # defp send_data(transport_pid, data) do
+  #   :gen_tcp.send(transport_pid, data)
+  # end
+
+  defp close_connection(transport_pid) do
+    :ok = :gen_tcp.close(transport_pid)
+    transport_pid
   end
 end
