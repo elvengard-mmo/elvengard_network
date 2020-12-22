@@ -15,6 +15,7 @@ defmodule ElvenGard.Endpoint.Protocol do
               :ignore
               | {:ignore, new_socket}
               | {:ok, new_socket}
+              | {:stop, reason :: term(), new_socket}
             when new_socket: Socket.t()
 
   @callback handle_halt(reason :: term(), socket :: Socket.t()) ::
@@ -87,6 +88,8 @@ defmodule ElvenGard.Endpoint.Protocol do
             :ignore -> {:noreply, socket}
             {:ignore, new_socket} -> {:noreply, new_socket}
             {:ok, _new_socket} -> raise "TODO: implement"
+            {:stop, reason, new_socket} -> {:stop, reason, new_socket}
+            term -> raise "invalid return value for handle_message/2 (got: #{inspect(term)})"
           end
 
         transport.setopts(transport_pid, active: :once)
