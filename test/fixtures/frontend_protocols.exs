@@ -18,7 +18,7 @@ defmodule MyApp.FrontendProtocol do
     } = socket
 
     transport.send(transport_pid, "fpid #{inspect(frontend_pid)}")
-    {:ignore, Map.put(socket, :debug, true)}
+    {:ignore, socket}
   end
 
   @impl true

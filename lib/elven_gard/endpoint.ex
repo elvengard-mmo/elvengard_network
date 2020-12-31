@@ -5,15 +5,19 @@ defmodule ElvenGard.Endpoint do
 
   ## User callbacks
 
-  @callback init(config :: Keyword.t()) :: {:ok, Keyword.t()} | :ignore
+  @type endpoint_type :: :runtime | :supervisor
 
-  @optional_callbacks init: 1
+  @callback init(type :: endpoint_type(), config :: Keyword.t()) :: {:ok, Keyword.t()} | :ignore
+
+  @optional_callbacks init: 2
 
   ## Public API
 
   @doc false
   defmacro __using__(opts) do
     quote do
+      @behaviour ElvenGard.Endpoint
+
       unquote(config(opts))
       unquote(listener())
     end

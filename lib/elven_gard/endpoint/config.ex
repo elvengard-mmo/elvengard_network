@@ -69,14 +69,28 @@ defmodule ElvenGard.Endpoint.Config do
   @doc false
   defp merger(k, v1, v2) do
     cond do
-      k == :transport_opts ->
-        Map.merge(:ranch.normalize_opts(v1), :ranch.normalize_opts(v2), &merger/3)
-
       Keyword.keyword?(v1) and Keyword.keyword?(v2) ->
         Keyword.merge(v1, v2, &merger/3)
 
+      k == :transport_opts ->
+        Map.merge(:ranch.normalize_opts(v1), :ranch.normalize_opts(v2), &merger/3)
+
+      k == :ip ->
+        normalize_ip!(v2)
+
       true ->
         v2
+    end
+  end
+
+  @doc false
+  defp normalize_ip!(ip) when is_tuple(ip), do: ip
+  defp normalize_ip!(ip) when is_binary(ip), do: ip |> to_charlist() |> normalize_ip!()
+
+  defp normalize_ip!(ip) when is_list(ip) do
+    case :inet.parse_address(ip) do
+      {:ok, tuple} -> tuple
+      {:error, einval} -> raise "cannot parse the given ip #{inspect(ip)} (#{inspect(einval)})"
     end
   end
 end
