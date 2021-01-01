@@ -31,7 +31,7 @@ defmodule ElvenGard.Protocol.Binary.PaddingType do
         {bin, <<>>}
 
       {_, bits, _} when is_integer(bits) ->
-        <<val::size(bits), rest::binary>> = bin
+        <<val::binary-size(bits)-unit(1), rest::binary>> = bin
         {val, rest}
 
       {_, _, bytes} when is_integer(bytes) ->
