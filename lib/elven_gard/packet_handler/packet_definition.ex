@@ -22,14 +22,14 @@ defmodule ElvenGard.PacketHandler.PacketDefinition do
           header: any(),
           description: nullable_string(),
           resolver: resolver() | nil,
-          fields: [FieldDefinition.t(), ...],
-          tags: [atom(), ...]
+          fields: [FieldDefinition.t()],
+          tags: [atom()]
         }
 
   @doc """
   Create a new structure
   """
-  @spec new(String.t(), nullable_string(), [atom(), ...]) :: __MODULE__.t()
+  @spec new(String.t(), nullable_string(), [atom()]) :: __MODULE__.t()
   def new(header, desc \\ nil, tags \\ []) do
     %__MODULE__{
       header: header,

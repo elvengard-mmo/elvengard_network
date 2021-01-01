@@ -14,7 +14,7 @@ defmodule ElvenGard.Protocol do
   @doc """
   Define customs aliases for fields types
   """
-  @callback aliases() :: [{atom, atom}, ...]
+  @callback aliases() :: Keyword.t(atom())
 
   @doc """
   Transforms a term into a packet that can be sent to the client
@@ -35,7 +35,7 @@ defmodule ElvenGard.Protocol do
   The result of this function will then be used by `c:ElvenGard.PacketHandler.handle_packet/3`
   """
   @callback decode(data :: binary, socket :: Socket.t()) ::
-              {:error, term} | {packet_header, map} | [{packet_header, map}, ...]
+              {:error, term} | {packet_header, map} | [{packet_header, map}]
 
   @doc """
   Use ElvenGard.Protocol behaviour

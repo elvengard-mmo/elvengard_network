@@ -6,7 +6,7 @@ defmodule ElvenGard.Socket.Serializer do
   @doc """
   Define customs aliases for fields types
   """
-  @callback aliases() :: [keyword(module()), ...]
+  @callback aliases() :: Keyword.t(module())
 
   @doc """
   Transforms a term into a packet that can be sent to the Socket
@@ -29,7 +29,7 @@ defmodule ElvenGard.Socket.Serializer do
   The result of this function will then be passed in 
   `c:ElvenGard.PacketHandler.handle_packet/3`
   """
-  @callback decode!(data :: bitstring(), assigns :: map()) :: [{any(), list()}, ...]
+  @callback decode!(data :: bitstring(), assigns :: map()) :: [{any(), list()}]
 
   @optional_callbacks aliases: 0
 
@@ -74,12 +74,12 @@ defmodule ElvenGard.Socket.Serializer do
   Returns the module associated to an alias or the given
   value if no alias has been found
   """
-  @spec alias_for([keyword(module()), ...], atom() | module()) :: atom() | module()
+  @spec alias_for(Keyword.t(module()), atom() | module()) :: atom() | module()
   def alias_for(aliases, value), do: Keyword.get(aliases, value, value)
 
   @doc """
   Same as `alias_for/1` but raise an Exception if no alias has been found
   """
-  @spec alias_for!([keyword(module()), ...], atom()) :: module()
+  @spec alias_for!(Keyword.t(module()), atom()) :: module()
   def alias_for!(aliases, value), do: Keyword.fetch!(aliases, value)
 end

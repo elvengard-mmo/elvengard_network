@@ -22,9 +22,9 @@ defmodule ElvenGard.Protocol.Textual do
   """
   @callback handle_decode(data :: binary, socket :: Socket.t()) ::
               String.t()
-              | [String.t(), ...]
+              | [String.t()]
               | {Protocol.packet_header(), String.t()}
-              | [{Protocol.packet_header(), String.t()}, ...]
+              | [{Protocol.packet_header(), String.t()}]
 
   @doc """
   Callback called when a decode fails
@@ -100,11 +100,10 @@ defmodule ElvenGard.Protocol.Textual do
       @doc false
       @spec post_handle_decode(
               String.t()
-              | [String.t(), ...]
+              | [String.t()]
               | {Protocol.packet_header(), String.t()}
-              | [{Protocol.packet_header(), String.t()}, ...]
-            ) ::
-              {Protocol.packet_header(), map} | [{Protocol.packet_header(), map}, ...]
+              | [{Protocol.packet_header(), String.t()}]
+            ) :: {Protocol.packet_header(), map} | [{Protocol.packet_header(), map}]
       defp post_handle_decode(x) when is_tuple(x), do: final_decode(x)
       defp post_handle_decode([x | _] = y) when is_tuple(x), do: Enum.map(y, &final_decode/1)
 
@@ -143,7 +142,7 @@ defmodule ElvenGard.Protocol.Textual do
       ## Helpers
 
       @doc false
-      @spec final_decode({Protocol.packet_header(), [any, ...]}) :: any
+      @spec final_decode({Protocol.packet_header(), [any]}) :: any
       defp final_decode({header, params}) do
         sep = unquote(separator) |> Macro.escape()
         sep_params = String.split(params, sep, trim: unquote(trim))
