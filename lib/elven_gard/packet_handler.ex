@@ -3,7 +3,7 @@ defmodule ElvenGard.PacketHandler do
   Define a DSL to help create packet definitions
 
   Define a domain specific language (DSL) so you can create packet definitions more easily.  
-  Theses packets can be handled by a `ElvenGard.Frontend` and can be used as model to generate
+  Theses packets can be handled by `ElvenGard.Endpoint` and can be used as model to generate
   specs for a Protocol (cf. `ElvenGard.Protocol.Textual` for example). Protocols can use
   metadata created by the DSL to know the packet definitions.
 

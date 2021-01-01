@@ -12,7 +12,7 @@ defmodule ElvenGard.Socket do
     * `:assigns` - The map of socket assigns, default: `%{}`
   """
 
-  alias ElvenGard.{Socket, UUID}
+  alias ElvenGard.{Endpoint, Socket, UUID}
 
   @default_timeout 5_000
 
@@ -57,7 +57,7 @@ defmodule ElvenGard.Socket do
 
   The message will then be sent directly to the client if no 
   frontend is found or, otherwise, the corresponding frontend 
-  will be notified via `ElvenGard.Frontend.send/2`.
+  will be notified via `ElvenGard.Endpoint.send/2`.
 
   ## Examples
 
@@ -87,7 +87,7 @@ defmodule ElvenGard.Socket do
           | {:error, reason :: any()}
   def recv(%Socket{} = socket, length \\ 0, timeout \\ @default_timeout) do
     case receive_message(socket, length, timeout) do
-      {:error, reason} -> {:error, reason}
+      {:error, _} = error -> error
       {:ok, data} -> handle_in(data, socket)
     end
   end
@@ -101,6 +101,8 @@ defmodule ElvenGard.Socket do
   def handle_in(message, %Socket{} = socket) do
     %Socket{serializer: serializer, assigns: assigns} = socket
     {:ok, serializer.decode!(message, assigns)}
+  rescue
+    e -> {:error, e}
   end
 
   @doc """
@@ -141,7 +143,7 @@ defmodule ElvenGard.Socket do
   end
 
   defp send_message(message, %Socket{} = socket) do
-    frontend_mod().send(socket, message)
+    Endpoint.send(socket, message)
   end
 
   @doc false
@@ -153,11 +155,6 @@ defmodule ElvenGard.Socket do
   end
 
   defp receive_message(%Socket{} = socket, length, timeout) do
-    frontend_mod().recv(socket, length, timeout)
-  end
-
-  @doc false
-  defp frontend_mod() do
-    Application.get_env(:elven_gard, :frontend_mod, ElvenGard.Frontend)
+    Endpoint.recv(socket, length, timeout)
   end
 end

@@ -72,7 +72,6 @@ defmodule ElvenGard.MixProject do
     [
       {:ranch, "~> 2.0"},
       {:nimble_parsec, "~> 1.1"},
-      {:mox, "~> 1.0", only: :test, runtime: false},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
       {:dialyxir, "~> 1.0", optional: true, only: [:dev, :test], runtime: false},
       {:credo, "~> 1.5", optional: true, only: [:dev, :test], runtime: false},
