@@ -5,9 +5,8 @@ defmodule MyApp.PingPacket do
 
   @type t :: %__MODULE__{}
 
-  defimpl ElvenGard.Socket.SerializerProtocol do
-    def serialize(_data, _opts), do: "PING"
-  end
+  @impl true
+  def serialize(_data, _opts), do: "PING"
 end
 
 defmodule MyApp.HelloPacket do
@@ -17,10 +16,9 @@ defmodule MyApp.HelloPacket do
 
   @type t :: %__MODULE__{msg: any()}
 
-  defimpl ElvenGard.Socket.SerializerProtocol do
-    def serialize(data, separator: sep) do
-      ["HELLO", sep, serialize(data.msg)]
-    end
+  @impl true
+  def serialize(data, separator: sep) do
+    ["HELLO", sep, serialize(data.msg)]
   end
 end
 
