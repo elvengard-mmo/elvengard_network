@@ -65,20 +65,42 @@ defmodule ElvenGard.Socket do
       iex> send(socket, "data", foo: :bar)
   """
   @spec send(Socket.t(), any(), keyword()) :: :ok | {:error, atom()}
-  def send(socket, message, opts \\ []) do
+  def send(%Socket{} = socket, message, opts \\ []) do
     message
     |> serialize_message(opts, socket)
     |> send_message(socket)
   end
 
   @doc """
+  Receive a packet from the client.
 
+  ...
+
+  ## Examples
+
+      iex> recv(socket)
+      iex> recv(socket, 10)
+      iex> recv(socket, 0, 10_000)
   """
-  @spec recv(Socket.t(), non_neg_integer(), timeout()) :: any()
-  def recv(socket, length \\ 0, timeout \\ @default_timeout) do
-    socket
-    |> receive_message(length, timeout)
-    |> deserialize_message(socket)
+  @spec recv(Socket.t(), non_neg_integer(), timeout()) ::
+          {:ok, data :: any()}
+          | {:error, reason :: any()}
+  def recv(%Socket{} = socket, length \\ 0, timeout \\ @default_timeout) do
+    case receive_message(socket, length, timeout) do
+      {:error, reason} -> {:error, reason}
+      {:ok, data} -> handle_in(data, socket)
+    end
+  end
+
+  @doc """
+  Handles incoming socket messages.
+  """
+  @spec handle_in(iodata(), Socket.t()) ::
+          {:ok, data :: any()}
+          | {:error, reason :: any()}
+  def handle_in(message, %Socket{} = socket) do
+    %Socket{serializer: serializer, assigns: assigns} = socket
+    {:ok, serializer.decode!(message, assigns)}
   end
 
   @doc """
@@ -106,19 +128,8 @@ defmodule ElvenGard.Socket do
   ## Private functions
 
   @doc false
-  defp serialize_message(message, _opts, %Socket{serializer: nil}), do: message
-
   defp serialize_message(message, opts, %Socket{} = socket) do
     socket.serializer.encode!(message, opts)
-  end
-
-  @doc false
-  defp deserialize_message(message, %Socket{serializer: nil}), do: message
-  defp deserialize_message({:error, _} = error, %Socket{}), do: error
-
-  defp deserialize_message({:ok, message}, %Socket{} = socket) do
-    %Socket{serializer: serializer, assigns: assigns} = socket
-    {:ok, serializer.decode!(message, assigns)}
   end
 
   @doc false

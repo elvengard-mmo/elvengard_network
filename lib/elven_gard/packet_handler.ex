@@ -19,12 +19,12 @@ defmodule ElvenGard.PacketHandler do
   Here, the correct way to call our packet handler is:
 
     args = %{username: "user", password: "password"}
-    handle_packet("LOGIN", args, nil)
+    handle_packet("LOGIN", args, socket)
 
   However, the following code will also match this handler:
 
     args = %{username: "user", password: "password", invalid_arg: 123}
-    handle_packet("LOGIN", args, nil)
+    handle_packet("LOGIN", args, socket)
 
   I'm not currently sure if it's a bug or a feature.
   """

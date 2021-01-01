@@ -20,7 +20,7 @@ defmodule ElvenGard.Endpoint.Protocol do
 
   @callback handle_halt(reason :: term(), socket :: Socket.t()) ::
               {:ok, new_socket}
-              | {stop_reason :: term(), new_socket}
+              | {:ok, stop_reason :: term(), new_socket}
             when new_socket: term()
 
   @optional_callbacks handle_init: 1,
@@ -30,14 +30,14 @@ defmodule ElvenGard.Endpoint.Protocol do
   ## Public API
 
   @doc false
-  defmacro __using__(_) do
+  defmacro __using__(opts) do
     quote do
       use GenServer
 
       @behaviour unquote(__MODULE__)
       @behaviour :ranch_protocol
 
-      unquote(defs())
+      unquote(defs(opts))
       unquote(message_callbacks())
       unquote(halt_callbacks())
       unquote(default_callbacks())
@@ -46,7 +46,7 @@ defmodule ElvenGard.Endpoint.Protocol do
 
   ## Private functions
 
-  defp defs() do
+  defp defs(using_opts) do
     quote location: :keep do
       @doc false
       def start_link(ref, transport, opts) do
@@ -57,7 +57,9 @@ defmodule ElvenGard.Endpoint.Protocol do
       @impl true
       def init({ref, transport, opts}) do
         {:ok, transport_pid} = :ranch.handshake(ref)
-        socket = Socket.new(transport_pid, transport, nil, self())
+
+        serializer_mod = get_serializer(opts, unquote(using_opts))
+        socket = Socket.new(transport_pid, transport, serializer_mod, self())
 
         case handle_init(socket) do
           {:ok, new_socket} -> do_enter_loop(new_socket)
@@ -74,6 +76,39 @@ defmodule ElvenGard.Endpoint.Protocol do
         transport.setopts(transport_pid, active: :once)
         :gen_server.enter_loop(__MODULE__, [], socket, timeout)
       end
+
+      defp get_serializer(config_opts, using_opts) do
+        case {config_opts[:serializer], using_opts[:serializer]} do
+          {nil, nil} ->
+            IO.warn("""
+              no serializer found for `#{inspect(__MODULE__)}`.
+              We will use `ElvenGard.Socket.DummySerializer` for now.
+            """)
+
+            ElvenGard.Socket.DummySerializer
+
+          {mod, nil} ->
+            mod
+
+          {nil, mod} ->
+            mod
+
+          {mod1, mod2} ->
+            if mod1 != mod2 do
+              IO.warn("""
+                Duplicate `:serializer` key found for #{inspect(__MODULE__)}.
+                
+                The given values were found:
+                  - from protocol configuration (`config.exs`): #{inspect(mod1)}
+                  - from using options: #{inspect(mod2)}
+                  
+                The value from using options will be ignored.
+              """)
+            end
+
+            mod1
+        end
+      end
     end
   end
 
@@ -87,13 +122,19 @@ defmodule ElvenGard.Endpoint.Protocol do
           case handle_message(data, socket) do
             :ignore -> {:noreply, socket}
             {:ignore, new_socket} -> {:noreply, new_socket}
-            {:ok, _new_socket} -> raise "TODO: implement"
+            {:ok, new_socket} -> dispatch_message(data, new_socket)
             {:stop, reason, new_socket} -> {:stop, reason, new_socket}
             term -> raise "invalid return value for handle_message/2 (got: #{inspect(term)})"
           end
 
         transport.setopts(transport_pid, active: :once)
         result
+      end
+
+      ## Helpers
+
+      defp dispatch_message(data, %Socket{} = socket) do
+        raise "TODO: implement"
       end
     end
   end
@@ -117,8 +158,8 @@ defmodule ElvenGard.Endpoint.Protocol do
       defp do_handle_halt(reason, %Socket{} = socket) do
         case handle_halt(reason, socket) do
           {:ok, new_socket} -> {:stop, :normal, new_socket}
-          {stop_reason, new_socket} -> {:stop, stop_reason, new_socket}
-          _ -> raise "handle_halt/2 must return `{:ok, socket}` or `{stop_reason, socket}`"
+          {:ok, stop_reason, new_socket} -> {:stop, stop_reason, new_socket}
+          _ -> raise "handle_halt/2 must return `{:ok, socket}` or `{:ok, stop_reason, socket}`"
         end
       end
     end

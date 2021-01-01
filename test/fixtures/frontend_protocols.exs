@@ -1,5 +1,5 @@
 defmodule MyApp.FrontendProtocol do
-  use ElvenGard.Endpoint.Protocol
+  use ElvenGard.Endpoint.Protocol, serializer: :unused
 
   @impl true
   def handle_init(socket) do

@@ -94,6 +94,7 @@ defmodule ElvenGard.SocketTest do
   describe "send/2" do
     test "can send a message", %{server_pid: server_pid} do
       socket = %ElvenGard.Socket{
+        serializer: ElvenGard.Socket.DummySerializer,
         transport_pid: MyApp.EchoEndpoint.subscribe(server_pid),
         transport: :gen_tcp
       }
@@ -118,6 +119,7 @@ defmodule ElvenGard.SocketTest do
 
     test "directly send the packet if self is the frontend", %{server_pid: server_pid} do
       socket = %ElvenGard.Socket{
+        serializer: ElvenGard.Socket.DummySerializer,
         transport_pid: MyApp.EchoEndpoint.subscribe(server_pid),
         transport: :gen_tcp,
         frontend_pid: self()
@@ -145,6 +147,7 @@ defmodule ElvenGard.SocketTest do
           # allow(ElvenGard.FrontendMock, frontend_pid, self())
 
           socket = %ElvenGard.Socket{
+            serializer: ElvenGard.Socket.DummySerializer,
             transport_pid: MyApp.EchoEndpoint.subscribe(server_pid),
             transport: :gen_tcp,
             frontend_pid: frontend_pid
@@ -166,6 +169,7 @@ defmodule ElvenGard.SocketTest do
   describe "recv/3" do
     test "can receive a message", %{server_pid: server_pid} do
       socket = %ElvenGard.Socket{
+        serializer: ElvenGard.Socket.DummySerializer,
         transport_pid: MyApp.EchoEndpoint.subscribe(server_pid),
         transport: :gen_tcp
       }
