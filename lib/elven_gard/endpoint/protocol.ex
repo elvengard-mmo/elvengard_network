@@ -23,9 +23,15 @@ defmodule ElvenGard.Endpoint.Protocol do
               | {:ok, stop_reason :: term(), new_socket}
             when new_socket: term()
 
+  @callback handle_error(reason :: term(), socket :: Socket.t()) ::
+              {:ignore, new_socket}
+              | {:stop, reason :: term(), new_socket}
+            when new_socket: term()
+
   @optional_callbacks handle_init: 1,
                       handle_message: 2,
-                      handle_halt: 2
+                      handle_halt: 2,
+                      handle_error: 2
 
   ## Public API
 
@@ -115,14 +121,14 @@ defmodule ElvenGard.Endpoint.Protocol do
   defp message_callbacks() do
     quote location: :keep do
       @impl true
-      def handle_info({:tcp, transport_pid, data}, %Socket{} = socket) do
+      def handle_info({:tcp, transport_pid, message}, %Socket{} = socket) do
         %Socket{transport: transport} = socket
 
         result =
-          case handle_message(data, socket) do
+          case handle_message(message, socket) do
             :ignore -> {:noreply, socket}
             {:ignore, new_socket} -> {:noreply, new_socket}
-            {:ok, new_socket} -> dispatch_message(data, new_socket)
+            {:ok, new_socket} -> do_handle_in(message, new_socket)
             {:stop, reason, new_socket} -> {:stop, reason, new_socket}
             term -> raise "invalid return value for handle_message/2 (got: #{inspect(term)})"
           end
@@ -133,8 +139,22 @@ defmodule ElvenGard.Endpoint.Protocol do
 
       ## Helpers
 
-      defp dispatch_message(data, %Socket{} = socket) do
-        raise "TODO: implement"
+      defp do_handle_in(message, %Socket{} = socket) do
+        case Socket.handle_in(message, socket) do
+          {:error, reason} ->
+            do_handle_error({:invalid_packet, message, reason}, socket)
+
+          {:ok, decoded} ->
+            raise "TODO: implement"
+        end
+      end
+
+      defp do_handle_error(reason, socket) do
+        case handle_error(reason, socket) do
+          {:ignore, new_socket} -> {:noreply, new_socket}
+          {:stop, reason, new_socket} -> do_handle_halt(reason, new_socket)
+          _ -> raise "handle_error/2 must return `{:ignore, socket}` or `{:stop, reason, socket}`"
+        end
       end
     end
   end
@@ -176,9 +196,13 @@ defmodule ElvenGard.Endpoint.Protocol do
       @impl true
       def handle_halt(_reason, socket), do: {:ok, socket}
 
+      @impl true
+      def handle_error(reason, socket), do: {:stop, reason, socket}
+
       defoverridable handle_init: 1,
                      handle_message: 2,
-                     handle_halt: 2
+                     handle_halt: 2,
+                     handle_error: 2
     end
   end
 end
