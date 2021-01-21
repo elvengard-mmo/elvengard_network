@@ -56,6 +56,11 @@ defmodule ElvenGard.Endpoint.Protocol do
     quote location: :keep do
       @doc false
       def start_link(ref, transport, opts) do
+        # Is it a correct use case for persistent_term?
+        opts
+        |> get_packet_handler(unquote(using_opts))
+        |> ElvenGard.Endpoint.Protocol.persist_packet_handler(__MODULE__)
+
         pid = :proc_lib.spawn_link(__MODULE__, :init, [{ref, transport, opts}])
         {:ok, pid}
       end
@@ -115,6 +120,61 @@ defmodule ElvenGard.Endpoint.Protocol do
             mod1
         end
       end
+
+      defp get_packet_handler(config_opts, using_opts) do
+        case {config_opts[:packet_handler], using_opts[:packet_handler]} do
+          {nil, nil} ->
+            IO.warn("no packet handler found for `#{inspect(__MODULE__)}`.")
+            nil
+
+          {mod, nil} ->
+            mod
+
+          {nil, mod} ->
+            mod
+
+          {mod1, mod2} ->
+            if mod1 != mod2 do
+              IO.warn("""
+                Duplicate `:packet_handler` key found for #{inspect(__MODULE__)}.
+                
+                The given values were found:
+                  - from protocol configuration (`config.exs`): #{inspect(mod1)}
+                  - from using options: #{inspect(mod2)}
+                  
+                The value from using options will be ignored.
+              """)
+            end
+
+            mod1
+        end
+      end
+    end
+  end
+
+  @doc false
+  @spec persist_packet_handler(module() | nil, any()) :: any()
+  def persist_packet_handler(packet_handler, namespace) do
+    unique_key = {namespace, :packet_handler}
+
+    case :persistent_term.get(unique_key, :default) do
+      ^packet_handler ->
+        :ok
+
+      :default ->
+        :persistent_term.put(unique_key, packet_handler)
+
+      x ->
+        IO.warn("""
+        new packet handler value detected for `#{inspect(__MODULE__)}` (#{inspect(x)}).
+
+        The packet handler of a Protocol being stored in a persistent_term, \
+        it is not recommended to modify its value.
+
+        For more information, please refer to: https://erlang.org/doc/man/persistent_term.html
+        """)
+
+        :persistent_term.put(unique_key, x)
     end
   end
 
@@ -141,12 +201,13 @@ defmodule ElvenGard.Endpoint.Protocol do
 
       defp do_handle_in(message, %Socket{} = socket) do
         case Socket.handle_in(message, socket) do
-          {:error, reason} ->
-            do_handle_error({:invalid_packet, message, reason}, socket)
-
-          {:ok, decoded} ->
-            raise "TODO: implement"
+          {:error, reason} -> do_handle_error({:invalid_packet, message, reason}, socket)
+          {:ok, decoded_msg} -> dispatch_message(decoded_msg, socket)
         end
+      end
+
+      defp dispatch_message(decoded_msg, socket) do
+        raise "TODO: implement"
       end
 
       defp do_handle_error(reason, socket) do
