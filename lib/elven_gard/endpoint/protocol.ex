@@ -4,6 +4,7 @@ defmodule ElvenGard.Endpoint.Protocol do
   """
 
   alias ElvenGard.Socket
+  alias ElvenGard.Endpoint.Protocol
 
   @callback handle_init(socket :: Socket.t()) ::
               {:ok, new_socket}
@@ -59,7 +60,7 @@ defmodule ElvenGard.Endpoint.Protocol do
         # Is it a correct use case for persistent_term?
         opts
         |> get_packet_handler(unquote(using_opts))
-        |> ElvenGard.Endpoint.Protocol.persist_packet_handler(__MODULE__)
+        |> Protocol.persist_packet_handler(__MODULE__)
 
         pid = :proc_lib.spawn_link(__MODULE__, :init, [{ref, transport, opts}])
         {:ok, pid}
@@ -201,12 +202,21 @@ defmodule ElvenGard.Endpoint.Protocol do
 
       defp do_handle_in(message, %Socket{} = socket) do
         case Socket.handle_in(message, socket) do
-          {:error, reason} -> do_handle_error({:invalid_packet, message, reason}, socket)
-          {:ok, decoded_msg} -> dispatch_message(decoded_msg, socket)
+          {:error, reason} -> do_handle_error({:handle_in, message, reason}, socket)
+          {:ok, {_, args} = decoded} when is_map(args) -> dispatch_message(decoded, socket)
+          value -> raise "invalid return value for handle_in/2 (got: #{inspect(value)})"
         end
       end
 
-      defp dispatch_message(decoded_msg, socket) do
+      defp dispatch_message({header, args}, %Socket{} = socket) do
+        handler = :persistent_term.get({__MODULE__, :packet_handler})
+
+        case handler.handle_packet(header, args, socket) do
+          {:cont, new_socket} -> :ok
+          {:halt, reason, new_socket} -> :ok
+          value -> raise "invalid return value for handle_packet/3 (got: #{inspect(value)})"
+        end
+
         raise "TODO: implement"
       end
 

@@ -24,19 +24,36 @@ defmodule ElvenGard.Socket.TextualSerializerTest do
       assert encode_packet(%MyApp.HelloPacket{msg: "WORLD"}) == "HELLO WORLD"
       assert encode_packet(%MyApp.HelloPacket{msg: 123}) == "HELLO 123"
     end
+
+    test "Raise Protocol.UndefinedError if protocol not implemented" do
+      assert_raise Protocol.UndefinedError, fn ->
+        encode_packet(%{})
+      end
+    end
   end
 
-  # describe "decode!/2" do
-  #   @tag :skip
-  #   test "returns an empty list for an empty packet" do
-  #     assert MyApp.SimpleTextSerializer.decode!("", %{}) == []
-  #   end
+  describe "decode!/2" do
+    test "returns an empty list for an empty packet" do
+      assert decode_packet("") == []
+    end
 
-  #   @tag :skip
-  #   test "can decode a simple packet" do
-  #     assert MyApp.SimpleTextSerializer.decode!("PING", %{}) == [{"PING", %{}}]
-  #   end
-  # end
+    test "can decode a packet without args" do
+      assert decode_packet("PING") == [{"PING", %{}}]
+    end
+
+    test "can decode a packet with args" do
+      assert decode_packet("LOGIN admin test") ==
+               [{"LOGIN", %{"username" => "admin", "password" => "test"}}]
+
+      assert decode_packet("PING 10") == [{"PING", %{"count" => 10}}]
+    end
+
+    test "raise an error if cannot decode args (malformed packet)" do
+      assert_raise RuntimeError, ~r"unable to decode args", fn ->
+        decode_packet("INVALID_HEADER 1")
+      end
+    end
+  end
 
   ## Helpers
 
@@ -44,5 +61,9 @@ defmodule ElvenGard.Socket.TextualSerializerTest do
     packet
     |> MyApp.SimpleTextSerializer.encode!([])
     |> IO.iodata_to_binary()
+  end
+
+  defp decode_packet(packet) do
+    MyApp.SimpleTextSerializer.decode!(packet, %{})
   end
 end

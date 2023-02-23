@@ -4,6 +4,10 @@ defmodule ElvenGard.Socket.DummySerializer do
 
   The `encode!` and `decode!` callbacks return the data 
   without modifying it.
+
+  WARN: This is not a valid serializer (return type for
+  `c:decode!/2` is invalid and must return a tuple).  
+  Don't use it in production!
   """
 
   @behaviour ElvenGard.Socket.Serializer

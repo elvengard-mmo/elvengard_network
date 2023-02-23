@@ -5,16 +5,6 @@ defmodule ElvenGard.Socket.TextualSerializer do
 
   import ElvenGard.Socket.Serializer, only: [serialize: 2]
 
-  # @doc """
-  # Same as c:ElvenGard.Protocol.encode/2
-  # """
-  # @callback handle_encode(data :: any(), opts :: keyword()) :: iodata()
-
-  # @doc """
-  # TODO: Documentation
-  # """
-  # @callback handle_decode(data :: binary(), assigns :: map()) :: any()
-
   @aliases [
     integer: ElvenGard.Protocol.Textual.IntegerType,
     float: ElvenGard.Protocol.Textual.FloatType,
@@ -30,6 +20,7 @@ defmodule ElvenGard.Socket.TextualSerializer do
       # @behaviour unquote(__MODULE__)
 
       unquote(defs(opts))
+      unquote(decoders(opts, __CALLER__))
     end
   end
 
@@ -37,7 +28,8 @@ defmodule ElvenGard.Socket.TextualSerializer do
 
   @doc false
   defp defs(opts) do
-    module_opts = [separator: Keyword.fetch!(opts, :separator)]
+    separator = Keyword.fetch!(opts, :separator)
+    module_opts = [separator: separator]
 
     quote location: :keep do
       @impl true
@@ -47,7 +39,58 @@ defmodule ElvenGard.Socket.TextualSerializer do
       def encode!(data, opts), do: serialize(data, Keyword.merge(unquote(module_opts), opts))
 
       @impl true
-      def decode!(_message, _assigns), do: []
+      def decode!("", _assigns), do: []
+
+      def decode!(message, _assigns) do
+        message
+        # |> handle_decode(assigns)
+        |> String.split(["\r\n", "\n", "\r"])
+        |> Enum.map(&do_decode!/1)
+      end
+
+      ## Helpers
+
+      defp do_decode!(message) do
+        case String.split(message, unquote(separator), trim: true) do
+          [header] -> {header, %{}}
+          [header | str_args] -> parse_args!(header, str_args)
+        end
+      end
+    end
+  end
+
+  @doc false
+  defp decoders(opts, caller) do
+    packet_handler =
+      opts
+      |> Keyword.fetch!(:packet_handler)
+      |> Macro.expand(caller)
+
+    defs = packet_handler.__defs__()
+
+    IO.inspect(defs)
+
+    # Enum.map(fn x ->
+
+    #   quote location: :keep do
+    #     defp parse_args!(unquote(x), [username, password]) do
+    #       {"LOGIN", %{"username" => username, "password" => password}}
+    #     end
+    #   end
+    # end)
+
+    quote location: :keep do
+      defp parse_args!("LOGIN", [username, password]) do
+        {"LOGIN", %{"username" => username, "password" => password}}
+      end
+
+      defp parse_args!("PING", [count]) do
+        {"PING", %{"count" => String.to_integer(count)}}
+      end
+
+      defp parse_args!(header, args) do
+        raise "unable to decode args for header #{inspect(header)} (got: #{inspect(args)})"
+      end
     end
   end
 end

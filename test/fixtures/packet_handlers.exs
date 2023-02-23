@@ -80,6 +80,11 @@ defmodule MyApp.SimplePacketHandler do
     resolve &connect_user/3
   end
 
+  packet "PING" do
+    field :count, :integer
+    resolve &ping_n_times/3
+  end
+
   default_packet_callback do
     {:cont, {header, args, socket}}
   end
@@ -95,6 +100,7 @@ defmodule MyApp.SimplePacketHandler do
   def connect_2fa(_header, _args, _socket), do: :connect_2fa
   def connect_admin(_header, _args, _socket), do: :connect_admin
   def connect_user(_header, _args, _socket), do: :connect_user
+  def ping_n_times(_header, _args, _socket), do: :ping_n_times
 end
 
 defmodule MyApp.PingPacketHandlerExtension do

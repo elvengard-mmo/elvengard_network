@@ -24,12 +24,12 @@ defmodule ElvenGard.Socket.Serializer do
   (decryption) and split your packet.
 
   NOTE: This function must returns a list of 2 elements tuples
-  starting with a packet header followed by a list of params.  
+  starting with a packet header followed by a list of params.
 
   The result of this function will then be passed in 
   `c:ElvenGard.PacketHandler.handle_packet/3`
   """
-  @callback decode!(data :: bitstring(), assigns :: map()) :: [{any(), list()}]
+  @callback decode!(data :: bitstring(), assigns :: map()) :: [{header :: any(), params :: any()}]
 
   @optional_callbacks aliases: 0
 
@@ -39,6 +39,8 @@ defmodule ElvenGard.Socket.Serializer do
   defmacro __using__(_) do
     quote do
       @behaviour unquote(__MODULE__)
+
+      import unquote(__MODULE__), only: [serialize: 1, serialize: 2]
 
       ## Serializer Behaviour
 

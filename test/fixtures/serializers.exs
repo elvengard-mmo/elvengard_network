@@ -1,3 +1,5 @@
+Code.require_file("packet_handlers.exs", __DIR__)
+
 defmodule MyApp.BasicSerializer do
   use ElvenGard.Socket.Serializer
 
@@ -23,12 +25,14 @@ defmodule MyApp.LineSerializer do
 end
 
 defmodule MyApp.SimpleTextSerializer do
-  use ElvenGard.Socket.TextualSerializer, separator: " "
+  use ElvenGard.Socket.TextualSerializer,
+    packet_handler: MyApp.SimplePacketHandler,
+    separator: " "
 
   ## Callbacks
 
   # @impl true
-  # def handle_decode(data, _opts), do: data
+  # def handle_decode(data, _assigns), do: data
 
   ## SerializerProtocol implementations
 

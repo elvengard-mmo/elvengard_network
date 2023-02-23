@@ -2,12 +2,12 @@ defmodule ElvenGard.PacketHandler do
   @moduledoc ~S"""
   Define a DSL to help create packet definitions
 
-  Define a domain specific language (DSL) so you can create packet definitions more easily.  
+  Define a domain specific language (DSL) so you can create packet definitions more easily.
   Theses packets can be handled by `ElvenGard.Endpoint` and can be used as model to generate
   specs for a Protocol (cf. `ElvenGard.Protocol.Textual` for example). Protocols can use
   metadata created by the DSL to know the packet definitions.
 
-  WARN: add invalid arguments to the handle_packet/3 callback can match an invalid handler.  
+  WARN: add invalid arguments to the handle_packet/3 callback can match an invalid handler.
   For example if we have a packet handler defined like that:
 
     packet "LOGIN" do
@@ -32,14 +32,15 @@ defmodule ElvenGard.PacketHandler do
   alias ElvenGard.Socket
   alias ElvenGard.PacketHandler.{FieldDefinition, PacketDefinition}
 
-  @type header() :: any()
-  @type args() :: map()
-  @type socket() :: Socket.t()
-  @type reason() :: term()
-  @type callback_response() :: {:cont, socket()} | {:halt, reason(), socket()}
+  @callback handle_packet(header :: any(), args :: map(), socket :: Socket.t()) ::
+              {:cont, new_socket}
+              | {:halt, reason :: term(), new_socket}
+              | {:halt, reason :: term(), new_socket}
+            when new_socket: Socket.t()
 
-  @callback handle_packet(header(), args(), socket()) :: callback_response()
-  @callback handle_ignore(header(), args(), socket()) :: callback_response()
+  @callback handle_ignore(header :: any(), args :: map(), socket :: Socket.t()) ::
+              {:cont, new_socket} | {:halt, reason :: term(), new_socket}
+            when new_socket: Socket.t()
 
   ## Public API
 
