@@ -70,12 +70,12 @@ defmodule ElvenGard.MixProject do
 
   defp deps() do
     [
-      {:ranch, "~> 2.0"},
-      {:nimble_parsec, "~> 1.1"},
-      {:ex_doc, "~> 0.23", only: :dev, runtime: false},
-      {:dialyxir, "~> 1.0", optional: true, only: [:dev, :test], runtime: false},
-      {:credo, "~> 1.5", optional: true, only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.13", only: :test, runtime: false}
+      {:ranch, "~> 2.1"},
+      {:nimble_parsec, "~> 1.2"},
+      {:ex_doc, "~> 0.29", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.2", optional: true, only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.6", optional: true, only: [:dev, :test], runtime: false},
+      {:excoveralls, "~> 0.15", only: :test, runtime: false}
     ]
   end
 

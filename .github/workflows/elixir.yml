@@ -1,5 +1,13 @@
-name: CI
-on: [push, pull_request]
+name: Elixir CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
 
 jobs:
   tests:
@@ -10,7 +18,7 @@ jobs:
 
     strategy:
       matrix:
-        elixir_version: ["1.8", "1.9", "1.10", "1.11"]
+        elixir_version: ["1.10", "1.14"]
 
     env:
       MIX_ENV: test
@@ -24,17 +32,17 @@ jobs:
           apt-get install -y git
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Get deps cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         # id: deps-cache
         with:
          path: deps
          key: ${{ runner.os }}-v${{ matrix.elixir_version }}-deps-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
 
       - name: Get build cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
          path: _build/test
          key: ${{ runner.os }}-v${{ matrix.elixir_version }}-build-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
