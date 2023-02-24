@@ -1,7 +1,7 @@
 {
     "files.insertFinalNewline": true,
     "files.trimFinalNewlines": true,
-    "files.trimTrailingWhitespace": true,
+    "files.trimTrailingWhitespace": false,
     "files.eol": "\n",
     "files.exclude": {
         "**/.elixir_ls/": true,
@@ -14,7 +14,6 @@
         "editor.wordBasedSuggestions": false,
         "editor.formatOnType": true,
         "editor.detectIndentation": true,
-        "files.trimTrailingWhitespace": false,
         "editor.formatOnPaste": true,
         "editor.formatOnSave": true
     }
