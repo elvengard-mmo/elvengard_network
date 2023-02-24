@@ -41,11 +41,11 @@ jobs:
          path: deps
          key: ${{ runner.os }}-v${{ matrix.elixir_version }}-deps-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
 
-      - name: Get build cache
-        uses: actions/cache@v3
-        with:
-         path: _build/test
-         key: ${{ runner.os }}-v${{ matrix.elixir_version }}-build-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+      # - name: Get build cache
+      #   uses: actions/cache@v3
+      #   with:
+      #    path: _build/test
+      #    key: ${{ runner.os }}-v${{ matrix.elixir_version }}-build-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
 
       - name: Install Dependencies
         # if: steps.deps-cache.outputs.cache-hit != 'true'
