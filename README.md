@@ -1,7 +1,7 @@
-# ElvenGard
+# ElvenGard.Network
 
-[![Build Status](https://github.com/ImNotAVirus/elvengard-network/workflows/CI/badge.svg?branch=master)](https://github.com/ImNotAVirus/elvengard-network/actions)
-[![Coverage Status](https://coveralls.io/repos/github/ImNotAVirus/elvengard-network/badge.svg?branch=master)](https://coveralls.io/github/ImNotAVirus/elvengard-network)
+[![Build Status](https://github.com/ImNotAVirus/elvengard_network/workflows/CI/badge.svg?branch=master)](https://github.com/ImNotAVirus/elvengard_network/actions)
+[![Coverage Status](https://coveralls.io/repos/github/ImNotAVirus/elvengard_network/badge.svg?branch=master)](https://coveralls.io/github/ImNotAVirus/elvengard_network)
 
 ## What is ElvenGard
 
@@ -22,25 +22,25 @@ Currently not [available in Hex](https://hex.pm/docs/publish), you can use it li
 ```elixir
 def deps do
   [
-    {:elven_gard, github: "imnotavirus/elvengard-network"}
+    {:elvengard_network, github: "imnotavirus/elvengard_network"}
   ]
 end
 ```
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `elven_gard` to your list of dependencies in `mix.exs`:
+by adding `elvengard_network` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:elven_gard, "~> 0.1.0"}
+    {:elvengard_network, "~> 0.1.0"}
   ]
 end
 ```
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/elven_gard](https://hexdocs.pm/elven_gard).
+be found at [https://hexdocs.pm/elvengard_network](https://hexdocs.pm/elvengard_network).
 
 **/!\ This application is currently not production ready !**
 

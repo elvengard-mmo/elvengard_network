@@ -1,0 +1,72 @@
+defmodule ElvenGard.Network.MixProject do
+  use Mix.Project
+
+  @app_name "ElvenGard.Network"
+  @version "0.1.0-alpha"
+  @github_link "https://github.com/ImNotAVirus/elvengard_network"
+
+  def project do
+    [
+      app: :elvengard_network,
+      version: @version,
+      elixir: "~> 1.10",
+      name: @app_name,
+      description: "MMORPG Game Server toolkit written in Elixir",
+      package: package(),
+      docs: docs(),
+      deps: deps()
+    ]
+  end
+
+  # Run "mix help compile.app" to learn about applications.
+  def application do
+    [
+      extra_applications: [:logger, :crypto]
+    ]
+  end
+
+  # Run "mix help deps" to learn about dependencies.
+  defp deps do
+    [
+      # {:dep_from_hexpm, "~> 0.3.0"},
+      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+    ]
+  end
+
+  defp package do
+    [
+      maintainers: ["ImNotAVirus"],
+      licenses: ["MIT"],
+      links: %{github: @github_link},
+      files: ~w(lib CHANGELOG.md LICENSE.md mix.exs README.md)
+    ]
+  end
+
+  defp docs do
+    [
+      main: @app_name,
+      source_ref: "v#{@version}",
+      source_url: @github_link,
+      # logo: "path/to/logo.png",
+      extra_section: "GUIDES",
+      extras: extras(),
+      groups_for_extras: groups_for_extras()
+      # groups_for_modules: [
+      #   "Textual protocol specs": ~r/ElvenGard\.Protocol\.Textual\.?/,
+      #   "Binary protocol specs": ~r/ElvenGard\.Protocol\.Binary\.?/,
+      #   PacketHandler: ~r/ElvenGard\.PacketHandler\./
+      # ]
+    ]
+  end
+
+  defp extras do
+    ["README.md": [title: "Overview"]] ++ Path.wildcard("guides/**/*.md")
+  end
+
+  defp groups_for_extras do
+    [
+      Introduction: ~r/(README.md|guides\/introduction\/.?)/,
+      Topics: ~r/guides\/topics\/.?/
+    ]
+  end
+end
