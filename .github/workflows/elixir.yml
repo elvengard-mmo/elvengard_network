@@ -36,19 +36,15 @@ jobs:
 
       - name: Get deps cache
         uses: actions/cache@v3
-        # id: deps-cache
+        id: mix-cache
         with:
-         path: deps
-         key: ${{ runner.os }}-v${{ matrix.elixir_version }}-deps-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
-
-      # - name: Get build cache
-      #   uses: actions/cache@v3
-      #   with:
-      #    path: _build/test
-      #    key: ${{ runner.os }}-v${{ matrix.elixir_version }}-build-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+         path: |
+          _build/test
+          deps
+         key: ${{ runner.os }}-${{ matrix.elixir_version }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
 
       - name: Install Dependencies
-        # if: steps.deps-cache.outputs.cache-hit != 'true'
+        if: steps.mix-cache.outputs.cache-hit != 'true'
         run: |
           mix local.hex --force
           mix local.rebar --force
@@ -63,8 +59,6 @@ jobs:
 
       # - name: Run Credo
       #   run: mix credo --strict
-
-      # TODO: Setup dialyzer
 
       - name: Post Coverage
         run: mix coveralls.github
