@@ -43,11 +43,14 @@ jobs:
           deps
          key: ${{ runner.os }}-${{ matrix.elixir_version }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
 
-      - name: Install Dependencies
-        if: steps.mix-cache.outputs.cache-hit != 'true'
+      - name: Install Mix tools
         run: |
           mix local.hex --force
           mix local.rebar --force
+
+      - name: Install Dependencies
+        if: steps.mix-cache.outputs.cache-hit != 'true'
+        run: |
           mix deps.get
           mix compile
 
