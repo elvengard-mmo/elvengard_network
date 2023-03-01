@@ -9,7 +9,7 @@ defmodule ElvenGard.Network.MixProject do
     [
       app: :elvengard_network,
       version: @version,
-      elixir: "~> 1.12",
+      elixir: "~> 1.13",
       name: @app_name,
       description: "MMORPG Game Server toolkit written in Elixir",
       package: package(),

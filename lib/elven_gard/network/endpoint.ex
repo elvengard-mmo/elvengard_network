@@ -10,6 +10,7 @@ defmodule ElvenGard.Network.Endpoint do
     quote do
       @otp_app unquote(opts)[:otp_app] || raise("endpoint expects :otp_app to be given")
 
+      # FIXME: Idk why this doesn't work with Elixir 1.10-12
       Application.compile_env(@otp_app, __MODULE__) ||
         IO.warn("no config found for #{inspect(__MODULE__)}")
 
