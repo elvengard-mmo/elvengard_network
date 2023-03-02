@@ -5,9 +5,9 @@ defmodule ElvenGard.Network.View do
 
   alias ElvenGard.Network.UnknownViewError
 
-  @type name :: any()
-  @type opts :: map() | keyword()
-  @type content :: any()
+  @type name :: any
+  @type opts :: map | keyword
+  @type content :: any
 
   @doc """
   Build a packet to send to the client

@@ -12,6 +12,7 @@ defmodule ElvenGard.Network.MixProject do
       elixir: "~> 1.13",
       name: @app_name,
       description: "MMORPG Game Server toolkit written in Elixir",
+      elixirc_paths: elixirc_paths(Mix.env()),
       package: package(),
       docs: docs(),
       deps: deps(),
@@ -24,6 +25,9 @@ defmodule ElvenGard.Network.MixProject do
       ]
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Run "mix help compile.app" to learn about applications.
   def application do
