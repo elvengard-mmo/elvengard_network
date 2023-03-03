@@ -13,6 +13,13 @@ defmodule ElvenGard.Network.EndpointTest do
 
     @behaviour :ranch_protocol
 
+    @impl ElvenGard.Network.Endpoint
+    def handle_start(_config) do
+      send(self(), :handle_start)
+      :ok
+    end
+
+    @impl :ranch_protocol
     def start_link(ref, transport, opts) do
       {:ok, :proc_lib.spawn_link(__MODULE__, :init, [{ref, transport, opts}])}
     end
@@ -65,24 +72,6 @@ defmodule ElvenGard.Network.EndpointTest do
              {ElvenGard.Network.EndpointTest.MyEndpoint, :my_endpoint}
   end
 
-  test "child_spec/1 generates child spec" do
-    assert MyEndpoint.child_spec([]) == %{
-             id: {:ranch_embedded_sup, {ElvenGard.Network.EndpointTest.MyEndpoint, :my_endpoint}},
-             start: {
-               :ranch_embedded_sup,
-               :start_link,
-               [
-                 {ElvenGard.Network.EndpointTest.MyEndpoint, :my_endpoint},
-                 :ranch_tcp,
-                 %{socket_opts: [ip: {127, 0, 0, 1}, port: 0]},
-                 ElvenGard.Network.EndpointTest.MyEndpoint,
-                 []
-               ]
-             },
-             type: :supervisor
-           }
-  end
-
   test "config/0 returns the config" do
     config = MyEndpoint.config()
 
@@ -100,5 +89,43 @@ defmodule ElvenGard.Network.EndpointTest do
 
   test "get_port/0 returns the endpoint's address" do
     assert is_integer(MyEndpoint.get_port())
+  end
+
+  describe "child_spec/1" do
+    test "generates child spec" do
+      assert MyEndpoint.child_spec([]) == %{
+               id:
+                 {:ranch_embedded_sup, {ElvenGard.Network.EndpointTest.MyEndpoint, :my_endpoint}},
+               start: {
+                 :ranch_embedded_sup,
+                 :start_link,
+                 [
+                   {ElvenGard.Network.EndpointTest.MyEndpoint, :my_endpoint},
+                   :ranch_tcp,
+                   %{socket_opts: [ip: {127, 0, 0, 1}, port: 0]},
+                   ElvenGard.Network.EndpointTest.MyEndpoint,
+                   []
+                 ]
+               },
+               type: :supervisor
+             }
+    end
+
+    test "call c:handle_start/1" do
+      MyEndpoint.child_spec([])
+      assert_received :handle_start
+
+      MyEndpoint.child_spec(ignore_init: true)
+      refute_receive :handle_start
+    end
+  end
+
+  describe "start_link/0" do
+    test "call c:handle_start/1" do
+      {:ok, _} = MyEndpoint.start_link([])
+      assert_received :handle_start
+      # Crash tests sometimes ???
+      # GenServer.stop(endpoint)
+    end
   end
 end

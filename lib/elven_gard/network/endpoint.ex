@@ -3,11 +3,16 @@ defmodule ElvenGard.Network.Endpoint do
   TODO: Documentation for ElvenGard.Network.Endpoint
   """
 
+  @doc "Called just before starting the ranch listener"
+  @callback handle_start(config :: Keyword.t()) :: :ok
+
   ## Public API
 
   @doc false
   defmacro __using__(opts) do
-    quote do
+    quote location: :keep do
+      @behaviour unquote(__MODULE__)
+
       @otp_app unquote(opts)[:otp_app] || raise("endpoint expects :otp_app to be given")
 
       # FIXME: Idk why this doesn't work with Elixir 1.10-12
@@ -17,13 +22,14 @@ defmodule ElvenGard.Network.Endpoint do
       @config ElvenGard.Network.Endpoint.Config.config(@otp_app, __MODULE__)
 
       unquote(listener())
+      unquote(default_callbacks())
     end
   end
 
   ## Private functions
 
   defp listener() do
-    quote do
+    quote location: :keep do
       @doc false
       def __listener_name__() do
         {__MODULE__, @config[:listener_name]}
@@ -34,6 +40,10 @@ defmodule ElvenGard.Network.Endpoint do
       under a supervision tree.
       """
       def child_spec(opts) do
+        if opts[:ignore_init] != true do
+          :ok = handle_start(@config)
+        end
+
         :ranch.child_spec(
           __listener_name__(),
           @config[:transport],
@@ -46,7 +56,9 @@ defmodule ElvenGard.Network.Endpoint do
       @doc """
       Starts the endpoint.
       """
-      def start_link(_opts \\ []) do
+      def start_link(_opts) do
+        :ok = handle_start(@config)
+
         :ranch.start_listener(
           __listener_name__(),
           @config[:transport],
@@ -76,6 +88,15 @@ defmodule ElvenGard.Network.Endpoint do
       def get_port() do
         :ranch.get_port(__listener_name__())
       end
+    end
+  end
+
+  defp default_callbacks() do
+    quote do
+      @impl true
+      def handle_start(_config), do: :ok
+
+      defoverridable handle_start: 1
     end
   end
 end
