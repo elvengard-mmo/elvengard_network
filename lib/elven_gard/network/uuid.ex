@@ -22,10 +22,11 @@ defmodule ElvenGard.Network.UUID do
     uuid_to_string(<<u0::48, 4::4, u1::12, 2::2, u2::62>>)
   end
 
-  ## Private functions
+  ## Internal functions
 
   @doc false
-  defp uuid_to_string(<<
+  @spec uuid_to_string(<<_::128>>) :: String.t()
+  def uuid_to_string(<<
         a1::4, a2::4, a3::4, a4::4,
         a5::4, a6::4, a7::4, a8::4,
         b1::4, b2::4, b3::4, b4::4,

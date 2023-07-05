@@ -125,7 +125,7 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
 
       ## Helpers
 
-      defp do_handle_halt(reason, %Socket{} = socket) do
+      defp do_handle_halt(reason, socket) do
         %Socket{transport: transport, transport_pid: transport_pid} = socket
         transport.close(transport_pid)
 
