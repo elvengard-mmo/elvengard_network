@@ -1,4 +1,4 @@
-defmodule MinecraftEx.Types.String do
+defmodule MinecraftEx.Types.MCString do
   @moduledoc """
   A sequence of Unicode scalar values
 
