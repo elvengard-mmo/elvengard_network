@@ -7,16 +7,14 @@ defmodule MinecraftEx.Endpoint.Protocol do
 
   require Logger
 
-  alias ElvenGard.Network.Socket
+  import ElvenGard.Network.Socket, only: [assign: 3]
 
+  alias ElvenGard.Network.Socket
   alias MinecraftEx.Resources
 
   alias MinecraftEx.Types.{
-    Boolean,
     Long,
-    String,
-    Short,
-    UUID,
+    MCString,
     VarInt
   }
 
@@ -30,18 +28,16 @@ defmodule MinecraftEx.Endpoint.Protocol do
     %Socket{transport: transport, transport_pid: transport_pid} = socket
     :ok = transport.setopts(transport_pid, packet: :raw, reuseaddr: true)
 
-    {:ok, socket}
+    {:ok, assign(socket, :state, :init)}
   end
 
   @impl true
   def handle_message(message, %Socket{} = socket) do
     Logger.debug("New message (len: #{byte_size(message)})")
 
-    message
-    |> decode()
-    |> Enum.each(&handle_packet(&1, socket))
+    {updated_socket, _rest} = packet_loop(message, socket)
 
-    :ignore
+    {:ignore, updated_socket}
   end
 
   @impl true
@@ -52,107 +48,28 @@ defmodule MinecraftEx.Endpoint.Protocol do
 
   ## Helpers
 
-  @decoders %{
-    0x00 => [:do_decode_00_0, :do_decode_00_1, :do_decode_00_2],
-    0x01 => :do_decode_01_0
-  }
+  defp packet_loop(data, socket) do
+    case apply(codec(), :next, [data]) do
+      {nil, rest} ->
+        {socket, rest}
 
-  defp decode(message, result \\ [])
-  defp decode(<<>>, result), do: Enum.reverse(result)
-
-  defp decode(message, result) do
-    {length, rest} = VarInt.decode(message, [])
-
-    if bit_size(rest) < length do
-      Enum.reverse(result)
-    else
-      <<packet::binary-size(length), rest_packet::bitstring>> = rest
-      {packet_id, rest} = VarInt.decode(packet, [])
-
-      packet_struct =
-        case @decoders[packet_id] do
-          nil ->
-            raise "no decoder found for packet with id #{inspect(packet_id)}"
-
-          decoder when is_atom(decoder) ->
-            apply(__MODULE__, decoder, [packet_id, rest])
-
-          decoders when is_list(decoders) ->
-            Enum.find_value(decoders, fn decoder ->
-              try do
-                apply(__MODULE__, decoder, [packet_id, rest])
-              rescue
-                _ -> nil
-              end
-            end)
-        end
-
-      if is_nil(packet_struct) do
-        raise("unable to decode packet with id #{inspect(packet_id)} - #{inspect(packet)}")
-      end
-
-      packet_struct = elem(packet_struct, 0)
-      IO.inspect(packet_struct, label: "packet_struct")
-
-      decode(rest_packet, [packet_struct | result])
+      {raw, rest} ->
+        raw
+        |> then(&apply(codec(), :deserialize, [&1, socket]))
+        |> handle_packet(socket)
+        |> then(&packet_loop(rest, &1))
     end
-  end
-
-  # 0x00 Handshake
-  def do_decode_00_0(packet_id, data) do
-    # 1.20.1 	763
-    {protocol_version, rest} = VarInt.decode(data, [])
-    {server_address, rest} = String.decode(rest, [])
-    {server_port, rest} = Short.decode(rest, sign: :signed)
-    {next_state, rest} = VarInt.decode(rest, [])
-
-    if rest != "", do: raise("invalid data decoding: remains #{inspect(rest)}")
-
-    data = %{
-      packet_id: packet_id,
-      protocol_version: protocol_version,
-      server_address: server_address,
-      server_port: server_port,
-      next_state: next_state
-    }
-
-    {data, rest}
-  end
-
-  # 0x00 Handshake - Status Request
-  def do_decode_00_1(packet_id, <<>>) do
-    {%{packet_id: packet_id}, <<>>}
-  end
-
-  # 0x00 Login Start
-  def do_decode_00_2(packet_id, data) do
-    {name, rest} = String.decode(data, [])
-
-    if Elixir.String.length(name) > 16, do: raise("invalid player name")
-
-    {player_uuid?, rest} = Boolean.decode(rest, [])
-
-    {player_uuid, rest} =
-      case player_uuid? do
-        false -> {nil, rest}
-        true -> UUID.decode(rest, [])
-      end
-
-    {%{packet_id: packet_id, player_uuid: player_uuid}, rest}
-  end
-
-  # 0x01 Ping Request
-  def do_decode_01_0(packet_id, data) do
-    {ack, rest} = Long.decode(data, [])
-
-    if rest != "", do: raise("invalid data decoding: remains #{inspect(rest)}")
-
-    {%{packet_id: packet_id, ack: ack}, rest}
   end
 
   ## Handlers
 
-  defp handle_packet(%{packet_id: 0x00} = packet, socket) when map_size(packet) == 1 do
+  defp codec(), do: Application.fetch_env!(:minecraft_ex, MinecraftEx.Endpoint)[:packet_codec]
+
+  defp handle_packet(%{packet_name: Handshake} = packet, socket) do
+    assign(socket, :state, packet.next_state)
+  end
+
+  defp handle_packet(%{packet_name: StatusRequest}, socket) do
     json =
       Poison.encode!(%{
         version: %{
@@ -186,21 +103,25 @@ defmodule MinecraftEx.Endpoint.Protocol do
         previewsChat: true
       })
 
-    render = String.encode(json, [])
+    render = MCString.encode(json, [])
     packet_length = VarInt.encode(byte_size(render) + 1, [])
     packet_id = 0
 
     packet = <<packet_length::binary, packet_id::8, render::binary>>
     Socket.send(socket, packet)
+
+    socket
   end
 
-  defp handle_packet(%{packet_id: 0x01, ack: ack}, socket) do
-    render = Long.encode(ack, [])
+  defp handle_packet(%{packet_name: PingRequest, payload: payload}, socket) do
+    render = Long.encode(payload, [])
     packet_length = VarInt.encode(byte_size(render) + 1, [])
     packet_id = 1
 
     packet = <<packet_length::binary, packet_id::8, render::binary>>
     Socket.send(socket, packet)
+
+    socket
   end
 
   # Encryption Response
@@ -215,7 +136,8 @@ defmodule MinecraftEx.Endpoint.Protocol do
   #   # Socket.send(socket, packet)
   # end
 
-  defp handle_packet(packet, _socket) do
+  defp handle_packet(packet, socket) do
     IO.warn("no handler for #{inspect(packet)}")
+    socket
   end
 end
