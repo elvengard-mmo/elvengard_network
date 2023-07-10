@@ -11,4 +11,5 @@ config :minecraft_ex, MinecraftEx.Endpoint,
   transport: :ranch_tcp,
   transport_opts: [ip: "127.0.0.1", port: 25565],
   protocol: MinecraftEx.Endpoint.Protocol,
+  packet_handlers: MinecraftEx.Endpoint.PacketHandlers,
   packet_codec: MinecraftEx.Endpoint.PacketCodec

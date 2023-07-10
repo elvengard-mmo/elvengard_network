@@ -93,20 +93,40 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
   defp message_callbacks() do
     quote location: :keep do
       @impl true
-      def handle_info({:tcp, transport_pid, message}, %Socket{} = socket) do
-        %Socket{transport: transport} = socket
+      def handle_info({:tcp, transport_pid, data}, %Socket{} = socket) do
+        %Socket{transport: transport, remaining: remaining} = socket
+        full_data = <<remaining::bitstring, data::bitstring>>
 
         result =
-          case handle_message(message, socket) do
+          case handle_message(full_data, socket) do
             :ignore -> {:noreply, socket}
             {:ignore, new_socket} -> {:noreply, new_socket}
-            {:ok, new_socket} -> raise "unimplemented"
+            {:ok, new_socket} -> packet_loop(full_data, new_socket)
             {:stop, reason, new_socket} -> {:stop, reason, new_socket}
             term -> raise "invalid return value for handle_message/2 (got: #{inspect(term)})"
           end
 
         transport.setopts(transport_pid, active: :once)
         result
+      end
+
+      ## Helpers
+
+      defp env_config(), do: Application.fetch_env!(:minecraft_ex, MinecraftEx.Endpoint)
+      defp codec(), do: env_config()[:packet_codec]
+      defp handlers(), do: env_config()[:packet_handlers]
+
+      defp packet_loop(data, socket) do
+        case apply(codec(), :next, [data]) do
+          {nil, rest} ->
+            {:noreply, %Socket{socket | remaining: rest}}
+
+          {raw, rest} ->
+            raw
+            |> then(&apply(codec(), :deserialize, [&1, socket]))
+            |> then(&apply(handlers(), :handle_packet, [&1, socket]))
+            |> then(&packet_loop(rest, &1))
+        end
       end
     end
   end
