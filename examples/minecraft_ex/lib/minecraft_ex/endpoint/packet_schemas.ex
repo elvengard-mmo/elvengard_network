@@ -39,7 +39,7 @@ defmodule MinecraftEx.Endpoint.PacketSchemas do
 
   # 0x00 Login Start - state=login
   packet 0x00 when has_state(socket, :login), as: LoginStart do
-    field :ame, VarInt
+    field :name, MCString
     field :player_uuid?, Boolean
     field :player_uuid, UUID, if: packet.player_uuid?
   end
