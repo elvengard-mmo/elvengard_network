@@ -112,7 +112,8 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
 
       ## Helpers
 
-      defp env_config(), do: Application.fetch_env!(:minecraft_ex, MinecraftEx.Endpoint)
+      @app Mix.Project.get().project[:app]
+      defp env_config(), do: Application.fetch_env!(@app, __MODULE__)
       defp codec(), do: env_config()[:packet_codec]
       defp handlers(), do: env_config()[:packet_handlers]
 

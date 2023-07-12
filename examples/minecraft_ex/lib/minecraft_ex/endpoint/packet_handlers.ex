@@ -73,18 +73,6 @@ defmodule MinecraftEx.Endpoint.PacketHandlers do
     socket
   end
 
-  # Encryption Response
-  # def handle_packet(%{packet_id: 0x00, player_uuid: player_uuid}, socket) do
-  #   render = 
-  #     Long.encode(ack, [])
-
-  #   # packet_length = VarInt.encode(byte_size(render) + 1, [])
-  #   # packet_id = 1
-
-  #   # packet = <<packet_length::binary, packet_id::8, render::binary>>
-  #   # Socket.send(socket, packet)
-  # end
-
   def handle_packet(packet, socket) do
     IO.warn("no handler for #{inspect(packet)}")
     socket
