@@ -14,15 +14,15 @@ defmodule ElvenGard.Network.SocketTest do
     [port: port, endpoint: pid]
   end
 
-  describe "new/3" do
+  describe "new/2" do
     test "create a Socket structure" do
-      socket = Socket.new(123, :gen_tcp, MySerialiser)
+      socket = Socket.new(123, :gen_tcp)
 
       assert socket.__struct__ == Socket
       assert is_binary(socket.id)
       assert socket.transport_pid == 123
       assert socket.transport == :gen_tcp
-      assert socket.serializer == MySerialiser
+      assert socket.remaining == <<>>
     end
   end
 
@@ -70,24 +70,9 @@ defmodule ElvenGard.Network.SocketTest do
     end
   end
 
-  describe "recv/3" do
-    test "receive messages from the server", %{port: port, endpoint: endpoint} do
-      socket = build_socket(port)
-
-      EchoServer.send(endpoint, "recv/3 first test")
-      assert Socket.recv(socket) == {:ok, "recv/3 first test"}
-
-      EchoServer.send(endpoint, "recv/3 second test")
-      assert Socket.recv(socket, 6) == {:ok, "recv/3"}
-      assert Socket.recv(socket, 0) == {:ok, " second test"}
-
-      assert Socket.recv(socket, 0, 0) == {:error, :timeout}
-    end
-  end
-
   ## Helpers 
 
-  defp build_socket(port, opts \\ []) do
+  defp build_socket(port, opts) do
     connect_opts = [:binary] ++ Keyword.merge([active: false], opts)
     {:ok, socket} = @transport.connect({127, 0, 0, 1}, port, connect_opts)
     %Socket{transport: @transport, transport_pid: socket}
