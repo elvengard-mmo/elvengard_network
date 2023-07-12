@@ -118,15 +118,15 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
       defp handlers(), do: env_config()[:packet_handlers]
 
       defp packet_loop(data, socket) do
-        case apply(codec(), :next, [data]) do
-          {nil, rest} ->
-            {:noreply, %Socket{socket | remaining: rest}}
-
-          {raw, rest} ->
-            raw
-            |> then(&apply(codec(), :deserialize, [&1, socket]))
-            |> then(&apply(handlers(), :handle_packet, [&1, socket]))
-            |> then(&packet_loop(rest, &1))
+        with {:next, {raw, rest}} when not is_nil(raw) <- {:next, apply(codec(), :next, [data])},
+             struct <- apply(codec(), :deserialize, [raw, socket]),
+             {:handle, {:cont, new_socket}} <-
+               {:handle, apply(handlers(), :handle_packet, [struct, socket])} do
+          packet_loop(rest, new_socket)
+        else
+          {:next, {nil, rest}} -> {:noreply, %Socket{socket | remaining: rest}}
+          {:handle, {:halt, new_socket}} -> do_handle_halt(:normal, socket)
+          {:handle, {:halt, reason, new_socket}} -> do_handle_halt(reason, socket)
         end
       end
     end

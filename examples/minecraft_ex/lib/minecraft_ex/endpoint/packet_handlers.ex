@@ -15,7 +15,7 @@ defmodule MinecraftEx.Endpoint.PacketHandlers do
   }
 
   def handle_packet(%{packet_name: Handshake} = packet, socket) do
-    assign(socket, :state, packet.next_state)
+    {:cont, assign(socket, :state, packet.next_state)}
   end
 
   def handle_packet(%{packet_name: StatusRequest}, socket) do
@@ -59,7 +59,7 @@ defmodule MinecraftEx.Endpoint.PacketHandlers do
     packet = <<packet_length::binary, packet_id::8, render::binary>>
     Socket.send(socket, packet)
 
-    socket
+    {:cont, socket}
   end
 
   def handle_packet(%{packet_name: PingRequest, payload: payload}, socket) do
@@ -70,11 +70,11 @@ defmodule MinecraftEx.Endpoint.PacketHandlers do
     packet = <<packet_length::binary, packet_id::8, render::binary>>
     Socket.send(socket, packet)
 
-    socket
+    {:halt, socket}
   end
 
   def handle_packet(packet, socket) do
     IO.warn("no handler for #{inspect(packet)}")
-    socket
+    {:halt, socket}
   end
 end
