@@ -78,9 +78,7 @@ defmodule ElvenGard.Network.PacketSchema do
     egn_packets = Module.get_attribute(env.module, :egn_packets)
 
     egn_packets
-    |> Enum.map(fn %{id: id, name: name, guards: guards, fields: fields} ->
-      fields_ast = fields |> Enum.map(&field_ast(&1, &1[:if])) |> merge_ast_blocks()
-
+    |> Enum.map(fn %{id: id, name: name, fields: fields, guards: guards} = packet ->
       quote location: :keep, generated: true do
         defmodule unquote(name) do
           # Structure
@@ -98,18 +96,7 @@ defmodule ElvenGard.Network.PacketSchema do
 
         # Decode term to struct
 
-        def decode(var!(packet_id) = unquote(id), var!(data), var!(socket)) do
-          var!(packet) = struct(unquote(name), packet_id: unquote(id))
-
-          unquote(fields_ast)
-
-          if var!(data) != "" do
-            iname = inspect(unquote(name))
-            raise "remaining bytes for #{inspect(__MODULE__)}.#{iname}: - #{inspect(var!(data))}"
-          end
-
-          var!(packet)
-        end
+        unquote(decode_ast(packet))
       end
     end)
     |> Kernel.++([schemas_introspection()])
@@ -149,6 +136,46 @@ defmodule ElvenGard.Network.PacketSchema do
     quote do
       @doc false
       def __schemas__(), do: @egn_packets
+    end
+  end
+
+  defp decode_ast(%{guards: nil} = packet) do
+    %{id: id, name: name, fields: fields} = packet
+    fields_ast = fields |> Enum.map(&field_ast(&1, &1[:if])) |> merge_ast_blocks()
+
+    quote location: :keep, generated: true do
+      def decode(var!(packet_id) = unquote(id), var!(data), var!(socket)) do
+        var!(packet) = struct(unquote(name), packet_id: unquote(id))
+
+        unquote(fields_ast)
+
+        if var!(data) != "" do
+          iname = inspect(unquote(name))
+          raise "remaining bytes for #{inspect(__MODULE__)}.#{iname}: - #{inspect(var!(data))}"
+        end
+
+        var!(packet)
+      end
+    end
+  end
+
+  defp decode_ast(packet) do
+    %{id: id, name: name, fields: fields, guards: guards} = packet
+    fields_ast = fields |> Enum.map(&field_ast(&1, &1[:if])) |> merge_ast_blocks()
+
+    quote location: :keep, generated: true do
+      def decode(var!(packet_id) = unquote(id), var!(data), var!(socket)) when unquote(guards) do
+        var!(packet) = struct(unquote(name), packet_id: unquote(id))
+
+        unquote(fields_ast)
+
+        if var!(data) != "" do
+          iname = inspect(unquote(name))
+          raise "remaining bytes for #{inspect(__MODULE__)}.#{iname}: - #{inspect(var!(data))}"
+        end
+
+        var!(packet)
+      end
     end
   end
 
