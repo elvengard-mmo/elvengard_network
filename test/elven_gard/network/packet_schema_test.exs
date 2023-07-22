@@ -1,7 +1,7 @@
 defmodule ElvenGard.Network.PacketSchemaTest do
   use ExUnit.Case, async: true
 
-  defmodule SimplePacket do
+  defmodule SimplePackets do
     use ElvenGard.Network.PacketSchema
     use ExUnit.Case, async: true
 
@@ -30,7 +30,7 @@ defmodule ElvenGard.Network.PacketSchemaTest do
         }
       ]
 
-      assert SimplePacket.__schemas__() == metadata
+      assert SimplePackets.__schemas__() == metadata
     end
 
     test "create a structure" do
@@ -53,11 +53,11 @@ defmodule ElvenGard.Network.PacketSchemaTest do
 
     describe "decode/3" do
       test "is defined" do
-        assert function_exported?(SimplePacket, :decode, 3)
+        assert function_exported?(SimplePackets, :decode, 3)
       end
 
       test "parse a binary and returns a structure" do
-        packet = SimplePacket.decode("my_simple_packet", "1337 Admin 1 2023-07-21", %Socket{})
+        packet = SimplePackets.decode("my_simple_packet", "1337 Admin 1 2023-07-21", %Socket{})
 
         assert packet.__struct__ == MySimplePacket
         assert packet.id == 1337
@@ -67,4 +67,17 @@ defmodule ElvenGard.Network.PacketSchemaTest do
       end
     end
   end
+
+  # defmodule ComplexPackets do
+  #   use ElvenGard.Network.PacketSchema
+  #   use ExUnit.Case, async: true
+
+  #   alias ElvenGard.Network.CustomTypes.{Int, Str}
+  #   alias ElvenGard.Network.Socket
+
+  #   packet "my_simple_packet" do
+  #     field :id, Int
+  #     field :name, Str, fill: true
+  #   end
+  # end
 end

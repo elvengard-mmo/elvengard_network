@@ -79,28 +79,7 @@ defmodule ElvenGard.Network.PacketSchema do
 
     egn_packets
     |> Enum.map(fn %{id: id, name: name, guards: guards, fields: fields} ->
-      fields_ast =
-        Enum.map(fields, fn %{name: name, type: type, opts: opts} ->
-          {condition, opts} = Keyword.pop(opts, :if)
-
-          if is_nil(condition) do
-            quote location: :keep, generated: true do
-              {value, var!(data)} = unquote(type).decode(var!(data), unquote(opts))
-              var!(packet) = Map.put(var!(packet), unquote(name), value)
-            end
-          else
-            quote location: :keep, generated: true do
-              {value, var!(data)} =
-                case unquote(condition) do
-                  result when result in [false, nil] -> {nil, var!(data)}
-                  _ -> unquote(type).decode(var!(data), unquote(opts))
-                end
-
-              var!(packet) = Map.put(var!(packet), unquote(name), value)
-            end
-          end
-        end)
-        |> merge_ast_blocks()
+      fields_ast = fields |> Enum.map(&field_ast(&1, &1[:if])) |> merge_ast_blocks()
 
       quote location: :keep, generated: true do
         defmodule unquote(name) do
@@ -117,13 +96,8 @@ defmodule ElvenGard.Network.PacketSchema do
           def __schema__(:fields), do: unquote(Macro.escape(fields))
         end
 
-        packet = %{}
+        # Decode term to struct
 
-        @spec decode(
-                unquote(__MODULE__).packet_id,
-                bitstring,
-                ElvenGard.Network.Socket.t()
-              ) :: struct()
         def decode(var!(packet_id) = unquote(id), var!(data), var!(socket)) do
           var!(packet) = struct(unquote(name), packet_id: unquote(id))
 
@@ -138,12 +112,7 @@ defmodule ElvenGard.Network.PacketSchema do
         end
       end
     end)
-    |> Kernel.++([
-      quote do
-        ## Metadata
-        def __schemas__(), do: @egn_packets
-      end
-    ])
+    |> Kernel.++([schemas_introspection()])
   end
 
   ## Private funtions
@@ -173,6 +142,32 @@ defmodule ElvenGard.Network.PacketSchema do
         type: unquote(type),
         opts: unquote(Macro.escape(opts))
       }
+    end
+  end
+
+  defp schemas_introspection() do
+    quote do
+      @doc false
+      def __schemas__(), do: @egn_packets
+    end
+  end
+
+  defp field_ast(%{name: name, type: type, opts: opts}, nil) do
+    quote location: :keep, generated: true do
+      {value, var!(data)} = unquote(type).decode(var!(data), unquote(opts))
+      var!(packet) = Map.put(var!(packet), unquote(name), value)
+    end
+  end
+
+  defp field_ast(%{name: name, type: type, opts: opts}, condition) do
+    quote location: :keep, generated: true do
+      {value, var!(data)} =
+        case unquote(condition) do
+          result when result in [false, nil] -> {nil, var!(data)}
+          _ -> unquote(type).decode(var!(data), unquote(opts))
+        end
+
+      var!(packet) = Map.put(var!(packet), unquote(name), value)
     end
   end
 
