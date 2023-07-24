@@ -80,7 +80,7 @@ defmodule ElvenGard.Network.PacketSchema do
     egn_packets
     |> Enum.map(fn %{id: id, name: name, fields: fields, guards: guards} = packet ->
       quote location: :keep, generated: true do
-        defmodule unquote(name) do
+        defmodule :"#{Module.concat(__MODULE__, unquote(name))}" do
           # Structure
 
           defstruct Enum.map(unquote(Macro.escape(fields)), & &1.name)
@@ -90,7 +90,7 @@ defmodule ElvenGard.Network.PacketSchema do
           @doc false
           def __schema__(:id), do: unquote(id)
           def __schema__(:name), do: unquote(name)
-          def __schema__(:guards), do: unquote(guards)
+          def __schema__(:guards), do: unquote(Macro.escape(guards))
           def __schema__(:fields), do: unquote(Macro.escape(fields))
         end
 
@@ -139,39 +139,20 @@ defmodule ElvenGard.Network.PacketSchema do
     end
   end
 
-  defp decode_ast(%{guards: nil} = packet) do
-    %{id: id, name: name, fields: fields} = packet
-    fields_ast = fields |> Enum.map(&field_ast(&1, &1[:if])) |> merge_ast_blocks()
-
-    quote location: :keep, generated: true do
-      def decode(var!(packet_id) = unquote(id), var!(data), var!(socket)) do
-        var!(packet) = struct(unquote(name), packet_id: unquote(id))
-
-        unquote(fields_ast)
-
-        if var!(data) != "" do
-          iname = inspect(unquote(name))
-          raise "remaining bytes for #{inspect(__MODULE__)}.#{iname}: - #{inspect(var!(data))}"
-        end
-
-        var!(packet)
-      end
-    end
-  end
-
   defp decode_ast(packet) do
     %{id: id, name: name, fields: fields, guards: guards} = packet
-    fields_ast = fields |> Enum.map(&field_ast(&1, &1[:if])) |> merge_ast_blocks()
+    guards = if is_nil(guards), do: true, else: guards
+    fields_ast = fields |> Enum.map(&field_ast(&1, &1[:opts][:if])) |> merge_ast_blocks()
 
     quote location: :keep, generated: true do
       def decode(var!(packet_id) = unquote(id), var!(data), var!(socket)) when unquote(guards) do
-        var!(packet) = struct(unquote(name), packet_id: unquote(id))
+        var!(packet) = struct(Module.concat(__MODULE__, unquote(name)), packet_id: unquote(id))
 
         unquote(fields_ast)
 
         if var!(data) != "" do
           iname = inspect(unquote(name))
-          raise "remaining bytes for #{inspect(__MODULE__)}.#{iname}: - #{inspect(var!(data))}"
+          raise "remaining bytes for #{inspect(__MODULE__)}.#{iname}: #{inspect(var!(data))}"
         end
 
         var!(packet)
