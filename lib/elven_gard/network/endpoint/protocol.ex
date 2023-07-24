@@ -66,7 +66,7 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
       @impl GenServer
       def init({ref, transport, opts}) do
         {:ok, transport_pid} = :ranch.handshake(ref)
-        socket = Socket.new(transport_pid, transport)
+        socket = Socket.new(transport_pid, transport, codec())
 
         init_error =
           "handle_init/1 must return `{:ok, socket}`, `{:ok, socket, timeout}` " <>

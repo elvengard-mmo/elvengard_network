@@ -9,6 +9,7 @@ defmodule ElvenGard.Network.Socket do
     * `:transport` - A [Ranch transport](https://ninenines.eu/docs/en/ranch/2.0/guide/transports/)
     * `:transport_pid` - The pid of the socket's transport process
     * `:remaining` - The remaining bytes after a receive and a packet deserialization
+    * `:encoder` - The `ElvenGard.Network.Endpoint.PacketCodec` used to encode packets in `send/2` function
   """
 
   alias __MODULE__
@@ -18,25 +19,28 @@ defmodule ElvenGard.Network.Socket do
             transport: nil,
             transport_pid: nil,
             remaining: <<>>,
-            assigns: %{}
+            assigns: %{},
+            encoder: nil
 
   @type t :: %Socket{
           id: String.t(),
           transport: atom,
           transport_pid: pid,
           remaining: bitstring,
-          assigns: map
+          assigns: map,
+          encoder: module
         }
 
   @doc """
   Create a new structure
   """
-  @spec new(pid, atom) :: Socket.t()
-  def new(transport_pid, transport) do
+  @spec new(pid, atom, module) :: Socket.t()
+  def new(transport_pid, transport, encoder) do
     %Socket{
       id: UUID.uuid4(),
       transport_pid: transport_pid,
-      transport: transport
+      transport: transport,
+      encoder: encoder
     }
   end
 
@@ -45,8 +49,9 @@ defmodule ElvenGard.Network.Socket do
   """
   @spec send(Socket.t(), any) :: :ok | {:error, atom}
   def send(%Socket{} = socket, message) do
-    %Socket{transport: transport, transport_pid: transport_pid} = socket
-    transport.send(transport_pid, message)
+    %Socket{transport: transport, transport_pid: transport_pid, encoder: encoder} = socket
+    data = apply(encoder, :serialise, [message, socket])
+    transport.send(transport_pid, data)
   end
 
   @doc """

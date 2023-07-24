@@ -14,4 +14,7 @@ defmodule ElvenGard.Network.Endpoint.PacketCodec do
 
   @doc "Deserializes a packet"
   @callback deserialize(raw :: bitstring, socket :: Socket.t()) :: map | struct
+
+  @doc "Serialize a `ElvenGard.Network.View`"
+  @callback serialize(raw :: iodata, socket :: Socket.t()) :: iodata
 end

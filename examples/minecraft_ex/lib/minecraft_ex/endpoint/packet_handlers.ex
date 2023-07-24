@@ -14,11 +14,7 @@ defmodule MinecraftEx.Endpoint.PacketHandlers do
     StatusRequest
   }
 
-  alias MinecraftEx.Types.{
-    Long,
-    MCString,
-    VarInt
-  }
+  alias MinecraftEx.Types.{Long, MCString}
 
   def handle_packet(%Handshake{} = packet, socket) do
     {:cont, assign(socket, :state, packet.next_state)}
@@ -59,10 +55,9 @@ defmodule MinecraftEx.Endpoint.PacketHandlers do
       })
 
     render = MCString.encode(json, [])
-    packet_length = VarInt.encode(byte_size(render) + 1, [])
     packet_id = 0
 
-    packet = <<packet_length::binary, packet_id::8, render::binary>>
+    packet = [<<packet_id::8>>, render]
     Socket.send(socket, packet)
 
     {:cont, socket}
@@ -70,10 +65,9 @@ defmodule MinecraftEx.Endpoint.PacketHandlers do
 
   def handle_packet(%PingRequest{payload: payload}, socket) do
     render = Long.encode(payload, [])
-    packet_length = VarInt.encode(byte_size(render) + 1, [])
     packet_id = 1
 
-    packet = <<packet_length::binary, packet_id::8, render::binary>>
+    packet = [<<packet_id::8>>, render]
     Socket.send(socket, packet)
 
     {:halt, socket}

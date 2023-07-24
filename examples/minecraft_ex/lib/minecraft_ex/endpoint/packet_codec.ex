@@ -35,4 +35,12 @@ defmodule MinecraftEx.Endpoint.PacketCodec do
 
     packet
   end
+
+  @impl true
+  def serialise(raw, _socket) do
+    packet_length =
+      raw |> List.wrap() |> Enum.map(&byte_size/1) |> Enum.sum() |> VarInt.encode([])
+
+    [<<packet_length::binary>> | raw]
+  end
 end
