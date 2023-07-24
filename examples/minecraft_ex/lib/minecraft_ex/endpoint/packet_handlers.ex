@@ -8,17 +8,23 @@ defmodule MinecraftEx.Endpoint.PacketHandlers do
   alias ElvenGard.Network.Socket
   alias MinecraftEx.Resources
 
+  alias MinecraftEx.Endpoint.PacketSchemas.{
+    Handshake,
+    PingRequest,
+    StatusRequest
+  }
+
   alias MinecraftEx.Types.{
     Long,
     MCString,
     VarInt
   }
 
-  def handle_packet(%{packet_name: Handshake} = packet, socket) do
+  def handle_packet(%Handshake{} = packet, socket) do
     {:cont, assign(socket, :state, packet.next_state)}
   end
 
-  def handle_packet(%{packet_name: StatusRequest}, socket) do
+  def handle_packet(%StatusRequest{}, socket) do
     json =
       Poison.encode!(%{
         version: %{
@@ -62,7 +68,7 @@ defmodule MinecraftEx.Endpoint.PacketHandlers do
     {:cont, socket}
   end
 
-  def handle_packet(%{packet_name: PingRequest, payload: payload}, socket) do
+  def handle_packet(%PingRequest{payload: payload}, socket) do
     render = Long.encode(payload, [])
     packet_length = VarInt.encode(byte_size(render) + 1, [])
     packet_id = 1
