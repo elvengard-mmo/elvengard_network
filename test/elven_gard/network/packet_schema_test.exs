@@ -198,4 +198,21 @@ defmodule ElvenGard.Network.PacketSchemaTest do
       StringPackets.decode(name, opts[:raw] || "", %Socket{assigns: assigns})
     end
   end
+
+  defmodule BinaryPackets do
+    use ExUnit.Case, async: true
+
+    ## Tests
+
+    test "no field but name" do
+      assert_raise RuntimeError, ~r/a module name is required for integer packet ids/, fn ->
+        Code.compile_string("""
+        defmodule CantCompile do
+          use ElvenGard.Network.PacketSchema
+          packet 0x00, do: :ok
+        end
+        """)
+      end
+    end
+  end
 end

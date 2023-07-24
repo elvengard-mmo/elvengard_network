@@ -104,8 +104,11 @@ defmodule ElvenGard.Network.PacketSchema do
 
   ## Private funtions
 
-  defp id_to_name(id) when is_integer(id), do: :"Elixir.Packet#{id}"
   defp id_to_name(id) when is_binary(id), do: :"Elixir.#{Macro.camelize(id)}"
+
+  defp id_to_name(id) when is_integer(id) do
+    raise "a module name is required for integer packet ids"
+  end
 
   defp do_packet(id, name, guards, exp) do
     quote location: :keep do
