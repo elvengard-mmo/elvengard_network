@@ -1,10 +1,12 @@
 defmodule MinecraftEx.Types.Enum do
   @moduledoc """
-  TODO
+  A specific value from a given list
 
   ===
 
-  TODO
+  The list of possible values and how each is encoded as an X must be known
+  from the context. An invalid value sent by either side will usually result
+  in the client being disconnected with an error or even crashing. 
   """
 
   @behaviour ElvenGard.Network.Type
