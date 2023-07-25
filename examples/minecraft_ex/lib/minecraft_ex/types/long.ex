@@ -7,7 +7,7 @@ defmodule MinecraftEx.Types.Long do
   Signed 64-bit integer, two's complement 
   """
 
-  @behaviour ElvenGard.Network.Type
+  use ElvenGard.Network.Type
 
   @type t :: -9_223_372_036_854_775_808..9_223_372_036_854_775_807
 

@@ -7,6 +7,8 @@ defmodule ElvenGard.Network.ProtocolTest do
     transport_opts: [ip: {127, 0, 0, 1}, port: 0]
   )
 
+  Application.put_env(:elvengard_network, __MODULE__.MyProtocol, [])
+
   defmodule MyEndpoint do
     use ElvenGard.Network.Endpoint, otp_app: :elvengard_network
   end

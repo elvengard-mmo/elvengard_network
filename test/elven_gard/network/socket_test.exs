@@ -16,13 +16,14 @@ defmodule ElvenGard.Network.SocketTest do
 
   describe "new/2" do
     test "create a Socket structure" do
-      socket = Socket.new(123, :gen_tcp)
+      socket = Socket.new(123, :gen_tcp, MyApp.Encoder)
 
       assert socket.__struct__ == Socket
       assert is_binary(socket.id)
       assert socket.transport_pid == 123
       assert socket.transport == :gen_tcp
       assert socket.remaining == <<>>
+      assert socket.encoder == MyApp.Encoder
     end
   end
 
@@ -75,6 +76,11 @@ defmodule ElvenGard.Network.SocketTest do
   defp build_socket(port, opts) do
     connect_opts = [:binary] ++ Keyword.merge([active: false], opts)
     {:ok, socket} = @transport.connect({127, 0, 0, 1}, port, connect_opts)
-    %Socket{transport: @transport, transport_pid: socket}
+
+    %Socket{
+      transport: @transport,
+      transport_pid: socket,
+      encoder: ElvenGard.Network.DummyEncoder
+    }
   end
 end

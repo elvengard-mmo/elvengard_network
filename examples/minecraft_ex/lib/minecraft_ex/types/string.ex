@@ -13,7 +13,7 @@ defmodule MinecraftEx.Types.MCString do
 
   alias MinecraftEx.Types.VarInt
 
-  @behaviour ElvenGard.Network.Type
+  use ElvenGard.Network.Type
 
   @type t :: String.t()
 
@@ -22,7 +22,7 @@ defmodule MinecraftEx.Types.MCString do
   @impl true
   @spec decode(bitstring, keyword) :: {t(), bitstring}
   def decode(data, _opts) when is_binary(data) do
-    {length, rest} = VarInt.decode(data, [])
+    {length, rest} = VarInt.decode(data)
 
     if length > 32767, do: raise("max string size is 32767")
 

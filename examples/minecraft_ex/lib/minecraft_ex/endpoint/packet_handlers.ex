@@ -54,7 +54,7 @@ defmodule MinecraftEx.Endpoint.PacketHandlers do
         previewsChat: true
       })
 
-    render = MCString.encode(json, [])
+    render = MCString.encode(json)
     packet_id = 0
 
     packet = [<<packet_id::8>>, render]
@@ -64,7 +64,7 @@ defmodule MinecraftEx.Endpoint.PacketHandlers do
   end
 
   def handle_packet(%PingRequest{payload: payload}, socket) do
-    render = Long.encode(payload, [])
+    render = Long.encode(payload)
     packet_id = 1
 
     packet = [<<packet_id::8>>, render]

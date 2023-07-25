@@ -25,7 +25,7 @@ defmodule MinecraftEx.Types.Short do
       {-1, ""}
   """
 
-  @behaviour ElvenGard.Network.Type
+  use ElvenGard.Network.Type
 
   @type t :: 0..65535
 

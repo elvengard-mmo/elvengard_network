@@ -7,7 +7,7 @@ defmodule MinecraftEx.Types.Boolean do
   True is encoded as 0x01, false as 0x00.
   """
 
-  @behaviour ElvenGard.Network.Type
+  use ElvenGard.Network.Type
 
   @type t :: boolean
 

@@ -12,7 +12,7 @@ defmodule MinecraftEx.Endpoint.PacketCodec do
   def next(<<>>), do: {nil, <<>>}
 
   def next(message) do
-    {length, rest} = VarInt.decode(message, [])
+    {length, rest} = VarInt.decode(message)
 
     case byte_size(rest) >= length do
       true ->
@@ -26,7 +26,7 @@ defmodule MinecraftEx.Endpoint.PacketCodec do
 
   @impl true
   def deserialize(raw, socket) do
-    {packet_id, rest} = VarInt.decode(raw, [])
+    {packet_id, rest} = VarInt.decode(raw)
     packet = PacketSchemas.decode(packet_id, rest, socket)
 
     if is_nil(packet) do

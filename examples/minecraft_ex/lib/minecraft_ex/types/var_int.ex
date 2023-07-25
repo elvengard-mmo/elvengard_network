@@ -18,7 +18,7 @@ defmodule MinecraftEx.Types.VarInt do
 
   import Bitwise, only: [{:&&&, 2}, {:|||, 2}, {:<<<, 2}, {:>>>, 2}]
 
-  @behaviour ElvenGard.Network.Type
+  use ElvenGard.Network.Type
 
   @type t :: -2_147_483_648..2_147_483_647
 

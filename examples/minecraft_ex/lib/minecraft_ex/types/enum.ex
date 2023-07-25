@@ -9,7 +9,7 @@ defmodule MinecraftEx.Types.Enum do
   in the client being disconnected with an error or even crashing. 
   """
 
-  @behaviour ElvenGard.Network.Type
+  use ElvenGard.Network.Type
 
   @type t :: :atom
 

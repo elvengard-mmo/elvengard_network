@@ -8,7 +8,7 @@ defmodule MinecraftEx.Types.UUID do
   the most significant 64 bits and then the least significant 64 bits) 
   """
 
-  @behaviour ElvenGard.Network.Type
+  use ElvenGard.Network.Type
 
   @type t :: String.t()
 
