@@ -20,7 +20,7 @@ defmodule ElvenGard.Network.Socket do
             transport_pid: nil,
             remaining: <<>>,
             assigns: %{},
-            encoder: nil
+            encoder: :unset
 
   @type t :: %Socket{
           id: String.t(),
@@ -28,7 +28,7 @@ defmodule ElvenGard.Network.Socket do
           transport_pid: pid,
           remaining: bitstring,
           assigns: map,
-          encoder: module
+          encoder: module | :unset
         }
 
   @doc """
@@ -48,6 +48,11 @@ defmodule ElvenGard.Network.Socket do
   Send a packet to the client.
   """
   @spec send(Socket.t(), any) :: :ok | {:error, atom}
+  def send(%Socket{encoder: :unset} = socket, data) do
+    %Socket{transport: transport, transport_pid: transport_pid} = socket
+    transport.send(transport_pid, data)
+  end
+
   def send(%Socket{} = socket, message) do
     %Socket{transport: transport, transport_pid: transport_pid, encoder: encoder} = socket
     data = encoder.serialize(message, socket)
