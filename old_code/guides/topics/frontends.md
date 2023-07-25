@@ -1,3 +1,0 @@
-# Frontends
-
-**SOON**
