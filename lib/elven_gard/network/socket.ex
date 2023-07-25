@@ -50,7 +50,7 @@ defmodule ElvenGard.Network.Socket do
   @spec send(Socket.t(), any) :: :ok | {:error, atom}
   def send(%Socket{} = socket, message) do
     %Socket{transport: transport, transport_pid: transport_pid, encoder: encoder} = socket
-    data = apply(encoder, :serialize, [message, socket])
+    data = encoder.serialize(message, socket)
     transport.send(transport_pid, data)
   end
 

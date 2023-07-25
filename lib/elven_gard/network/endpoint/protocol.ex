@@ -90,6 +90,7 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
     end
   end
 
+  # credo:disable-for-next-line
   defp message_callbacks() do
     quote location: :keep do
       @impl true
@@ -118,10 +119,9 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
       defp handlers(), do: env_config()[:packet_handlers]
 
       defp packet_loop(data, socket) do
-        with {:next, {raw, rest}} when not is_nil(raw) <- {:next, apply(codec(), :next, [data])},
-             struct <- apply(codec(), :deserialize, [raw, socket]),
-             {:handle, {:cont, new_socket}} <-
-               {:handle, apply(handlers(), :handle_packet, [struct, socket])} do
+        with {:next, {raw, rest}} when not is_nil(raw) <- {:next, codec().next(data)},
+             struct <- codec().deserialize(raw, socket),
+             {:handle, {:cont, new_socket}} <- {:handle, handlers().handle_packet(struct, socket)} do
           packet_loop(rest, new_socket)
         else
           {:next, {nil, rest}} -> {:noreply, %Socket{socket | remaining: rest}}

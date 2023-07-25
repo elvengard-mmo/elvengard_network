@@ -1,9 +1,9 @@
 defmodule ElvenGard.Network.SocketTest do
   use ExUnit.Case, async: true
 
-  alias ElvenGard.Network.Socket
-  alias ElvenGard.Network.EndpointHelper
   alias ElvenGard.Network.EchoServer
+  alias ElvenGard.Network.EndpointHelper
+  alias ElvenGard.Network.Socket
 
   @transport :gen_tcp
 
@@ -71,7 +71,7 @@ defmodule ElvenGard.Network.SocketTest do
     end
   end
 
-  ## Helpers 
+  ## Helpers
 
   defp build_socket(port, opts) do
     connect_opts = [:binary] ++ Keyword.merge([active: false], opts)

@@ -41,7 +41,8 @@ defmodule ElvenGard.Network.MixProject do
     [
       {:ranch, "~> 2.1"},
       {:ex_doc, "~> 0.29", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.15", only: :test, runtime: false}
+      {:excoveralls, "~> 0.15", only: :test, runtime: false},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 
