@@ -8,7 +8,8 @@ defmodule MinecraftEx.Endpoint.PacketViews do
   alias MinecraftEx.Types.{Long, MCString}
 
   @impl true
-  def render(:status_response, %{json: json}) do
+  def render(:status_response, %{status: status}) do
+    json = Poison.encode!(status)
     packet(0x00, [MCString.encode(json)])
   end
 

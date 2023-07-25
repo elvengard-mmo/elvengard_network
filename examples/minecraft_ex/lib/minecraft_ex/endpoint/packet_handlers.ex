@@ -21,40 +21,7 @@ defmodule MinecraftEx.Endpoint.PacketHandlers do
   end
 
   def handle_packet(%StatusRequest{}, socket) do
-    json =
-      Poison.encode!(%{
-        version: %{
-          name: "1.20.1-ex",
-          protocol: 763
-        },
-        players: %{
-          max: 100,
-          online: 1,
-          sample: [
-            %{
-              name: "DarkyZ",
-              id: "4566e69f-c907-48ee-8d71-d7ba5aa00d20"
-            }
-          ]
-        },
-        description: [
-          %{text: "Hello from "},
-          %{
-            text: "Elixir",
-            color: "dark_purple"
-          },
-          %{text: "!\n"},
-          %{
-            text: "ElixirElixirElixirElixirElixirElixirElixir",
-            obfuscated: true
-          }
-        ],
-        favicon: Resources.favicon(),
-        enforcesSecureChat: true,
-        previewsChat: true
-      })
-
-    render = PacketViews.render(:status_response, %{json: json})
+    render = PacketViews.render(:status_response, %{status: status_response()})
     :ok = Socket.send(socket, render)
     {:cont, socket}
   end
@@ -68,5 +35,41 @@ defmodule MinecraftEx.Endpoint.PacketHandlers do
   def handle_packet(packet, socket) do
     IO.warn("no handler for #{inspect(packet)}")
     {:halt, socket}
+  end
+
+  ## Private functions
+
+  defp status_response() do
+    %{
+      version: %{
+        name: "1.20.1-ex",
+        protocol: 763
+      },
+      players: %{
+        max: 100,
+        online: 1,
+        sample: [
+          %{
+            name: "DarkyZ",
+            id: "4566e69f-c907-48ee-8d71-d7ba5aa00d20"
+          }
+        ]
+      },
+      description: [
+        %{text: "Hello from "},
+        %{
+          text: "Elixir",
+          color: "dark_purple"
+        },
+        %{text: "!\n"},
+        %{
+          text: "ElixirElixirElixirElixirElixirElixirElixir",
+          obfuscated: true
+        }
+      ],
+      favicon: Resources.favicon(),
+      enforcesSecureChat: true,
+      previewsChat: true
+    }
   end
 end
