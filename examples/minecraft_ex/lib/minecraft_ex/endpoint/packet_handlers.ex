@@ -14,7 +14,7 @@ defmodule MinecraftEx.Endpoint.PacketHandlers do
     StatusRequest
   }
 
-  alias MinecraftEx.Types.{Long, MCString}
+  alias MinecraftEx.Endpoint.PacketViews
 
   def handle_packet(%Handshake{} = packet, socket) do
     {:cont, assign(socket, :state, packet.next_state)}
@@ -54,22 +54,14 @@ defmodule MinecraftEx.Endpoint.PacketHandlers do
         previewsChat: true
       })
 
-    render = MCString.encode(json)
-    packet_id = 0
-
-    packet = [<<packet_id::8>>, render]
-    Socket.send(socket, packet)
-
+    render = PacketViews.render(:status_response, %{json: json})
+    :ok = Socket.send(socket, render)
     {:cont, socket}
   end
 
   def handle_packet(%PingRequest{payload: payload}, socket) do
-    render = Long.encode(payload)
-    packet_id = 1
-
-    packet = [<<packet_id::8>>, render]
-    Socket.send(socket, packet)
-
+    render = PacketViews.render(:pong_response, %{payload: payload})
+    :ok = Socket.send(socket, render)
     {:halt, socket}
   end
 

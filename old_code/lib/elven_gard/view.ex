@@ -8,7 +8,7 @@ defmodule ElvenGard.View do
   @doc """
   Build a packet to send to the client
   """
-  @callback render(name :: any(), opts :: map() | keyword()) :: any()
+  @callback render(name :: atom() | binary(), opts :: map() | keyword()) :: iodata()
 
   @doc false
   defmacro __using__(_) do
@@ -20,14 +20,12 @@ defmodule ElvenGard.View do
 
   @doc false
   defmacro __before_compile__(_env) do
-    caller = __CALLER__.module
-
     # We are using `generated: true` because we don't want warnings coming
     # from `c:render/2` to be reported in case the user has defined a
     # catch-all `c:render/2` clause.
     quote generated: true do
       def render(type, _args) do
-        raise UnknownViewError, parent: unquote(caller), type: type
+        raise UnknownViewError, parent: unquote(__CALLER__.module), type: type
       end
     end
   end

@@ -15,11 +15,11 @@ defmodule ElvenGard.Network.Type do
 
       @doc "Same as `decode/2` with empty options"
       @spec decode(raw :: bitstring) :: {any, remaining :: bitstring}
-      def decode(raw), do: decode(raw)
+      def decode(raw), do: decode(raw, [])
 
       @doc "Same as `encode/2` with empty options"
       @spec encode(value :: any) :: iodata
-      def encode(raw), do: encode(raw)
+      def encode(raw), do: encode(raw, [])
     end
   end
 end
