@@ -3,7 +3,7 @@ defmodule MinecraftEx.Endpoint.PacketCodec do
   Documentation for MinecraftEx.Endpoint.PacketCodec
   """
 
-  @behaviour ElvenGard.Network.Endpoint.PacketCodec
+  @behaviour ElvenGard.Network.PacketCodec
 
   alias MinecraftEx.Types.VarInt
   alias MinecraftEx.Endpoint.PacketSchemas

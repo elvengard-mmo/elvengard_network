@@ -9,7 +9,7 @@ defmodule ElvenGard.Network.Socket do
     * `:transport` - A [Ranch transport](https://ninenines.eu/docs/en/ranch/2.0/guide/transports/)
     * `:transport_pid` - The pid of the socket's transport process
     * `:remaining` - The remaining bytes after a receive and a packet deserialization
-    * `:encoder` - The `ElvenGard.Network.Endpoint.PacketCodec` used to encode packets in `send/2` function
+    * `:encoder` - The `ElvenGard.Network.PacketCodec` used to encode packets in `send/2` function
   """
 
   alias __MODULE__
