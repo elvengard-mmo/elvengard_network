@@ -1,6 +1,78 @@
 defmodule ElvenGard.Network.PacketSchema do
   @moduledoc ~S"""
-  ElvenGard.Network.PacketSchema
+  Packet Schema DSL for defining received packet structures.
+
+  This module provides a DSL (Domain-Specific Language) for defining packet schemas
+  for received packets in a network protocol. It enables users to create structured
+  packets with specified fields and decode binary data into packet structs.
+
+  To learn more about the available macros and how to define packet schemas, refer
+  to the [Packet Schema DSL documentation](<PACKETSCHEMA_URL>).
+
+  ## Packets Macros
+
+  The `packet` macros (`packet/1`, `packet/2` and `packet/3`) allow users to define
+  packet structures.  
+  They always require a packet ID. The alias (which is the name of the generated
+  packet structure), the guard (with the `when` keyword), and do-block (for 
+  defining fields) are optional.
+
+  Users can specify guards in packets macros to conditionally match packets based
+  on a condition (often using socket assigns).
+
+  For more details on using the packets macros, please refer to the guide at
+  <TODO: PACKETSCHEMA_URL> or to examples.
+
+  ## Packet Structure and Decoding
+
+  The `packets` macros generate both a packet structure and a `decode/3` function
+  for each defined packet. The packet structure represents the decoded packet data,
+  and the `decode/3` function takes binary data and converts it into the structure
+  based on the defined schema.
+
+  The `decode/3` function generated for each packet should be used by
+  `c:ElvenGard.Network.PacketCodec.deserialize/2`.
+
+  ## Field Macros
+
+  The field macros are used to define fields within a packet:
+
+  - `field/2`: Define a field with a name and type.
+  - `field/3`: Define a field with a name, type, and decoding options.
+
+  ## Examples
+
+      defmodule MyApp.Endpoint.PacketSchemas do
+        use ElvenGard.Network.PacketSchema
+
+        alias MyApp.Types.{Integer, String}
+
+        # Simple string packet:
+        #   - This generate a SimplePacket structure
+        #   - The `decode/3` function will match all packet with `simple_packet` as packet id
+        #   - The structure will have 2 fields: `id` and `name` (a string and an integer)
+        packet "simple_packet" do
+          field :id, Integer
+          field :name, String
+        end
+        
+        # Complex string packet:
+        #   - This generate a AliasedModule structure
+        #   - The `decode/3` function will match packet with `complex_packet` as packet id ONLY if the state is `:init`
+        #   - The structure will have 2 fields: `id` and `name` (a string and an integer)
+        #   - We're also passing `[fill: true]` as option to our `MyApp.Types.String.decode/2`
+        packet "complex_packet" when socket.assigns.state == :init, as: AliasedModule do
+          field :id, Integer
+          field :name, String, fill: true
+        end
+        
+        # Simple binary packet
+        #   - This generate a KeepAlivePacket structure
+        #   - The `decode/3` function will match packet with `0x0000` as packet id
+        #   - The structure will have no field
+        #   - Here the `:as` option is required because the packet ID is an integer
+        packet 0x0000, as: KeepAlivePacket
+
   """
 
   @type packet_id :: integer() | binary()
