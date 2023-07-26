@@ -44,6 +44,8 @@ defmodule ElvenGard.Network.UUID do
     >>
   end
 
+  ## Private functions
+
   @compile {:inline, e: 1}
 
   @doc false
