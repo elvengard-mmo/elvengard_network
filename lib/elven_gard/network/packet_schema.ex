@@ -75,8 +75,6 @@ defmodule ElvenGard.Network.PacketSchema do
 
   """
 
-  @type packet_id :: integer() | binary()
-
   ## Helpers
 
   defguardp is_packet_id(id) when is_integer(id) or is_binary(id)
