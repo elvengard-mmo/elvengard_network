@@ -1,15 +1,24 @@
 defmodule ElvenGard.Network.Socket do
   @moduledoc ~S"""
-  Manage a socket
+  Manage a socket.
+
+  This module provides functionality for managing a socket in the network protocol.
+  A socket is a connection between the server and a client. It maintains various
+  socket fields, such as the socket ID, socket assigns, transport information,
+  and the packet encoder used for sending data.
 
   ## Socket fields
 
-    * `:id` - The string id of the socket
-    * `:assigns` - The map of socket assigns, default: `%{}`
-    * `:transport` - A [Ranch transport](https://ninenines.eu/docs/en/ranch/2.0/guide/transports/)
-    * `:transport_pid` - The pid of the socket's transport process
-    * `:remaining` - The remaining bytes after a receive and a packet deserialization
-    * `:encoder` - The `ElvenGard.Network.PacketCodec` used to encode packets in `send/2` function
+  - `:id`: The unique string ID of the socket.
+  - `:assigns`: A map of socket assigns, which can be used to store custom data
+    associated with the socket. The default value is `%{}`.
+  - `:transport`: The [Ranch transport](https://ninenines.eu/docs/en/ranch/2.0/guide/transports/)
+    used for the socket.
+  - `:transport_pid`: The PID (Process ID) of the socket's transport process.
+  - `:remaining`: The remaining bytes after receiving and packet deserialization.
+  - `:encoder`: The `ElvenGard.Network.PacketCodec` module used to encode packets
+    in the `send/2` function.
+
   """
 
   alias __MODULE__
@@ -32,7 +41,10 @@ defmodule ElvenGard.Network.Socket do
         }
 
   @doc """
-  Create a new structure
+  Create a new socket structure.
+
+  This function initializes a new socket with the given `transport_pid`, `transport`,
+  and `encoder` module.
   """
   @spec new(pid, atom, module) :: Socket.t()
   def new(transport_pid, transport, encoder) do
@@ -46,6 +58,16 @@ defmodule ElvenGard.Network.Socket do
 
   @doc """
   Send a packet to the client.
+
+  This function sends a packet to the client through the socket's transport.
+  If the socket's `encoder` is set to `:unset`, the data is sent as is.
+  Otherwise, the `encoder` module is used to serialize the data before sending it.
+
+  ## Examples
+
+      iex> ElvenGard.Network.Socket.send(socket, {:login_response, %{status: 200, message: "Welcome!"}})
+      :ok
+
   """
   @spec send(Socket.t(), any) :: :ok | {:error, atom}
   def send(%Socket{encoder: :unset} = socket, data) do
