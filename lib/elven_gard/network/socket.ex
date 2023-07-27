@@ -16,7 +16,7 @@ defmodule ElvenGard.Network.Socket do
     used for the socket.
   - `:transport_pid`: The PID (Process ID) of the socket's transport process.
   - `:remaining`: The remaining bytes after receiving and packet deserialization.
-  - `:encoder`: The `ElvenGard.Network.PacketCodec` module used to encode packets
+  - `:encoder`: The `ElvenGard.Network.NetworkCodec` module used to encode packets
     in the `send/2` function.
 
   """

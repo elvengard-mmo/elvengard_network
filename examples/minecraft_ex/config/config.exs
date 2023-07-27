@@ -14,4 +14,4 @@ config :minecraft_ex, MinecraftEx.Endpoint,
 
 config :minecraft_ex, MinecraftEx.Endpoint.Protocol,
   packet_handler: MinecraftEx.Endpoint.PacketHandlers,
-  packet_codec: MinecraftEx.Endpoint.PacketCodec
+  network_codec: MinecraftEx.Endpoint.NetworkCodec

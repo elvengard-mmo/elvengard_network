@@ -1,7 +1,7 @@
 defmodule ElvenGard.Network.DummyEncoder do
   @moduledoc false
 
-  @behaviour ElvenGard.Network.PacketCodec
+  @behaviour ElvenGard.Network.NetworkCodec
 
   @impl true
   def next(_raw), do: raise("unimplemented")

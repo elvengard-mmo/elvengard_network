@@ -115,7 +115,7 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
 
       @app Mix.Project.get().project[:app]
       defp env_config(), do: Application.fetch_env!(@app, __MODULE__)
-      defp codec(), do: env_config()[:packet_codec]
+      defp codec(), do: env_config()[:network_codec]
       defp handlers(), do: env_config()[:packet_handler]
 
       defp packet_loop(data, socket) do

@@ -1,9 +1,9 @@
-defmodule MinecraftEx.Endpoint.PacketCodec do
+defmodule MinecraftEx.Endpoint.NetworkCodec do
   @moduledoc """
-  Documentation for MinecraftEx.Endpoint.PacketCodec
+  Documentation for MinecraftEx.Endpoint.NetworkCodec
   """
 
-  @behaviour ElvenGard.Network.PacketCodec
+  @behaviour ElvenGard.Network.NetworkCodec
 
   alias MinecraftEx.Types.VarInt
   alias MinecraftEx.Endpoint.PacketSchemas

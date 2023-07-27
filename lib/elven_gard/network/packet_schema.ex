@@ -31,7 +31,7 @@ defmodule ElvenGard.Network.PacketSchema do
   based on the defined schema.
 
   The `decode/3` function generated for each packet should be used by
-  `c:ElvenGard.Network.PacketCodec.deserialize/2`.
+  `c:ElvenGard.Network.NetworkCodec.deserialize/2`.
 
   ## Field Macros
 

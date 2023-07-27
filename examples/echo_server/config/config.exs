@@ -18,4 +18,4 @@ config :echo_server, EchoServer.Endpoint.Protocol,
   packet_handler: :unset,
   # Here we are not using packet coder/decoder.
   # We send raw packets
-  packet_codec: :unset
+  network_codec: :unset

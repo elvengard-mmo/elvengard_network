@@ -1,4 +1,4 @@
-defmodule ElvenGard.Network.PacketCodec do
+defmodule ElvenGard.Network.NetworkCodec do
   @moduledoc ~S"""
   Define a behaviour for packet encoding and decoding
   """
