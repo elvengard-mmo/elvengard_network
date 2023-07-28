@@ -156,7 +156,7 @@ defmodule ElvenGard.Network.PacketSchema do
     end
 
     egn_packets = Module.get_attribute(env.module, :egn_packets)
-    packet_structures = Enum.map(egn_packets, &def_structures/1)
+    packet_structures = Enum.map(egn_packets, &def_structure/1)
     decode_functions = Enum.map(egn_packets, &def_decode(&1, decode_body_fun))
 
     quote do
@@ -216,7 +216,7 @@ defmodule ElvenGard.Network.PacketSchema do
     end
   end
 
-  defp def_structures(%{id: id, name: name, guards: guards, fields: fields} = packet) do
+  defp def_structure(%{id: id, name: name, guards: guards, fields: fields} = packet) do
     fields_ast = Enum.map(fields, &decode_field_ast(&1, &1[:opts][:if]))
 
     decode_body_fun = fn %{name: name} ->
