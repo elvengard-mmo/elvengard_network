@@ -206,6 +206,15 @@ defmodule ElvenGard.Network.PacketSchema do
     end
   end
 
+  defp def_encode(%{fields: fields}) do
+    quote location: :keep, generated: true do
+      def encode(%__MODULE__{} = var!(packet), var!(socket), var!(opts) \\ []) do
+        unquote(Macro.escape(fields))
+        |> Enum.map(& &1.type.encode(var!(packet)[&1.name]))
+      end
+    end
+  end
+
   defp def_decode(%{id: id, guards: guards} = packet, body_cb) do
     guards = if is_nil(guards), do: true, else: guards
 
@@ -250,6 +259,7 @@ defmodule ElvenGard.Network.PacketSchema do
 
         # Encoder/Decoder
 
+        unquote(def_encode(packet))
         unquote(def_decode(packet, decode_body_fun))
       end
     end
