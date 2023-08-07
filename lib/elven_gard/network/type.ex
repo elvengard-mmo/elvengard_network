@@ -12,8 +12,8 @@ defmodule ElvenGard.Network.Type do
   into a structured value of the custom type. The `encode/2` function takes a value
   of the custom type and encodes it into a binary representation.
 
-  Note that the `ElvenGard.Network.PacketSchema` module uses the callbacks in this
-  behaviour when decoding packet fields. For each field defined in a packet schema,
+  Note that the `ElvenGard.Network.PacketSerializer` module uses the callbacks in this
+  behaviour when decoding packet fields. For each field defined in a packet serializer,
   the corresponding type's `decode/2` function will be called to parse the binary
   data.
 
@@ -40,7 +40,7 @@ defmodule ElvenGard.Network.Type do
   In the above example, we defined a custom type module `MyLittleEndianIntType` that
   decodes and encodes a 16-bit little-endian integer.
 
-  Then, when defining a packet schema using `ElvenGard.Network.PacketSchema`, you
+  Then, when defining a packet serializer using `ElvenGard.Network.PacketSerializer`, you
   can use this custom type to define a field in the packet structure.
 
   """

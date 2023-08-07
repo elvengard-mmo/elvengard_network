@@ -1,13 +1,13 @@
-defmodule ElvenGard.Network.PacketSchema do
+defmodule ElvenGard.Network.PacketSerializer do
   @moduledoc ~S"""
-  Packet Schema DSL for defining received packet structures.
+  Packet Serializer DSL for defining received packet structures.
 
-  This module provides a DSL (Domain-Specific Language) for defining packet schemas
+  This module provides a DSL (Domain-Specific Language) for defining packet serializers
   for received packets in a network protocol. It enables users to create structured
   packets with specified fields and decode binary data into packet structs.
 
-  To learn more about the available macros and how to define packet schemas, refer
-  to the [Packet Schema DSL documentation](<PACKETSCHEMA_URL>).
+  To learn more about the available macros and how to define packet serializers, refer
+  to the [Packet Serializer DSL documentation](<PACKETSERIALIZER_URL>).
 
   ## Packets Macros
 
@@ -21,7 +21,7 @@ defmodule ElvenGard.Network.PacketSchema do
   on a condition (often using socket assigns).
 
   For more details on using the packets macros, please refer to the guide at
-  <TODO: PACKETSCHEMA_URL> or to examples.
+  <TODO: PACKETSERIALIZER_URL> or to examples.
 
   ## Packet Structure and Decoding
 
@@ -42,8 +42,8 @@ defmodule ElvenGard.Network.PacketSchema do
 
   ## Examples
 
-      defmodule MyApp.Endpoint.PacketSchemas do
-        use ElvenGard.Network.PacketSchema
+      defmodule MyApp.Endpoint.PacketSerializers do
+        use ElvenGard.Network.PacketSerializer
 
         alias MyApp.Types.{Integer, String}
 
@@ -88,7 +88,7 @@ defmodule ElvenGard.Network.PacketSchema do
 
   # packet 0x0000 when ...
   defmacro packet({:when, _, [id, guards]}) when is_packet_id(id) do
-    do_packet(id, id_to_name(id), guards, nil)
+    do_packet(id, id_to_name(id), expand_aliases(guards, __CALLER__), nil)
   end
 
   # packet 0x0000, as: ModuleName
@@ -98,32 +98,59 @@ defmodule ElvenGard.Network.PacketSchema do
 
   # packet 0x0000 when ..., as: ModuleName
   defmacro packet({:when, _, [id, guards]}, as: name) when is_packet_id(id) do
-    do_packet(id, name, guards, nil)
+    guards
+    |> Macro.expand(__CALLER__)
+    |> Macro.to_string()
+    |> IO.puts()
+
+    do_packet(id, name, expand_aliases(guards, __CALLER__), nil)
   end
 
   # packet 0x0000 do ... end
   defmacro packet(id, do: exp) when is_packet_id(id) do
-    do_packet(id, id_to_name(id), nil, exp)
+    do_packet(id, id_to_name(id), nil, expand_aliases(exp, __CALLER__))
   end
 
   # packet 0x0000 when ... do ... end
   defmacro packet({:when, _, [id, guards]}, do: exp) when is_packet_id(id) do
-    do_packet(id, id_to_name(id), guards, exp)
+    do_packet(
+      id,
+      id_to_name(id),
+      expand_aliases(guards, __CALLER__),
+      expand_aliases(exp, __CALLER__)
+    )
   end
 
   # packet 0x0000, as: ModuleName do ... end
   defmacro packet(id, [as: name], do: exp) when is_packet_id(id) do
-    do_packet(id, name, nil, exp)
+    do_packet(id, name, nil, expand_aliases(exp, __CALLER__))
   end
 
   # packet 0x0000 when ..., as: ModuleName do ... end
   defmacro packet({:when, _, [id, guards]}, [as: name], do: exp) when is_packet_id(id) do
-    do_packet(id, name, guards, exp)
+    do_packet(id, name, expand_aliases(guards, __CALLER__), expand_aliases(exp, __CALLER__))
   end
 
   # field :protocol_version, VarInt
   defmacro field(name, type, opts \\ []) do
     do_field(name, type, opts)
+  end
+
+  defmacro import_packets(mod) do
+    # decode_body_fun = fn %{mod: mod} ->
+    #   quote location: :keep do
+    #     unquote(mod).decode(var!(packet_id), var!(data), var!(socket))
+    #   end
+    # end
+
+    mod = expand_aliases(mod, __CALLER__)
+    # decode_ast = Enum.map(mod.__schemas__(), &def_decode(&1, decode_body_fun))
+
+    mod.module_info |> IO.inspect()
+
+    quote location: :keep do
+      # (unquote_splicing(decode_ast))
+    end
   end
 
   defmacro __using__(_env) do
@@ -138,32 +165,37 @@ defmodule ElvenGard.Network.PacketSchema do
         ]
 
       @before_compile unquote(__MODULE__)
+      @after_compile unquote(__MODULE__)
 
       Module.register_attribute(__MODULE__, :egn_packet_fields, accumulate: true)
       Module.register_attribute(__MODULE__, :egn_packets, accumulate: true)
+
+      @serializable false
+      @deserializable false
     end
   end
 
   defmacro __before_compile__(env) do
-    decode_body_fun = fn %{id: id, name: name} ->
+    decode_body_fun = fn %{id: id, mod: mod} ->
       quote do
-        :"#{Module.concat(__MODULE__, unquote(name))}".decode(
-          unquote(id),
-          var!(data),
-          var!(socket)
-        )
+        unquote(mod).decode(unquote(id), var!(data), var!(socket))
       end
     end
 
     egn_packets = Module.get_attribute(env.module, :egn_packets)
-    packet_structures = Enum.map(egn_packets, &def_structure/1)
     decode_functions = Enum.map(egn_packets, &def_decode(&1, decode_body_fun))
 
     quote do
       unquote(schemas_introspection())
-      unquote_splicing(packet_structures)
       unquote_splicing(decode_functions)
     end
+  end
+
+  defmacro __after_compile__(env, _bytecode) do
+    env.module
+    |> Module.get_attribute(:egn_packets)
+    |> Enum.map(&def_structure/1)
+    |> Code.compile_quoted()
   end
 
   ## Private funtions
@@ -172,6 +204,13 @@ defmodule ElvenGard.Network.PacketSchema do
 
   defp id_to_name(id) when is_integer(id) do
     raise "a module name is required for integer packet ids"
+  end
+
+  defp expand_aliases(ast, env) do
+    Macro.postwalk(ast, fn
+      {:__aliases__, _, _} = alias_ast -> Macro.expand(alias_ast, env)
+      ast -> ast
+    end)
   end
 
   defp schemas_introspection() do
@@ -183,6 +222,11 @@ defmodule ElvenGard.Network.PacketSchema do
 
   defp do_packet(id, name, guards, exp) do
     quote location: :keep do
+      if not @serializable and not @deserializable do
+        mod = Module.concat(__MODULE__, unquote(name))
+        IO.warn("packet #{inspect(mod)} defined but not serializable nor deserializable")
+      end
+
       Module.delete_attribute(__MODULE__, :egn_packet_fields)
 
       unquote(exp)
@@ -190,9 +234,16 @@ defmodule ElvenGard.Network.PacketSchema do
       @egn_packets %{
         id: unquote(id),
         name: unquote(name),
+        parent: __MODULE__,
+        mod: Module.concat(__MODULE__, unquote(name)),
         guards: unquote(Macro.escape(guards)),
-        fields: Enum.reverse(@egn_packet_fields)
+        fields: Enum.reverse(@egn_packet_fields),
+        serializable: @serializable,
+        deserializable: @deserializable
       }
+
+      @serializable false
+      @deserializable false
     end
   end
 
@@ -225,7 +276,18 @@ defmodule ElvenGard.Network.PacketSchema do
     end
   end
 
-  defp def_structure(%{id: id, name: name, guards: guards, fields: fields} = packet) do
+  defp def_structure(packet) do
+    %{
+      id: id,
+      name: name,
+      parent: parent,
+      mod: mod,
+      guards: guards,
+      fields: fields,
+      serializable: serializable,
+      deserializable: deserializable
+    } = packet
+
     fields_ast = Enum.map(fields, &decode_field_ast(&1, &1[:opts][:if]))
 
     decode_body_fun = fn %{name: name} ->
@@ -244,7 +306,9 @@ defmodule ElvenGard.Network.PacketSchema do
     end
 
     quote location: :keep do
-      defmodule :"#{Module.concat(__MODULE__, unquote(name))}" do
+      defmodule unquote(mod) do
+        import unquote(parent), except: [decode: 3, encode: 3]
+
         # Structure
 
         defstruct Enum.map(unquote(Macro.escape(fields)), & &1.name)
@@ -259,7 +323,12 @@ defmodule ElvenGard.Network.PacketSchema do
 
         # Encoder/Decoder
 
-        unquote(def_encode(packet))
+        # if unquote(serializable) do
+        #   unquote(def_encode(packet))
+        # else
+
+        # end
+
         unquote(def_decode(packet, decode_body_fun))
       end
     end

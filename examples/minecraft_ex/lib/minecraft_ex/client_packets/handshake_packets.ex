@@ -1,25 +1,24 @@
-defmodule MinecraftEx.Endpoint.PacketSchemas do
+defmodule MinecraftEx.Client.HandshakePackets do
   @moduledoc """
-  Documentation for MinecraftEx.Endpoint.PacketSchemas
+  Documentation for MinecraftEx.Client.HandshakePackets
   """
 
-  use ElvenGard.Network.PacketSchema
+  use ElvenGard.Network.PacketSerializer
+  
+  import MinecraftEx, only: [has_state: 2]
 
   alias MinecraftEx.Types.{
-    Boolean,
     Enum,
     Long,
     MCString,
     Short,
-    UUID,
     VarInt
   }
-
-  defguardp has_state(socket, state) when socket.assigns.state == state
 
   ## Handshake packets
 
   # 0x00 Handshake - state=init
+  @deserializable true
   packet 0x00 when has_state(socket, :init), as: Handshake do
     field :protocol_version, VarInt
     field :server_address, MCString
@@ -28,19 +27,12 @@ defmodule MinecraftEx.Endpoint.PacketSchemas do
   end
 
   # 0x00 Status Request - state=status
+  @deserializable true
   packet 0x00 when has_state(socket, :status), as: StatusRequest
 
   # 0x01 Ping Request - state=status
+  @deserializable true
   packet 0x01 when has_state(socket, :status), as: PingRequest do
     field :payload, Long, sign: :signed
-  end
-
-  ## Login packets
-
-  # 0x00 Login Start - state=login
-  packet 0x00 when has_state(socket, :login), as: LoginStart do
-    field :name, MCString
-    field :player_uuid?, Boolean
-    field :player_uuid, UUID, if: packet.player_uuid?
   end
 end

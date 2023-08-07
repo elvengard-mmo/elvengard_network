@@ -11,7 +11,8 @@ locals_without_parens = [
   field: 3,
   packet: 1,
   packet: 2,
-  packet: 3
+  packet: 3,
+  import_packets: 1
 ]
 
 [

@@ -6,7 +6,7 @@ defmodule MinecraftEx.Endpoint.NetworkCodec do
   @behaviour ElvenGard.Network.NetworkCodec
 
   alias MinecraftEx.Types.VarInt
-  alias MinecraftEx.Endpoint.PacketSchemas
+  alias MinecraftEx.ClientPackets
 
   @impl true
   def next(<<>>), do: {nil, <<>>}
@@ -27,7 +27,7 @@ defmodule MinecraftEx.Endpoint.NetworkCodec do
   @impl true
   def deserialize(raw, socket) do
     {packet_id, rest} = VarInt.decode(raw)
-    packet = PacketSchemas.decode(packet_id, rest, socket)
+    packet = ClientPackets.decode(packet_id, rest, socket)
 
     if is_nil(packet) do
       raise "unable to decode packet with id #{inspect(packet_id)} - #{inspect(raw)}"

@@ -1,8 +1,8 @@
-defmodule ElvenGard.Network.PacketSchemaTest do
+defmodule ElvenGard.Network.PacketSerializerTest do
   use ExUnit.Case, async: true
 
   defmodule SimplePackets do
-    use ElvenGard.Network.PacketSchema
+    use ElvenGard.Network.PacketSerializer
     use ExUnit.Case, async: true
 
     alias ElvenGard.Network.CustomTypes.{Boolean, Date, Int, Str}
@@ -79,7 +79,7 @@ defmodule ElvenGard.Network.PacketSchemaTest do
   end
 
   defmodule StringPackets do
-    use ElvenGard.Network.PacketSchema
+    use ElvenGard.Network.PacketSerializer
     use ExUnit.Case, async: true
 
     alias ElvenGard.Network.CustomTypes.{Boolean, Str}
@@ -208,7 +208,7 @@ defmodule ElvenGard.Network.PacketSchemaTest do
       assert_raise RuntimeError, ~r/a module name is required for integer packet ids/, fn ->
         Code.compile_string("""
         defmodule CantCompile do
-          use ElvenGard.Network.PacketSchema
+          use ElvenGard.Network.PacketSerializer
           packet 0x00, do: :ok
         end
         """)

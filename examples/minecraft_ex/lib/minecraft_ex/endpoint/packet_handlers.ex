@@ -8,7 +8,7 @@ defmodule MinecraftEx.Endpoint.PacketHandlers do
   alias ElvenGard.Network.Socket
   alias MinecraftEx.Resources
 
-  alias MinecraftEx.Endpoint.PacketSchemas.{
+  alias MinecraftEx.Client.HandshakePackets.{
     Handshake,
     PingRequest,
     StatusRequest

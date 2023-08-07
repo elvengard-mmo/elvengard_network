@@ -5,19 +5,14 @@ defmodule MinecraftEx.Endpoint.PacketViews do
 
   use ElvenGard.Network.View
 
-  alias MinecraftEx.Types.{Long, MCString}
+  alias MinecraftEx.Server.HandshakePackets.{PongResponse, StatusResponse}
 
   @impl true
   def render(:status_response, %{status: status}) do
-    json = Poison.encode!(status)
-    packet(0x00, [MCString.encode(json)])
+    %StatusResponse{json: Poison.encode!(status)}
   end
 
   def render(:pong_response, %{payload: payload}) do
-    packet(0x01, [Long.encode(payload)])
+    %PongResponse{payload: payload}
   end
-
-  ## Helpers
-
-  defp packet(id, params), do: [<<id::8>> | params]
 end
