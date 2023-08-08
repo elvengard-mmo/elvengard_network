@@ -83,52 +83,42 @@ defmodule ElvenGard.Network.PacketSerializer do
 
   # packet 0x0000
   defmacro packet(id) when is_packet_id(id) do
-    do_packet(id, id_to_name(id), nil, nil)
+    do_packet(id, id_to_name(id), nil, nil, __CALLER__)
   end
 
   # packet 0x0000 when ...
   defmacro packet({:when, _, [id, guards]}) when is_packet_id(id) do
-    do_packet(id, id_to_name(id), expand_aliases(guards, __CALLER__), nil)
+    do_packet(id, id_to_name(id), guards, nil, __CALLER__)
   end
 
   # packet 0x0000, as: ModuleName
   defmacro packet(id, as: name) when is_packet_id(id) do
-    do_packet(id, name, nil, nil)
+    do_packet(id, name, nil, nil, __CALLER__)
   end
 
   # packet 0x0000 when ..., as: ModuleName
   defmacro packet({:when, _, [id, guards]}, as: name) when is_packet_id(id) do
-    guards
-    |> Macro.expand(__CALLER__)
-    |> Macro.to_string()
-    |> IO.puts()
-
-    do_packet(id, name, expand_aliases(guards, __CALLER__), nil)
+    do_packet(id, name, guards, nil, __CALLER__)
   end
 
   # packet 0x0000 do ... end
   defmacro packet(id, do: exp) when is_packet_id(id) do
-    do_packet(id, id_to_name(id), nil, expand_aliases(exp, __CALLER__))
+    do_packet(id, id_to_name(id), nil, exp, __CALLER__)
   end
 
   # packet 0x0000 when ... do ... end
   defmacro packet({:when, _, [id, guards]}, do: exp) when is_packet_id(id) do
-    do_packet(
-      id,
-      id_to_name(id),
-      expand_aliases(guards, __CALLER__),
-      expand_aliases(exp, __CALLER__)
-    )
+    do_packet(id, id_to_name(id), guards, exp, __CALLER__)
   end
 
   # packet 0x0000, as: ModuleName do ... end
   defmacro packet(id, [as: name], do: exp) when is_packet_id(id) do
-    do_packet(id, name, nil, expand_aliases(exp, __CALLER__))
+    do_packet(id, name, nil, exp, __CALLER__)
   end
 
   # packet 0x0000 when ..., as: ModuleName do ... end
   defmacro packet({:when, _, [id, guards]}, [as: name], do: exp) when is_packet_id(id) do
-    do_packet(id, name, expand_aliases(guards, __CALLER__), expand_aliases(exp, __CALLER__))
+    do_packet(id, name, guards, exp, __CALLER__)
   end
 
   # field :protocol_version, VarInt
@@ -137,19 +127,17 @@ defmodule ElvenGard.Network.PacketSerializer do
   end
 
   defmacro import_packets(mod) do
-    # decode_body_fun = fn %{mod: mod} ->
-    #   quote location: :keep do
-    #     unquote(mod).decode(var!(packet_id), var!(data), var!(socket))
-    #   end
-    # end
+    decode_body_fun = fn %{mod: mod} ->
+      quote location: :keep do
+        unquote(mod).decode(var!(packet_id), var!(data), var!(socket))
+      end
+    end
 
     mod = expand_aliases(mod, __CALLER__)
-    # decode_ast = Enum.map(mod.__schemas__(), &def_decode(&1, decode_body_fun))
-
-    mod.module_info |> IO.inspect()
+    decode_ast = Enum.map(mod.__schemas__(), &def_decode(&1, decode_body_fun))
 
     quote location: :keep do
-      # (unquote_splicing(decode_ast))
+      (unquote_splicing(decode_ast))
     end
   end
 
@@ -220,7 +208,11 @@ defmodule ElvenGard.Network.PacketSerializer do
     end
   end
 
-  defp do_packet(id, name, guards, exp) do
+  defp do_packet(id, name, guards, exp, caller) do
+    guard_env = %{caller | context: :guard}
+    guards = Macro.postwalk(guards, &Macro.expand(&1, guard_env))
+    exp = expand_aliases(exp, caller)
+
     quote location: :keep do
       if not @serializable and not @deserializable do
         mod = Module.concat(__MODULE__, unquote(name))
