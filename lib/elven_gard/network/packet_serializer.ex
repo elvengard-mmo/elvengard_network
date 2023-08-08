@@ -315,13 +315,17 @@ defmodule ElvenGard.Network.PacketSerializer do
 
         # Encoder/Decoder
 
-        # if unquote(serializable) do
-        #   unquote(def_encode(packet))
-        # else
+        if unquote(serializable) do
+          unquote(def_encode(packet))
+        else
+          def encode(_, _, _ \\ []), do: raise("unimplemented")
+        end
 
-        # end
-
-        unquote(def_decode(packet, decode_body_fun))
+        if unquote(deserializable) do
+          unquote(def_decode(packet, decode_body_fun))
+        else
+          def decode(_, _, _), do: raise("unimplemented")
+        end
       end
     end
   end
