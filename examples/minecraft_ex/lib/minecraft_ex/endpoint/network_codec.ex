@@ -37,10 +37,14 @@ defmodule MinecraftEx.Endpoint.NetworkCodec do
   end
 
   @impl true
-  def serialize(raw, _socket) do
-    packet_length =
-      raw |> List.wrap() |> Enum.map(&byte_size/1) |> Enum.sum() |> VarInt.encode([])
+  def serialize(struct, socket) when is_struct(struct) do
+    {packet_id, params} = struct.__struct__.encode(struct)
+    serialize([VarInt.encode(packet_id), params], socket)
+  end
 
-    [<<packet_length::binary>> | raw]
+  def serialize(raw, _socket) when is_list(raw) do
+    bin = :binary.list_to_bin(raw)
+    packet_length = bin |> byte_size() |> VarInt.encode([])
+    [<<packet_length::binary>> | bin]
   end
 end

@@ -249,11 +249,20 @@ defmodule ElvenGard.Network.PacketSerializer do
     end
   end
 
-  defp def_encode(%{fields: fields}) do
+  defp def_encode(%{id: id, fields: fields}) do
+    fields_ast =
+      Enum.map(fields, fn %{name: name, type: type, opts: opts} ->
+        quote location: :keep do
+          unquote(type).encode(
+            Map.fetch!(var!(packet), unquote(name)),
+            unquote(opts)
+          )
+        end
+      end)
+
     quote location: :keep, generated: true do
-      def encode(%__MODULE__{} = var!(packet), var!(socket), var!(opts) \\ []) do
-        unquote(Macro.escape(fields))
-        |> Enum.map(& &1.type.encode(var!(packet)[&1.name]))
+      def encode(%__MODULE__{} = var!(packet)) do
+        {unquote(id), unquote(fields_ast)}
       end
     end
   end
@@ -318,7 +327,7 @@ defmodule ElvenGard.Network.PacketSerializer do
         if unquote(serializable) do
           unquote(def_encode(packet))
         else
-          def encode(_, _, _ \\ []), do: raise("unimplemented")
+          def encode(_), do: raise("unimplemented")
         end
 
         if unquote(deserializable) do
