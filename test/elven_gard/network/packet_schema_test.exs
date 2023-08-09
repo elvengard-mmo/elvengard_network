@@ -60,13 +60,14 @@ defmodule ElvenGard.Network.PacketSerializerTest do
              ]
     end
 
-    describe "decode/3" do
+    describe "deserialize/3" do
       test "is defined" do
-        assert function_exported?(SimplePackets, :decode, 3)
+        assert function_exported?(SimplePackets, :deserialize, 3)
       end
 
       test "parse a binary and returns a structure" do
-        packet = SimplePackets.decode("my_simple_packet", "1337 Admin 1 2023-07-21", %Socket{})
+        packet =
+          SimplePackets.deserialize("my_simple_packet", "1337 Admin 1 2023-07-21", %Socket{})
 
         assert packet.__struct__ == __MODULE__.MySimplePacket
         assert packet.id == 1337
@@ -77,7 +78,7 @@ defmodule ElvenGard.Network.PacketSerializerTest do
 
       test "raise an error if remaining bytes" do
         assert_raise RuntimeError, ~r/remaining bytes for /, fn ->
-          SimplePackets.decode("my_simple_packet", "1337 Admin 1 2023-07-21 foo", %Socket{})
+          SimplePackets.deserialize("my_simple_packet", "1337 Admin 1 2023-07-21 foo", %Socket{})
         end
       end
     end
@@ -140,67 +141,67 @@ defmodule ElvenGard.Network.PacketSerializerTest do
 
     ## Tests
 
-    describe "decode packet with" do
+    describe "deserialize packet with" do
       test "no field" do
-        assert packet = decode("no_field")
+        assert packet = deserialize("no_field")
         assert packet.__struct__ == __MODULE__.NoField
       end
 
       test "no field but guards" do
-        assert packet = decode("no_field_but_guard", state: :foo)
+        assert packet = deserialize("no_field_but_guard", state: :foo)
         assert packet.__struct__ == __MODULE__.NoFieldButGuard
-        assert_raise FunctionClauseError, fn -> decode("no_field_but_guard", state: :bar) end
+        assert_raise FunctionClauseError, fn -> deserialize("no_field_but_guard", state: :bar) end
       end
 
       test "no field but name" do
-        assert packet = decode("no_field_but_name")
+        assert packet = deserialize("no_field_but_name")
         assert packet.__struct__ == __MODULE__.NoFieldButName2
       end
 
       test "no field but name and guard" do
-        assert packet = decode("no_field_but_name_and_guard", state: :foo)
+        assert packet = deserialize("no_field_but_name_and_guard", state: :foo)
         assert packet.__struct__ == __MODULE__.NoFieldButNameAndGuard2
 
-        assert packet = decode("no_field_but_name_and_guard", state: :bar)
+        assert packet = deserialize("no_field_but_name_and_guard", state: :bar)
         assert packet.__struct__ == __MODULE__.NoFieldButNameAndGuard3
       end
 
       test "empty field" do
-        assert packet = decode("with_empty_fields")
+        assert packet = deserialize("with_empty_fields")
         assert packet.__struct__ == __MODULE__.WithEmptyFields
       end
 
       test "guards" do
-        assert packet = decode("with_guards", raw: "bar", state: :foo)
+        assert packet = deserialize("with_guards", raw: "bar", state: :foo)
         assert packet.__struct__ == __MODULE__.WithGuards
         assert packet.value == "bar"
       end
 
       test "name" do
-        assert packet = decode("with_name", raw: "bar")
+        assert packet = deserialize("with_name", raw: "bar")
         assert packet.__struct__ == __MODULE__.WithName2
         assert packet.value == "bar"
       end
 
       test "guards and name" do
-        assert packet = decode("with_guards_and_name", raw: "bar", state: :foo)
+        assert packet = deserialize("with_guards_and_name", raw: "bar", state: :foo)
         assert packet.__struct__ == __MODULE__.WithGuardsAndName2
         assert packet.value == "bar"
       end
 
       test "options" do
-        assert packet = decode("with_options", raw: "foo bar")
+        assert packet = deserialize("with_options", raw: "foo bar")
         assert packet.__struct__ == __MODULE__.WithOptions
         assert packet.value == "foo bar"
       end
 
       test "condition" do
-        assert packet = decode("with_condition", raw: "0")
+        assert packet = deserialize("with_condition", raw: "0")
         assert packet.__struct__ == __MODULE__.WithCondition
         assert packet.enabled == false
         assert packet.value == nil
 
-        assert packet = decode("with_condition", raw: "1 foobar")
+        assert packet = deserialize("with_condition", raw: "1 foobar")
         assert packet.__struct__ == __MODULE__.WithCondition
         assert packet.enabled == true
         assert packet.value == "foobar"
@@ -209,9 +210,9 @@ defmodule ElvenGard.Network.PacketSerializerTest do
 
     ## Helpers
 
-    defp decode(name, opts \\ []) do
+    defp deserialize(name, opts \\ []) do
       assigns = if opts[:state], do: %{state: opts[:state]}, else: nil
-      StringPackets.decode(name, opts[:raw] || "", %Socket{assigns: assigns})
+      StringPackets.deserialize(name, opts[:raw] || "", %Socket{assigns: assigns})
     end
   end
 

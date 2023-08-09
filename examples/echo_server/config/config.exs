@@ -16,6 +16,6 @@ config :echo_server, EchoServer.Endpoint.Protocol,
   # Here, the packet handler is not needed because we bypass the packet
   # handling by returning `ignore` in `handle_message/2`
   packet_handler: :unset,
-  # Here we are not using packet coder/decoder.
+  # Here we are not using the network encoder/decoder.
   # We send raw packets
   network_codec: :unset

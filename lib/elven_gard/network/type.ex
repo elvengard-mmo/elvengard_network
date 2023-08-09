@@ -68,9 +68,9 @@ defmodule ElvenGard.Network.Type do
   - `value`: The value of the custom type to be encoded.
   - `opts`: A keyword list of options that can be used during encoding (optional).
 
-  The function should return the encoded binary data as an iodata.
+  The function should return the encoded binary data as an iodata or a bitstring.
   """
-  @callback encode(value :: any, opts :: keyword) :: iodata
+  @callback encode(value :: any, opts :: keyword) :: iodata | bitstring
 
   defmacro __using__(_env) do
     quote location: :keep do

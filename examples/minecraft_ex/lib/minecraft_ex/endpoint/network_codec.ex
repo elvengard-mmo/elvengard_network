@@ -27,10 +27,10 @@ defmodule MinecraftEx.Endpoint.NetworkCodec do
   @impl true
   def deserialize(raw, socket) do
     {packet_id, rest} = VarInt.decode(raw)
-    packet = ClientPackets.decode(packet_id, rest, socket)
+    packet = ClientPackets.deserialize(packet_id, rest, socket)
 
     if is_nil(packet) do
-      raise "unable to decode packet with id #{inspect(packet_id)} - #{inspect(raw)}"
+      raise "unable to deserialize packet with id #{inspect(packet_id)} - #{inspect(raw)}"
     end
 
     packet
@@ -38,7 +38,7 @@ defmodule MinecraftEx.Endpoint.NetworkCodec do
 
   @impl true
   def serialize(struct, socket) when is_struct(struct) do
-    {packet_id, params} = struct.__struct__.encode(struct)
+    {packet_id, params} = struct.__struct__.serialize(struct)
     serialize([VarInt.encode(packet_id), params], socket)
   end
 

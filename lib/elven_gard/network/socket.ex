@@ -5,7 +5,7 @@ defmodule ElvenGard.Network.Socket do
   This module provides functionality for managing a socket in the network protocol.
   A socket is a connection between the server and a client. It maintains various
   socket fields, such as the socket ID, socket assigns, transport information,
-  and the packet encoder used for sending data.
+  and the packet network encoder used for sending data.
 
   ## Socket fields
 
