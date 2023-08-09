@@ -11,10 +11,10 @@ defmodule ElvenGard.Network.PacketSerializer do
 
   ## Packets Macros
 
-  The `packet` macros (`packet/1`, `packet/2` and `packet/3`) allow users to define
-  packet structures.  
+  The `packet` macros (`defpacket/1`, `defpacket/2` and `defpacket/3`) allow users to define
+  packet structures.
   They always require a packet ID. The alias (which is the name of the generated
-  packet structure), the guard (with the `when` keyword), and do-block (for 
+  packet structure), the guard (with the `when` keyword), and do-block (for
   defining fields) are optional.
 
   Users can specify guards in packets macros to conditionally match packets based
@@ -55,7 +55,7 @@ defmodule ElvenGard.Network.PacketSerializer do
           field :id, Integer
           field :name, String
         end
-        
+
         # Complex string packet:
         #   - This generate a AliasedModule structure
         #   - The `decode/3` function will match packet with `complex_packet` as packet id ONLY if the state is `:init`
@@ -65,7 +65,7 @@ defmodule ElvenGard.Network.PacketSerializer do
           field :id, Integer
           field :name, String, fill: true
         end
-        
+
         # Simple binary packet
         #   - This generate a KeepAlivePacket structure
         #   - The `decode/3` function will match packet with `0x0000` as packet id
@@ -81,43 +81,43 @@ defmodule ElvenGard.Network.PacketSerializer do
 
   ## Public API
 
-  # packet 0x0000
-  defmacro packet(id) when is_packet_id(id) do
+  # defpacket 0x0000
+  defmacro defpacket(id) when is_packet_id(id) do
     do_packet(id, id_to_name(id), nil, nil, __CALLER__)
   end
 
-  # packet 0x0000 when ...
-  defmacro packet({:when, _, [id, guards]}) when is_packet_id(id) do
+  # defpacket 0x0000 when ...
+  defmacro defpacket({:when, _, [id, guards]}) when is_packet_id(id) do
     do_packet(id, id_to_name(id), guards, nil, __CALLER__)
   end
 
-  # packet 0x0000, as: ModuleName
-  defmacro packet(id, as: name) when is_packet_id(id) do
+  # defpacket 0x0000, as: ModuleName
+  defmacro defpacket(id, as: name) when is_packet_id(id) do
     do_packet(id, name, nil, nil, __CALLER__)
   end
 
-  # packet 0x0000 when ..., as: ModuleName
-  defmacro packet({:when, _, [id, guards]}, as: name) when is_packet_id(id) do
+  # defpacket 0x0000 when ..., as: ModuleName
+  defmacro defpacket({:when, _, [id, guards]}, as: name) when is_packet_id(id) do
     do_packet(id, name, guards, nil, __CALLER__)
   end
 
-  # packet 0x0000 do ... end
-  defmacro packet(id, do: exp) when is_packet_id(id) do
+  # defpacket 0x0000 do ... end
+  defmacro defpacket(id, do: exp) when is_packet_id(id) do
     do_packet(id, id_to_name(id), nil, exp, __CALLER__)
   end
 
-  # packet 0x0000 when ... do ... end
-  defmacro packet({:when, _, [id, guards]}, do: exp) when is_packet_id(id) do
+  # defpacket 0x0000 when ... do ... end
+  defmacro defpacket({:when, _, [id, guards]}, do: exp) when is_packet_id(id) do
     do_packet(id, id_to_name(id), guards, exp, __CALLER__)
   end
 
-  # packet 0x0000, as: ModuleName do ... end
-  defmacro packet(id, [as: name], do: exp) when is_packet_id(id) do
+  # defpacket 0x0000, as: ModuleName do ... end
+  defmacro defpacket(id, [as: name], do: exp) when is_packet_id(id) do
     do_packet(id, name, nil, exp, __CALLER__)
   end
 
-  # packet 0x0000 when ..., as: ModuleName do ... end
-  defmacro packet({:when, _, [id, guards]}, [as: name], do: exp) when is_packet_id(id) do
+  # defpacket 0x0000 when ..., as: ModuleName do ... end
+  defmacro defpacket({:when, _, [id, guards]}, [as: name], do: exp) when is_packet_id(id) do
     do_packet(id, name, guards, exp, __CALLER__)
   end
 
@@ -145,9 +145,9 @@ defmodule ElvenGard.Network.PacketSerializer do
     quote location: :keep do
       import unquote(__MODULE__),
         only: [
-          packet: 1,
-          packet: 2,
-          packet: 3,
+          defpacket: 1,
+          defpacket: 2,
+          defpacket: 3,
           field: 2,
           field: 3
         ]

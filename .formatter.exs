@@ -9,9 +9,9 @@ inputs =
 locals_without_parens = [
   field: 2,
   field: 3,
-  packet: 1,
-  packet: 2,
-  packet: 3,
+  defpacket: 1,
+  defpacket: 2,
+  defpacket: 3,
   import_packets: 1
 ]
 

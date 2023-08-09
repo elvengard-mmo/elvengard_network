@@ -10,7 +10,8 @@ defmodule ElvenGard.Network.PacketSerializerTest do
 
     ## Packets def
 
-    packet "my_simple_packet" do
+    @deserializable true
+    defpacket "my_simple_packet" do
       field :id, Int
       field :name, Str
       field :enabled, Boolean
@@ -24,6 +25,10 @@ defmodule ElvenGard.Network.PacketSerializerTest do
         %{
           id: "my_simple_packet",
           name: MySimplePacket,
+          parent: ElvenGard.Network.PacketSerializerTest.SimplePackets,
+          mod: ElvenGard.Network.PacketSerializerTest.SimplePackets.MySimplePacket,
+          serializable: false,
+          deserializable: true,
           guards: nil,
           fields: [
             %{name: :id, type: ElvenGard.Network.CustomTypes.Int, opts: []},
@@ -87,37 +92,48 @@ defmodule ElvenGard.Network.PacketSerializerTest do
 
     ## Packets def
 
-    packet "no_field"
+    @deserializable true
+    defpacket "no_field"
 
-    packet "no_field_but_guard" when socket.assigns.state == :foo
+    @deserializable true
+    defpacket "no_field_but_guard" when socket.assigns.state == :foo
 
-    packet "no_field_but_name", as: NoFieldButName2
+    @deserializable true
+    defpacket "no_field_but_name", as: NoFieldButName2
 
-    packet "no_field_but_name_and_guard" when socket.assigns.state == :foo,
+    @deserializable true
+    defpacket "no_field_but_name_and_guard" when socket.assigns.state == :foo,
       as: NoFieldButNameAndGuard2
 
-    packet "no_field_but_name_and_guard" when socket.assigns.state == :bar,
+    @deserializable true
+    defpacket "no_field_but_name_and_guard" when socket.assigns.state == :bar,
       as: NoFieldButNameAndGuard3
 
-    packet "with_empty_fields", do: :ok
+    @deserializable true
+    defpacket "with_empty_fields", do: :ok
 
-    packet "with_guards" when socket.assigns.state == :foo do
+    @deserializable true
+    defpacket "with_guards" when socket.assigns.state == :foo do
       field :value, Str
     end
 
-    packet "with_name", as: WithName2 do
+    @deserializable true
+    defpacket "with_name", as: WithName2 do
       field :value, Str
     end
 
-    packet "with_guards_and_name" when socket.assigns.state == :foo, as: WithGuardsAndName2 do
+    @deserializable true
+    defpacket "with_guards_and_name" when socket.assigns.state == :foo, as: WithGuardsAndName2 do
       field :value, Str
     end
 
-    packet "with_options" do
+    @deserializable true
+    defpacket "with_options" do
       field :value, Str, fill: true
     end
 
-    packet "with_condition" do
+    @deserializable true
+    defpacket "with_condition" do
       field :enabled, Boolean
       field :value, Str, if: packet.enabled
     end
@@ -209,7 +225,9 @@ defmodule ElvenGard.Network.PacketSerializerTest do
         Code.compile_string("""
         defmodule CantCompile do
           use ElvenGard.Network.PacketSerializer
-          packet 0x00, do: :ok
+
+          @deserializable true
+          defpacket 0x00, do: :ok
         end
         """)
       end

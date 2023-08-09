@@ -13,7 +13,7 @@ defmodule MinecraftEx.Client.LoginPackets do
 
   # 0x00 Login Start - state=login
   @deserializable true
-  packet 0x00 when has_state(socket, :login), as: LoginStart do
+  defpacket 0x00 when has_state(socket, :login), as: LoginStart do
     field :name, MCString
     field :player_uuid?, Boolean
     field :player_uuid, UUID, if: packet.player_uuid?

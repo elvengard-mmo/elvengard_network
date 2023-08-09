@@ -4,7 +4,7 @@ defmodule MinecraftEx.Client.HandshakePackets do
   """
 
   use ElvenGard.Network.PacketSerializer
-  
+
   import MinecraftEx, only: [has_state: 2]
 
   alias MinecraftEx.Types.{
@@ -19,7 +19,7 @@ defmodule MinecraftEx.Client.HandshakePackets do
 
   # 0x00 Handshake - state=init
   @deserializable true
-  packet 0x00 when has_state(socket, :init), as: Handshake do
+  defpacket 0x00 when has_state(socket, :init), as: Handshake do
     field :protocol_version, VarInt
     field :server_address, MCString
     field :server_port, Short, sign: :unsigned
@@ -28,11 +28,11 @@ defmodule MinecraftEx.Client.HandshakePackets do
 
   # 0x00 Status Request - state=status
   @deserializable true
-  packet 0x00 when has_state(socket, :status), as: StatusRequest
+  defpacket 0x00 when has_state(socket, :status), as: StatusRequest
 
   # 0x01 Ping Request - state=status
   @deserializable true
-  packet 0x01 when has_state(socket, :status), as: PingRequest do
+  defpacket 0x01 when has_state(socket, :status), as: PingRequest do
     field :payload, Long, sign: :signed
   end
 end
