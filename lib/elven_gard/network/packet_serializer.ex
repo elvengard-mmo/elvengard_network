@@ -211,7 +211,7 @@ defmodule ElvenGard.Network.PacketSerializer do
   defp do_packet(id, name, guards, exp, caller) do
     guard_env = %{caller | context: :guard}
     guards = Macro.postwalk(guards, &Macro.expand(&1, guard_env))
-    exp = expand_aliases(exp, caller)
+    exp = Macro.postwalk(exp, &Macro.expand(&1, caller))
 
     quote location: :keep do
       if not @serializable and not @deserializable do
