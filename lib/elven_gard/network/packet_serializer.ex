@@ -291,7 +291,7 @@ defmodule ElvenGard.Network.PacketSerializer do
 
     deserialize_body_fun = fn %{name: name} ->
       quote location: :keep do
-        var!(packet) = %__MODULE__{}
+        var!(packet) = %{}
 
         unquote_splicing(fields_ast)
 
@@ -300,7 +300,7 @@ defmodule ElvenGard.Network.PacketSerializer do
           raise "remaining bytes for #{inspect(__MODULE__)}.#{iname}: #{inspect(var!(data))}"
         end
 
-        var!(packet)
+        struct!(__MODULE__, var!(packet))
       end
     end
 
@@ -310,6 +310,9 @@ defmodule ElvenGard.Network.PacketSerializer do
 
         # Structure
 
+        @enforce_keys for f <- unquote(Macro.escape(fields)),
+                          is_nil(f[:opts][:default]),
+                          do: f.name
         defstruct Enum.map(unquote(Macro.escape(fields)), &{&1.name, &1[:opts][:default]})
 
         # Introspection
