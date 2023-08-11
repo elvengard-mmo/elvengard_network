@@ -44,7 +44,7 @@ defmodule ElvenGard.Network.View do
 
   The function should return an iodata to be sent to the client.
   """
-  @callback render(name, params) :: iodata()
+  @callback render(name, params) :: iodata() | struct()
             when name: atom() | String.t(), params: map() | Keyword.t()
 
   @doc false
