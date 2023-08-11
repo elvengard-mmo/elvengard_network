@@ -310,7 +310,7 @@ defmodule ElvenGard.Network.PacketSerializer do
 
         # Structure
 
-        defstruct Enum.map(unquote(Macro.escape(fields)), & &1.name)
+        defstruct Enum.map(unquote(Macro.escape(fields)), &{&1.name, &1[:opts][:default]})
 
         # Introspection
 
