@@ -9,9 +9,9 @@ defmodule MinecraftEx.Endpoint.NetworkCodec do
   alias MinecraftEx.ClientPackets
 
   @impl true
-  def next(<<>>), do: {nil, <<>>}
+  def next(<<>>, _socket), do: {nil, <<>>}
 
-  def next(message) do
+  def next(message, _socket) do
     {length, rest} = VarInt.decode(message)
 
     case byte_size(rest) >= length do

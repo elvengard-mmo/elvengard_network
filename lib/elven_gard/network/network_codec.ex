@@ -10,7 +10,8 @@ defmodule ElvenGard.Network.NetworkCodec do
 
   The result will be sent to the `c:deserialize/2` callback
   """
-  @callback next(raw :: bitstring) :: {packet_raw :: bitstring, remaining :: bitstring}
+  @callback next(raw :: bitstring, socket :: Socket.t()) ::
+              {packet_raw :: bitstring, remaining :: bitstring}
 
   @doc "Deserializes a packet"
   @callback deserialize(raw :: bitstring, socket :: Socket.t()) :: map | struct
