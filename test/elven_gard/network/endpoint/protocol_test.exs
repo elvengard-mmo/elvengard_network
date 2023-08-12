@@ -46,12 +46,6 @@ defmodule ElvenGard.Network.ProtocolTest do
       send(socket.assigns[:link], {:handle_halt, reason})
       {:ok, socket}
     end
-
-    @impl true
-    def handle_error(reason, socket) do
-      send(socket.assigns[:link], {:handle_error, reason})
-      {:stop, reason, socket}
-    end
   end
 
   setup_all do

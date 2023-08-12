@@ -26,16 +26,9 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
               | {:ok, stop_reason :: term, new_socket}
             when new_socket: term
 
-  @doc "Called when an error occurs and specifies what to do"
-  @callback handle_error(reason :: term, socket :: Socket.t()) ::
-              {:ignore, new_socket}
-              | {:stop, reason :: term, new_socket}
-            when new_socket: term
-
   @optional_callbacks handle_init: 1,
                       handle_message: 2,
-                      handle_halt: 2,
-                      handle_error: 2
+                      handle_halt: 2
 
   ## Public API
 
@@ -170,13 +163,9 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
       @impl true
       def handle_halt(_reason, socket), do: {:ok, socket}
 
-      @impl true
-      def handle_error(reason, socket), do: {:stop, reason, socket}
-
       defoverridable handle_init: 1,
                      handle_message: 2,
-                     handle_halt: 2,
-                     handle_error: 2
+                     handle_halt: 2
     end
   end
 end
