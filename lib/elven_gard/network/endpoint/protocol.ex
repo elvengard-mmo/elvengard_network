@@ -111,6 +111,8 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
       defp codec(), do: env_config()[:network_codec]
       defp handlers(), do: env_config()[:packet_handler]
 
+      defp packet_loop(<<>>, socket), do: {:noreply, socket}
+
       defp packet_loop(data, socket) do
         with {:next, {raw, rest}} when not is_nil(raw) <- {:next, codec().next(data, socket)},
              struct <- codec().deserialize(raw, socket),
