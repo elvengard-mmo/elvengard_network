@@ -7,15 +7,15 @@ defmodule ElvenGard.Network.Type do
   how a specific field type is decoded and encoded when parsing and generating
   packets.
 
-  To implement a custom type, you need to define the `decode/2` and `encode/2`
-  callbacks. The `decode/2` function takes a raw binary as input and decodes it
+  To implement a custom type, you need to define the `c:decode/2` and `c:encode/2`
+  callbacks. The `c:decode/2` function takes a raw binary as input and decodes it
   into a structured value of the custom type. The `encode/2` function takes a value
   of the custom type and encodes it into a binary representation.
 
   Note that the `ElvenGard.Network.PacketSerializer` module uses the callbacks in this
-  behaviour when decoding packet fields. For each field defined in a packet serializer,
-  the corresponding type's `decode/2` function will be called to parse the binary
-  data.
+  behaviour when encoding and decoding packet fields. For each field defined in a 
+  packet serializer, the corresponding type's `c:encode/2` or `c:decode/2` function 
+  will be called to parse the binary data.
 
   ## Example
 
@@ -27,13 +27,13 @@ defmodule ElvenGard.Network.Type do
 
         @impl ElvenGard.Network.Type
         def decode(raw, _opts) do
-          <<value::little-unsigned-integer-size(16), rest::binary>> = raw
+          <<value::little-integer-size(16), rest::binary>> = raw
           {value, rest}
         end
 
         @impl ElvenGard.Network.Type
         def encode(value, _opts) do
-          <<value::little-unsigned-integer-size(16)>>
+          <<value::little-integer-size(16)>>
         end
       end
 

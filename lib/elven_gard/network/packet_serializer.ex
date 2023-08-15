@@ -19,9 +19,6 @@ defmodule ElvenGard.Network.PacketSerializer do
   Users can specify guards in packet macros to conditionally match packets based on a
   condition (often using socket assigns).
 
-  For more details on using the packet macros, please refer to the guide at
-  <TODO: PACKETSERIALIZER_URL>.
-
   ## Packet Structure, Serialization, and Deserialization
 
   The `defpacket` macros can generate a packet structure, a `deserialize/3` function for

@@ -7,8 +7,7 @@ defmodule ElvenGard.Network.NetworkCodec do
   binary data for transmission over the network.
 
   For more information on how to implement this behavior and use packet encoding
-  and decoding, please refer to the [NetworkCodec guide]
-  (<NETWORKCODEC_URL>).
+  and decoding, please refer to the [NetworkCodec guide](<NETWORKCODEC_URL>).
   """
 
   alias ElvenGard.Network.Socket
@@ -23,7 +22,7 @@ defmodule ElvenGard.Network.NetworkCodec do
   ## Examples
 
       raw = <<packet1::binary, remaining::binary>>
-      {packet1, remaining} = ElvenGard.Network.NetworkCodec.next(raw, socket)
+      {^packet1, ^remaining} = MyNetworkCodec.next(raw, socket)
 
   """
   @callback next(raw :: bitstring, socket :: Socket.t()) ::
@@ -39,13 +38,13 @@ defmodule ElvenGard.Network.NetworkCodec do
   ## Examples
 
       raw_packet = <<1::8, 123::8, "some data"::binary>>  # Example raw packet data
-      %MessageStruct{id: 123, data: "some data"} = ElvenGard.Network.NetworkCodec.decode(raw_packet, socket)
+      %MessageStruct{id: 123, data: "some data"} = MyNetworkCodec.decode(raw_packet, socket)
 
   """
   @callback decode(raw :: bitstring, socket :: Socket.t()) :: struct
 
   @doc """
-  Encodes a packet for transmission.
+  Encodes a packet for network transmission.
 
   This callback function is responsible for encoding a structured packet or raw
   binary data into the binary format suitable for transmission over the network.
@@ -55,9 +54,8 @@ defmodule ElvenGard.Network.NetworkCodec do
   ## Examples
 
       packet = %MessageStruct{id: 1, data: "Hello"}
-      <<header::8, id::8, data::binary>> = ElvenGard.Network.NetworkCodec.encode(packet, socket)
+      <<header::8, id::8, data::binary>> = MyNetworkCodec.encode(packet, socket)
 
   """
-  @callback encode(packet | raw, socket :: Socket.t()) :: iodata()
-            when packet: struct(), raw: iodata()
+  @callback encode(packet :: struct() | iodata(), socket :: Socket.t()) :: iodata()
 end

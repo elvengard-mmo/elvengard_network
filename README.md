@@ -1,16 +1,16 @@
 # ElvenGard.Network
 
+<!-- MDOC !-->
+
 [![Build Status](https://github.com/ImNotAVirus/elvengard_network/actions/workflows/elixir.yml/badge.svg?branch=master)](https://github.com/ImNotAVirus/elvengard_network/actions/workflows/elixir.yml)
 [![Coverage Status](https://coveralls.io/repos/github/ImNotAVirus/elvengard_network/badge.svg?branch=master)](https://coveralls.io/github/ImNotAVirus/elvengard_network?branch=master)
-
-<!-- MDOC !-->
 
 ## What is ElvenGard
 
 Currently, all independent developers wishing to create a Multiplayer game have already asked themselves the question of how to make the server part easily while being "solid" (minimum crash, latency, ...).  
 Indeed, for the client part, there are many tools very well designed to realize it (Unity3D, Unreal Engine,...) but for the server part, each game being different there are currently very few solutions to do this work.
 
-This is the goal of this project: make a toolkit to group together different functionalities present in any MMORPG (network part, quests, movements, objects in game, instances, etc...) to prepare bases for the developer so that he doesn't have to dwell on this part which is often tedious.
+This is the goal of this ambitious project: make a toolkit to group together different functionalities present in any MMORPG (network part, quests, movements, objects in game, instances, etc...) to prepare bases for the developer so that he doesn't have to dwell on this part which is often tedious.
 
 ## What is ElvenGard.Network
 
@@ -53,5 +53,5 @@ The docs can be found at [https://hexdocs.pm/elvengard_network](https://hexdocs.
 
 ## Contributing
 
-Currently developing this project, I will often open pull-requests. Any review is welcome.  
-Also, feel free to fork the repository.
+I'm currently developing this project. Any review or PR is welcome.  
+Also, feel free to fork the repository and contribute.

@@ -10,8 +10,8 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
   a structured way to implement connection handling within ElvenGard.Network.
 
   For detailed information on implementing and using network protocols
-  with ElvenGard.Network, please refer to the [Endpoint Protocol guide]
-  (<ENDPOINT_PROTOCOL_DOCS_URL>).
+  with ElvenGard.Network, please refer to the 
+  [Endpoint Protocol guide](<ENDPOINT_PROTOCOL_DOCS_URL>).
   """
 
   alias ElvenGard.Network.Socket
@@ -33,7 +33,15 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
   @doc """
   Callback called just after receiving a message.
 
-  For the return values, see `c:GenServer.handle_info/2`
+  This callback is invoked whenever a message is received on the connection. It should
+  return one of the following:
+
+    - `:ignore`: the message received will not be decoded or processed by the protocol.
+      It will just be ignored
+    - `{:ignore, new_socket}`: same as `:ignore` but also modifies the socket
+    - `{:ok, new_socket}`: classic loop - decode the packet and process it
+    - `{:stop, reason, new_socket}`: stop the GenServer/Protocol and disconnect the client
+
   """
   @callback handle_message(message :: binary, socket :: Socket.t()) ::
               :ignore
@@ -46,7 +54,6 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
   Callback called after the socket connection is closed and before the GenServer
   shutdown.
 
-  For the return values, see `c:GenServer.handle_info/2`
   """
   @callback handle_halt(reason :: term, socket :: Socket.t()) ::
               {:ok, new_socket}
