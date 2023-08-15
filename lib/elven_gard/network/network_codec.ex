@@ -1,5 +1,5 @@
 defmodule ElvenGard.Network.NetworkCodec do
-  @moduledoc """
+  @moduledoc ~S"""
   Behavior for Defining Packet Encoding and Decoding
 
   Implementations of this behavior are responsible for parsing incoming 

@@ -1,5 +1,5 @@
 defmodule ElvenGard.Network.Endpoint do
-  @moduledoc """
+  @moduledoc ~S"""
   Wrapper on top of Ranch's [listeners](https://ninenines.eu/docs/en/ranch/2.1/guide/listeners/).
 
   This module provides a wrapper around the Ranch library to define network
