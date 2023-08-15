@@ -36,30 +36,17 @@ defmodule ElvenGard.Network.Endpoint do
       end
 
       @doc """
-      Returns the child specification to start the endpoint
-      under a supervision tree.
+      Returns a specification to start this module under a supervisor.
+
+      See `Supervisor`.
       """
       def child_spec(opts) do
+        # Not sure if the is a better way to do this (call a callback on Endpoint start)
         if opts[:ignore_init] != true do
           :ok = handle_start(@config)
         end
 
         :ranch.child_spec(
-          __listener_name__(),
-          @config[:transport],
-          @config[:transport_opts],
-          @config[:protocol],
-          @config[:protocol_opts]
-        )
-      end
-
-      @doc """
-      Starts the endpoint.
-      """
-      def start_link(_opts) do
-        :ok = handle_start(@config)
-
-        :ranch.start_listener(
           __listener_name__(),
           @config[:transport],
           @config[:transport_opts],

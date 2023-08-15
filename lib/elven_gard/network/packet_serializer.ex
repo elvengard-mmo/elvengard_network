@@ -275,6 +275,7 @@ defmodule ElvenGard.Network.PacketSerializer do
     end
   end
 
+  # credo:disable-for-next-line
   defp def_structure(packet) do
     %{
       id: id,
