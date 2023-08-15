@@ -76,7 +76,8 @@ defmodule ElvenGard.Network.MixProject do
         "guides/introduction/network_protocol.md",
         "guides/introduction/getting_started.md",
         "guides/introduction/endpoint.md",
-        "guides/introduction/protocol.md"
+        "guides/introduction/protocol.md",
+        "guides/introduction/types_and_subpackets.md"
       ]
     )
   end
