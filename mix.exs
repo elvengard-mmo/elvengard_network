@@ -73,6 +73,7 @@ defmodule ElvenGard.Network.MixProject do
       ["README.md": [title: "Overview"]],
       [
         "CHANGELOG.md",
+        "guides/introduction/network_protocol.md",
         "guides/introduction/getting_started.md",
         "guides/introduction/endpoint.md",
         "guides/introduction/protocol.md"
