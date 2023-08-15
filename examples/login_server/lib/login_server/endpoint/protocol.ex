@@ -24,7 +24,7 @@ defmodule LoginServer.Endpoint.Protocol do
   @impl true
   def handle_message(message, %Socket{} = socket) do
     Logger.debug("New message from #{socket.id}: #{inspect(message)}")
-    :ignore
+    {:ok, socket}
   end
 
   @impl true

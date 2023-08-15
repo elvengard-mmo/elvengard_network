@@ -1,6 +1,6 @@
 # Protocol
 
-In this section, we will lear how to use `ElvenGard.Network.Endpoint.Protocol`.
+In this section, we will learn how to use `ElvenGard.Network.Endpoint.Protocol`.
 
 An Protocol is wrapper around [Ranch protocols](https://ninenines.eu/docs/en/ranch/2.1/guide/protocols/).
 
@@ -76,6 +76,13 @@ This example defines 3 callbacks :
     either ignore it by returning `:ignore`, or choose to decode it and then 
     handle it by returning `:ok`.
   - `handle_halt/2`: called when a client disconnects
+
+**Note**: you may notice that we define the `packet: :line` option in `handle_init/1`. 
+We use this option because we want to use a line break as a separator for our packets. 
+This works because, according to our [network protocol](network_protocol.html), we use 
+a text protocol where each packet is separated by a `\n`. However, for a binary protocol, 
+you may need to use `packet: :raw` or other options.  
+For more information on available options, see `:inet.setopts/2`.
 
 ## Summary
 
