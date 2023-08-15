@@ -69,13 +69,21 @@ defmodule ElvenGard.Network.MixProject do
   end
 
   defp extras() do
-    ["README.md": [title: "Overview"]] ++ Path.wildcard("guides/**/*.md")
+    Enum.concat(
+      ["README.md": [title: "Overview"]],
+      [
+        "CHANGELOG.md",
+        "guides/introduction/getting_started.md",
+        "guides/introduction/example.md",
+        "guides/introduction/endpoint.md",
+        "guides/introduction/protocol.md"
+      ]
+    )
   end
 
   defp groups_for_extras() do
     [
-      Introduction: ~r/(README.md|guides\/introduction\/.?)/,
-      Topics: ~r/guides\/topics\/.?/
+      Introduction: ~r/(README.md|guides\/introduction\/.?)/
     ]
   end
 

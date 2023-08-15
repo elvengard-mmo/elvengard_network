@@ -4,3 +4,4 @@
 - Refacto ElvenGard.Network.PacketSerializer
 - Refacto ElvenGard.Network.Endpoint.Protocol
 - Document all `use` according to the bests practices
+- Add telemetry

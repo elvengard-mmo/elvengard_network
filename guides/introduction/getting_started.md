@@ -1,0 +1,50 @@
+# Getting Started
+
+This guide is an introduction to [ElvenGard.Network](https://github.com/ImNotAVirus/elvengard_network), the Network toolkit for a MMO Game Server toolkit written in Elixir.  
+The purpose of this toolkit is to provide a set of modules and processes to simplify the creation of a game server. It's therefore simple to use and flexible in order to allow you to concentrate on the implementation of your features.
+
+## Adding ElvenGard.Network to an application
+
+To start off with, we'll generate a new Elixir application by running this command:
+
+```
+mix new login_server --sup
+```
+
+The `--sup` option ensures that this application has [a supervision tree](http://elixir-lang.org/getting-started/mix-otp/supervisor-and-application.html), which we'll need for ElvenGard a little later on.
+
+To add ElvenGard.Network to this application, just add an entry to your mix.exs:
+
+```elixir
+defp deps do
+  [
+    {:elvengard_network, github: "imnotavirus/elvengard_network"}
+  ]
+end
+```
+
+To install this dependency, we will run this command:
+
+```
+mix deps.get
+```
+
+Then, we need to add a bit of configuration in `config/config.exs`
+
+```elixir
+config :login_server, LoginServer.Endpoint,
+  listener_name: :login_server,
+  transport: :ranch_tcp,
+  transport_opts: [ip: "127.0.0.1", port: 3000],
+  protocol: LoginServer.Endpoint.Protocol
+
+config :login_server, LoginServer.Endpoint.Protocol,
+  packet_handler: LoginServer.Endpoint.PacketHandlers,
+  network_codec: LoginServer.Endpoint.NetworkCodec
+```
+
+For more details on the configuration of each module, please refer to guides [Endpoint](endpoint.html) and [Endpoint Protocol](protocol.html).
+
+## Summary
+
+At the end of this section, you must have setup your app to use Elvengard.Network. Now that we have everything installed, let's create our first Endpoint and get up and running.
