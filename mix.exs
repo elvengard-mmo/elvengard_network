@@ -74,7 +74,6 @@ defmodule ElvenGard.Network.MixProject do
       [
         "CHANGELOG.md",
         "guides/introduction/getting_started.md",
-        "guides/introduction/example.md",
         "guides/introduction/endpoint.md",
         "guides/introduction/protocol.md"
       ]
