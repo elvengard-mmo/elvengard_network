@@ -3,6 +3,8 @@
 [![Build Status](https://github.com/ImNotAVirus/elvengard_network/actions/workflows/elixir.yml/badge.svg?branch=master)](https://github.com/ImNotAVirus/elvengard_network/actions/workflows/elixir.yml)
 [![Coverage Status](https://coveralls.io/repos/github/ImNotAVirus/elvengard_network/badge.svg?branch=master)](https://coveralls.io/github/ImNotAVirus/elvengard_network?branch=master)
 
+<!-- MDOC !-->
+
 ## What is ElvenGard
 
 Currently, all independent developers wishing to create a Multiplayer game have already asked themselves the question of how to make the server part easily while being "solid" (minimum crash, latency, ...).  
