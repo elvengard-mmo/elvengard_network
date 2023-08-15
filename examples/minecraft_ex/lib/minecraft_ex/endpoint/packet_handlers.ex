@@ -14,7 +14,7 @@ defmodule MinecraftEx.Endpoint.PacketHandlers do
     StatusRequest
   }
 
-  alias MinecraftEx.Endpoint.PacketViews
+  alias MinecraftEx.PacketViews
 
   def handle_packet(%Handshake{} = packet, socket) do
     {:cont, assign(socket, :state, packet.next_state)}

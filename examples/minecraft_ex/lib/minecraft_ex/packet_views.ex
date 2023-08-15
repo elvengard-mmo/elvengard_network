@@ -1,6 +1,6 @@
-defmodule MinecraftEx.Endpoint.PacketViews do
+defmodule MinecraftEx.PacketViews do
   @moduledoc """
-  Documentation for MinecraftEx.Endpoint.PacketViews
+  Documentation for MinecraftEx.PacketViews
   """
 
   use ElvenGard.Network.View
