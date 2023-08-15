@@ -1,6 +1,6 @@
 defmodule ElvenGard.Network.UnknownViewError do
   @moduledoc ~S"""
-  Exception raised when a view is not found
+  Exception raised when a View is not found
   """
 
   defexception [:parent, :type]

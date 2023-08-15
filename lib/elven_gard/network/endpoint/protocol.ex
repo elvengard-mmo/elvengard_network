@@ -1,18 +1,40 @@
 defmodule ElvenGard.Network.Endpoint.Protocol do
   @moduledoc """
-  TODO: Documentation
+  Wrapper on top of Ranch's [protocols](https://ninenines.eu/docs/en/ranch/2.1/guide/protocols/).
+
+  This module defines a protocol behavior to handle incoming connections in the
+  ElvenGard.Network library. It provides callbacks for initializing, handling
+  incoming messages, and handling connection termination.
+
+  This protocol behavior serves as a wrapper around Ranch protocols, providing
+  a structured way to implement connection handling within ElvenGard.Network.
+
+  For detailed information on implementing and using network protocols
+  with ElvenGard.Network, please refer to the [Endpoint Protocol guide]
+  (<ENDPOINT_PROTOCOL_DOCS_URL>).
   """
 
   alias ElvenGard.Network.Socket
 
-  @doc "Called just before entering the GenServer loop"
+  @doc """
+  Callback called just before entering the GenServer loop.
+
+  This callback is invoked when a new connection is established and before the
+  GenServer loop starts processing messages.
+
+  For the return values, see `c:GenServer.init/1`
+  """
   @callback handle_init(socket :: Socket.t()) ::
               {:ok, new_socket}
               | {:ok, new_socket, timeout | :hibernate | {:continue, continue_arg}}
               | {:stop, reason :: term, new_socket}
             when new_socket: Socket.t(), continue_arg: term
 
-  @doc "Called just after receiving a message"
+  @doc """
+  Callback called just after receiving a message.
+
+  For the return values, see `c:GenServer.handle_info/2`
+  """
   @callback handle_message(message :: binary, socket :: Socket.t()) ::
               :ignore
               | {:ignore, new_socket}
@@ -20,7 +42,12 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
               | {:stop, reason :: term, new_socket}
             when new_socket: Socket.t()
 
-  @doc "Called after the socket connection is closed and before the GenServer shutdown"
+  @doc """
+  Callback called after the socket connection is closed and before the GenServer
+  shutdown.
+
+  For the return values, see `c:GenServer.handle_info/2`
+  """
   @callback handle_halt(reason :: term, socket :: Socket.t()) ::
               {:ok, new_socket}
               | {:ok, stop_reason :: term, new_socket}
