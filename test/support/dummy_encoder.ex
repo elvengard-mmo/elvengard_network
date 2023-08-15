@@ -7,8 +7,8 @@ defmodule ElvenGard.Network.DummyEncoder do
   def next(_raw, _socket), do: raise("unimplemented")
 
   @impl true
-  def deserialize(_raw, _socket), do: raise("unimplemented")
+  def decode(_raw, _socket), do: raise("unimplemented")
 
   @impl true
-  def serialize(raw, _socket), do: raw
+  def encode(raw, _socket), do: raw
 end

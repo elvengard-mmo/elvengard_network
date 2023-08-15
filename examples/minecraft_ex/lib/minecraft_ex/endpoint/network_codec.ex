@@ -25,7 +25,7 @@ defmodule MinecraftEx.Endpoint.NetworkCodec do
   end
 
   @impl true
-  def deserialize(raw, socket) do
+  def decode(raw, socket) do
     {packet_id, rest} = VarInt.decode(raw)
     packet = ClientPackets.deserialize(packet_id, rest, socket)
 
@@ -37,12 +37,12 @@ defmodule MinecraftEx.Endpoint.NetworkCodec do
   end
 
   @impl true
-  def serialize(struct, socket) when is_struct(struct) do
+  def encode(struct, socket) when is_struct(struct) do
     {packet_id, params} = struct.__struct__.serialize(struct)
-    serialize([VarInt.encode(packet_id), params], socket)
+    encode([VarInt.encode(packet_id), params], socket)
   end
 
-  def serialize(raw, _socket) when is_list(raw) do
+  def encode(raw, _socket) when is_list(raw) do
     bin = :binary.list_to_bin(raw)
     packet_length = bin |> byte_size() |> VarInt.encode([])
     [<<packet_length::binary>> | bin]
