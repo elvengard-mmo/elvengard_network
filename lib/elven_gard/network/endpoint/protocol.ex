@@ -1,6 +1,6 @@
 defmodule ElvenGard.Network.Endpoint.Protocol do
   @moduledoc ~S"""
-  Wrapper on top of Ranch's [protocols](https://ninenines.eu/docs/en/ranch/2.1/guide/protocols/).
+  Wrapper on top of [Ranch protocols](https://ninenines.eu/docs/en/ranch/2.1/guide/protocols/).
 
   This module defines a protocol behavior to handle incoming connections in the
   ElvenGard.Network library. It provides callbacks for initializing, handling

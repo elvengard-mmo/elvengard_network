@@ -26,9 +26,9 @@ Here's what each configuration option does:
     In this case, it specifies the IP address and port on which the server will listen for incoming 
     connections.
   - `protocol: LoginServer.Endpoint.Protocol`: sets the protocol module that will handle client 
-    connections and communication. Here, it references the `LoginServer.Endpoint.Protocol` module.
+    connections and communication.
 
-## Creating an endpoint
+## Creating an Endpoint
 
 Here's a basic example you can use for all your projects:
 

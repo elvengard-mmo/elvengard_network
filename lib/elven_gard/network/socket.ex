@@ -91,7 +91,14 @@ defmodule ElvenGard.Network.Socket do
   ## Examples
 
       iex> assign(socket, :name, "ElvenGard")
+      iex> socket.assigns.name == "ElvenGard"
+      true
+
       iex> assign(socket, name: "ElvenGard", logo: "🌸")
+      iex> socket.assigns.name == "ElvenGard"
+      true
+      iex> socket.assigns.logo == "🌸"
+      true
   """
   @spec assign(Socket.t(), atom, any) :: Socket.t()
   def assign(%Socket{} = socket, key, value) do
