@@ -1,7 +1,6 @@
 defmodule ElvenGard.Network.UUID do
-  @moduledoc ~S"""
-  UUID helpers inspired by `zyro/elixir-uuid`
-  """
+  @moduledoc false
+  # UUID helpers inspired by `zyro/elixir-uuid`
 
   ## Public API
 

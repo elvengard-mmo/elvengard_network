@@ -63,23 +63,37 @@ defmodule ElvenGard.Network.MixProject do
       # logo: "path/to/logo.png",
       extra_section: "GUIDES",
       extras: extras(),
-      groups_for_extras: groups_for_extras()
-      # groups_for_modules: [
-      #   "Textual protocol specs": ~r/ElvenGard\.Protocol\.Textual\.?/,
-      #   "Binary protocol specs": ~r/ElvenGard\.Protocol\.Binary\.?/,
-      #   PacketHandler: ~r/ElvenGard\.PacketHandler\./
-      # ]
+      groups_for_extras: groups_for_extras(),
+      groups_for_modules: groups_for_modules()
     ]
   end
 
-  defp extras do
+  defp extras() do
     ["README.md": [title: "Overview"]] ++ Path.wildcard("guides/**/*.md")
   end
 
-  defp groups_for_extras do
+  defp groups_for_extras() do
     [
       Introduction: ~r/(README.md|guides\/introduction\/.?)/,
       Topics: ~r/guides\/topics\/.?/
+    ]
+  end
+
+  defp groups_for_modules() do
+    # Ungrouped Modules:
+    #
+    # ElvenGard.Network
+    # ElvenGard.Network.Socket
+    # ElvenGard.Network.Type
+    # ElvenGard.Network.View 
+
+    [
+      Endpoint: [
+        ElvenGard.Network.Endpoint,
+        ElvenGard.Network.Endpoint.Protocol,
+        ElvenGard.Network.NetworkCodec,
+        ElvenGard.Network.PacketSerializer
+      ]
     ]
   end
 end
