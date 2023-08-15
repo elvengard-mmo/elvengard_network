@@ -1,37 +1,35 @@
 defmodule ElvenGard.Network.PacketSerializer do
   @moduledoc ~S"""
-  Packet Serializer DSL for defining received packet structures.
+  Packet Serializer DSL for defining packet structures.
 
   This module provides a DSL (Domain-Specific Language) for defining packet serializers
-  for received packets in a network protocol. It enables users to create structured
-  packets with specified fields and deserialize binary data into packet structs.
+  for both received and sent packets in a network protocol. It enables users to create
+  structured packets with specified fields and decode binary data into packet structs.
 
   To learn more about the available macros and how to define packet serializers, refer
-  to the [Packet Serializer DSL documentation](<PACKETSERIALIZER_URL>).
+  to the [Packet Serializer DSL guide](<PACKETSERIALIZER_URL>).
 
-  ## Packets Macros
+  ## Packet Macros
 
-  The `defpacket` macros (`defpacket/1`, `defpacket/2` and `defpacket/3`) allow users to define
-  packet structures.
-  They always require a packet ID. The alias (which is the name of the generated
-  packet structure), the guard (with the `when` keyword), and do-block (for
-  defining fields) are optional.
+  The `defpacket` macros (`defpacket/1`, `defpacket/2`, and `defpacket/3`) allow users
+  to define packet structures. They require a packet ID and an alias (which is the name
+  of the generated packet structure). The guard (with the `when` keyword) and do-block
+  (for defining fields) are optional.
 
-  Users can specify guards in packets macros to conditionally match packets based
-  on a condition (often using socket assigns).
+  Users can specify guards in packet macros to conditionally match packets based on a
+  condition (often using socket assigns).
 
-  For more details on using the packets macros, please refer to the guide at
-  <TODO: PACKETSERIALIZER_URL> or to examples.
+  For more details on using the packet macros, please refer to the guide at
+  <TODO: PACKETSERIALIZER_URL>.
 
-  ## Packet Structure and Decoding
+  ## Packet Structure, Serialization, and Deserialization
 
-  The `packets` macros generate both a packet structure and a `deserialize/3` function
-  for each defined packet. The packet structure represents the deserialized packet data,
-  and the `deserialize/3` function takes binary data and converts it into the structure
-  based on the defined schema.
+  The `defpacket` macros can generate a packet structure, a `deserialize/3` function for
+  deserializing binary data into the packet structure, and a `serialize/1` function for
+  generating the serialized binary representation of the packet.
 
-  The `deserialize/3` function generated for each packet should be used by
-  `c:ElvenGard.Network.NetworkCodec.decode/2`.
+  The `deserialize/3` function should be used for decoding received packets, and the
+  `serialize/1` function should be used for generating packets to be sent over the network.
 
   ## Field Macros
 
@@ -40,38 +38,12 @@ defmodule ElvenGard.Network.PacketSerializer do
   - `field/2`: Define a field with a name and type.
   - `field/3`: Define a field with a name, type, and decoding options.
 
-  ## Examples
+  ## Decorators
 
-      defmodule MyApp.Endpoint.PacketSerializers do
-        use ElvenGard.Network.PacketSerializer
+  The following decorators can be used to specify serialization and deserialization properties:
 
-        alias MyApp.Types.{Integer, String}
-
-        # Simple string packet:
-        #   - This generate a SimplePacket structure
-        #   - The `deserialize/3` function will match all packet with `simple_packet` as packet id
-        #   - The structure will have 2 fields: `id` and `name` (a string and an integer)
-        defpacket "simple_packet" do
-          field :id, Integer
-          field :name, String
-        end
-
-        # Complex string packet:
-        #   - This generate a AliasedModule structure
-        #   - The `deserialize/3` function will match packet with `complex_packet` as packet id ONLY if the state is `:init`
-        #   - The structure will have 2 fields: `id` and `name` (a string and an integer)
-        #   - We're also passing `[fill: true]` as option to our `MyApp.Types.String.decode/2`
-        defpacket "complex_packet" when socket.assigns.state == :init, as: AliasedModule do
-          field :id, Integer
-          field :name, String, fill: true
-        end
-
-        # Simple binary packet
-        #   - This generate a KeepAlivePacket structure
-        #   - The `deserialize/3` function will match packet with `0x0000` as packet id
-        #   - The structure will have no field
-        #   - Here the `:as` option is required because the packet ID is an integer
-        defpacket 0x0000, as: KeepAlivePacket
+  - `@serializable true`: Marks the packet as serializable for sending over the network.
+  - `@deserializable true`: Marks the packet as deserializable for receiving from the network.
 
   """
 
