@@ -65,7 +65,7 @@ defmodule ElvenGard.Network.Socket do
 
   ## Examples
 
-      iex> ElvenGard.Network.Socket.send(socket, {:login_response, %{status: 200, message: "Welcome!"}})
+      iex> ElvenGard.Network.Socket.send(socket, %LoginResponse{status: 200, message: "Welcome!"})
       :ok
 
   """
