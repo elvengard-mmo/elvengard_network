@@ -27,7 +27,7 @@ For this part, we're going to create a fairly simple protocol that will just dis
 our packets.
 
 ```elixir
-# file: lib/endpoint/protocol.ex
+# file: lib/login_server/endpoint/protocol.ex
 defmodule LoginServer.Endpoint.Protocol do
   @moduledoc """
   Documentation for LoginServer.Endpoint.Protocol

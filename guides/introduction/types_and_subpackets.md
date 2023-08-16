@@ -17,7 +17,7 @@ So, according to our network protocol, we must define theses types:
 Let's start with the first one:
 
 ```elixir
-# file: lib/types/string_type.ex
+# file: lib/login_server/types/string_type.ex
 defmodule LoginServer.Types.StringType do
   @moduledoc """
   Documentation for LoginServer.Types.StringType
@@ -56,7 +56,7 @@ As you can see, we just need to use `ElvenGard.Network.Type` and define 2 callba
 **NOTE**: Typespecs and guards are not mandatory, but are a good practice.
 
 ```elixir
-# file: lib/types/date_time_type.ex
+# file: lib/login_server/types/date_time_type.ex
 defmodule LoginServer.Types.DateTimeType do
   @moduledoc """
   Documentation for LoginServer.Types.DateTimeType
@@ -95,7 +95,7 @@ Let's look at a simple example with the `WorldInfo`:
 | WorldInfo      | Encoded            | LoginSucceed |
 
 ```elixir
-# file: lib/sub_packets/world_info.ex
+# file: lib/login_server/sub_packets/world_info.ex
 defmodule LoginServer.SubPackets.WorldInfo do
   @moduledoc """
   Documentation for LoginServer.SubPackets.WorldInfo
@@ -141,7 +141,7 @@ As the `IntegerType` type has not been created yet, let's create it defining onl
 `encode/2` function.
 
 ```elixir
-# file: lib/types/integer_type.ex
+# file: lib/login_server/types/integer_type.ex
 defmodule LoginServer.Types.IntegerType do
   @moduledoc """
   Documentation for LoginServer.Types.IntegerType
