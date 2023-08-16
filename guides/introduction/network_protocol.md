@@ -35,7 +35,7 @@ A client can send a `LoginRequest`:
 | LOGIN     | username   | String     |       |
 |           | password   | String     |       |
 
-Depending on whether the identifiers are correct or not, the server can respond in 2 ways,
+Depending on whether the credentials are correct or not, the server can respond in 2 ways,
 `LoginFailed`:
 
 | Packet ID | Field Name | Field Type | Notes                                 |
@@ -44,9 +44,9 @@ Depending on whether the identifiers are correct or not, the server can respond 
 
 or `LoginSucceed`:
 
-| Packet ID | Field Name | Field Type | Notes                     |
-|-----------|------------|------------|---------------------------|
-| SUCCESS   | world_info | WorldInfo  | Host and port of our game |
+| Packet ID | Field Name | Field Type | Notes                            |
+|-----------|------------|------------|----------------------------------|
+| SUCCESS   | world_info | WorldInfo  | Host and port of our game server |
 
 ## Network encoding/decoding
 
@@ -54,17 +54,17 @@ Now that we know what our packets will look like, we need to define how we're go
 exchange them on the network.
 
 As Elvengard.Network is currently based on 
-[Ranch](https://ninenines.eu/docs/en/ranch/2.1/guide/), it only supports the **TCP protocol**. 
-Furthermore, using a text protocol, we'll just separate our different packages by 
-**line breaks**.
+[Ranch](https://ninenines.eu/docs/en/ranch/2.1/guide/), it only supports the **TCP protocol**.  
+And, as we use a text protocol, we'll just separate our different packets by 
+**line breaks** (`\n`).
 
-Here's an example of what each packet might look like:
+Here's an example of what each packet might look like once encoded:
 
-  - PingRequest: `PING`
-  - PongResponse: `PONG 2023-08-15 20:45:07.068297Z`
-  - LoginRequest: `LOGIN admin password`
-  - LoginFailed: `FAIL Bad credentials :/`
-  - LoginSucceed: `SUCCESS 127.0.0.1:5000`
+  - PingRequest: `PING\n`
+  - PongResponse: `PONG 2023-08-15 20:45:07.068297Z\n`
+  - LoginRequest: `LOGIN admin password\n`
+  - LoginFailed: `FAIL Bad credentials\n`
+  - LoginSucceed: `SUCCESS 127.0.0.1:5000\n`
 
 ## Summary
 
