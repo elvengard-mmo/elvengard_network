@@ -77,7 +77,11 @@ defmodule ElvenGard.Network.MixProject do
         "guides/introduction/getting_started.md",
         "guides/introduction/endpoint.md",
         "guides/introduction/protocol.md",
-        "guides/introduction/types_and_subpackets.md"
+        "guides/introduction/types_and_subpackets.md",
+        "guides/introduction/network_codec.md",
+        "guides/introduction/packet_definitions.md",
+        "guides/introduction/packet_views.md",
+        "guides/introduction/packet_handlers.md"
       ]
     )
   end
@@ -94,7 +98,7 @@ defmodule ElvenGard.Network.MixProject do
     # ElvenGard.Network
     # ElvenGard.Network.Socket
     # ElvenGard.Network.Type
-    # ElvenGard.Network.View 
+    # ElvenGard.Network.View
 
     [
       Endpoint: [
