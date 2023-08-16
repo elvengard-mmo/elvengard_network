@@ -75,9 +75,9 @@ This example defines 3 callbacks :
   - `handle_message/2`: called when we receive a packet from a client, we can 
     either ignore it by returning `:ignore`, or choose to decode it and then 
     handle it by returning `:ok`.
-  - `handle_halt/2`: called when a client disconnects
+  - `handle_halt/2`: called when a client disconnects.
 
-**Note**: you may notice that we define the `packet: :line` option in `handle_init/1`. 
+**NOTE**: you may notice that we define the `packet: :line` option in `handle_init/1`. 
 We use this option because we want to use a line break as a separator for our packets. 
 This works because, according to our [network protocol](network_protocol.html), we use 
 a text protocol where each packet is separated by a `\n`. However, for a binary protocol, 

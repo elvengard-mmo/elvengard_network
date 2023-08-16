@@ -25,7 +25,7 @@ defmodule LoginServer.SubPackets.WorldInfo do
 
     [
       StringType.encode(data.host),
-      separator,
+      StringType.encode(separator),
       IntegerType.encode(data.port)
     ]
   end

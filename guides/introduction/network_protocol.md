@@ -55,8 +55,8 @@ exchange them on the network.
 
 As Elvengard.Network is currently based on 
 [Ranch](https://ninenines.eu/docs/en/ranch/2.1/guide/), it only supports the **TCP protocol**.  
-And, as we use a text protocol, we'll just separate our different packets by 
-**line breaks** (`\n`).
+And, as we use a text protocol, we'll just separate our fields with a **space** and our 
+different packets with a **line breaks** (`\n`).
 
 Here's an example of what each packet might look like once encoded:
 
