@@ -2,8 +2,8 @@
 
 <!-- MDOC !-->
 
-[![Build Status](https://github.com/ImNotAVirus/elvengard_network/actions/workflows/elixir.yml/badge.svg?branch=master)](https://github.com/ImNotAVirus/elvengard_network/actions/workflows/elixir.yml)
-[![Coverage Status](https://coveralls.io/repos/github/ImNotAVirus/elvengard_network/badge.svg?branch=master)](https://coveralls.io/github/ImNotAVirus/elvengard_network?branch=master)
+[![Build Status](https://github.com/ImNotAVirus/elvengard_network/actions/workflows/elixir.yml/badge.svg?branch=main)](https://github.com/ImNotAVirus/elvengard_network/actions/workflows/elixir.yml)
+[![Coverage Status](https://coveralls.io/repos/github/ImNotAVirus/elvengard_network/badge.svg?branch=main)](https://coveralls.io/github/ImNotAVirus/elvengard_network?branch=main)
 
 ## What is ElvenGard
 
@@ -48,7 +48,7 @@ The docs can be found at [https://hexdocs.pm/elvengard_network](https://hexdocs.
 
 ## Projects using ElvenGard
 
-- [MinecraftEx](https://github.com/ImNotAVirus/elvengard_network/tree/master/examples/minecraft_ex): Located in the `examples` folder of the repository, this is the beginning of a [Minecraft](https://www.minecraft.net) server emulator
+- [MinecraftEx](https://github.com/ImNotAVirus/elvengard_network/tree/main/examples/minecraft_ex): Located in the `examples` folder of the repository, this is the beginning of a [Minecraft](https://www.minecraft.net) server emulator
 - [AvantHeim](https://github.com/ImNotAVirus/AvantHeim): Created by the same developer as ElvenGard, this is a [NosTale](https://gameforge.com/en-US/play/nostale) server emulator
 
 ## Contributing

@@ -167,4 +167,4 @@ end
 ## Summary
 
 In this guide, we've seen how to create customizable types and sub-packets. Now we'll look at 
-how to encode them over the network.
+how to use them.

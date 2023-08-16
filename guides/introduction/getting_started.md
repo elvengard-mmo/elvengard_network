@@ -4,7 +4,7 @@ This guide is an introduction to [ElvenGard.Network](https://github.com/ImNotAVi
 The purpose of this toolkit is to provide a set of modules and processes to simplify the creation of a game server. It's therefore simple to use and flexible in order to allow you to concentrate on the implementation of your features.
 
 In this guide, we're going to learn some basics about ElvenGard.Network. If you want
-to see the code from this guide, you can view it at [elvengard_network/examples/login_server on GitHub](https://github.com/ImNotAVirus/elvengard_network/tree/master/examples/login_server).
+to see the code from this guide, you can view it at [elvengard_network/examples/login_server on GitHub](https://github.com/ImNotAVirus/elvengard_network/tree/main/examples/login_server).
 
 ## Adding ElvenGard.Network to an application
 
