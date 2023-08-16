@@ -7,3 +7,4 @@
 - Add telemetry
 - PacketHandlers behaviour
 - use @derive for packet serialization/deserialization instead of `@serializable` and `@deserializable` ??
+- mix task `elven_network.new` to create a project structure
