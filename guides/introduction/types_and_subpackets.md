@@ -85,7 +85,7 @@ is trying to use it.
 
 ## Sub Packets
 
-A Sub Packet is simply a type that uses other types. Unlike a packet, it has no ID, as it 
+A sub-packet is simply a type that uses other types. Unlike a packet, it has no ID, as it 
 will be used by other packets.
 
 Let's look at a simple example with the `WorldInfo`:
@@ -134,7 +134,7 @@ As you can see, this type is represented in Elixir by a structure with 2 mandato
 `host` and `port`. They are each represented by the `StringType` and `IntegerType` types, 
 with which they will be encoded.
 
-**NOTE**: this Sub Packet has another special feature: the separator used by the fields can be 
+**NOTE**: this sub-packet has another special feature: the separator used by the fields can be 
 configured through options. We'll see how to use it in the next sections.
 
 As the `IntegerType` type has not been created yet, let's create it defining only the 

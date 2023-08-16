@@ -6,3 +6,4 @@
 - Document all `use` according to the bests practices
 - Add telemetry
 - PacketHandlers behaviour
+- use @derive for packet serialization/deserialization instead of `@serializable` and `@deserializable` ??

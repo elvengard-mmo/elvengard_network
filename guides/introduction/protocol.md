@@ -21,7 +21,7 @@ Here's the explanation for these options:
   - `network_codec: LoginServer.NetworkCodec`: Specifies the module responsible for 
     encoding and decoding packets for communication between clients and the server.
 
-## Creating a Protocol
+## Create a Protocol
 
 For this part, we're going to create a fairly simple protocol that will just display 
 our packets.
