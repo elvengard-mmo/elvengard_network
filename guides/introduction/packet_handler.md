@@ -81,7 +81,8 @@ Note also that after a `PingRequest`, we'll continue to handle packets, whereas 
 
 ## Summary
 
-In this section, we've learned how to handle client packages, create logic around them and use 
+In this section, we've learned how to handle client packets, create logic around them and use 
 the previously created [Views](packet_views.html).
 
-Our application is now ready for use. Let's go to the demo!
+Our application is now ready for use. You can view the whole source code at
+[examples/login_server](https://github.com/ImNotAVirus/elvengard_network/tree/main/examples/login_server).

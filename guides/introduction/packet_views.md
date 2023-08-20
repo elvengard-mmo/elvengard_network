@@ -48,5 +48,5 @@ enabling us to generate our packet. Most of the time, the callback returns a str
 
 ## Summary
 
-You now know how to create Views: functions for creating server packets. In the next 
+You now know how to create Views: functions for creating server packets. In the final 
 chapter, we'll use this module to create and send packets to our client.

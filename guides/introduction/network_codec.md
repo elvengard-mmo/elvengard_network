@@ -1,6 +1,6 @@
 # Network Codec
 
-In this section, we will learn how to use `ElvenGard.Network.NetWorkCodec`.
+In this section, we will learn how to use `ElvenGard.Network.NetworkCodec`.
 
 A NetworkCodec is a behaviour that define how a packet should transit over the network. 
 It must define 3 callbacks : 
