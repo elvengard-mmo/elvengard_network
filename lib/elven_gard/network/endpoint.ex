@@ -7,7 +7,7 @@ defmodule ElvenGard.Network.Endpoint do
   handling network traffic efficiently.
 
   For in-depth information on how to use and configure network endpoints, please
-  refer to the [Endpoint documentation](<ENDPOINT_DOCS_URL>).
+  refer to the [Endpoint documentation](https://hexdocs.pm/elvengard_network/endpoint.html).
   """
 
   @doc "Called just before starting the ranch listener"

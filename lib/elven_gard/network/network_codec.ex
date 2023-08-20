@@ -7,7 +7,8 @@ defmodule ElvenGard.Network.NetworkCodec do
   binary data for transmission over the network.
 
   For more information on how to implement this behavior and use packet encoding
-  and decoding, please refer to the [NetworkCodec guide](<NETWORKCODEC_URL>).
+  and decoding, please refer to the 
+  [NetworkCodec guide](https://hexdocs.pm/elvengard_network/network_codec.html).
   """
 
   alias ElvenGard.Network.Socket

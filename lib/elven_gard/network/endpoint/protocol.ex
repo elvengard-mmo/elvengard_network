@@ -11,7 +11,7 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
 
   For detailed information on implementing and using network protocols
   with ElvenGard.Network, please refer to the 
-  [Endpoint Protocol guide](<ENDPOINT_PROTOCOL_DOCS_URL>).
+  [Endpoint Protocol guide](https://hexdocs.pm/elvengard_network/protocol.html).
   """
 
   alias ElvenGard.Network.Socket

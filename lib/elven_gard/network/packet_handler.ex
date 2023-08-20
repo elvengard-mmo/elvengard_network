@@ -5,8 +5,8 @@ defmodule ElvenGard.Network.PacketHandler do
   This module defines the callback `handle_packet/2`, which must be implemented by
   modules using this behavior to process incoming packets.
 
-  For detailed usage information, please refer to
-  [the packet handler guide](<PACKETHANDLER_URL>).
+  For detailed usage information, please refer to the
+  [packet handler guide](https://hexdocs.pm/elvengard_network/packet_handler.html).
   """
 
   alias ElvenGard.Network.Socket

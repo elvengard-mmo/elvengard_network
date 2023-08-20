@@ -7,7 +7,7 @@ defmodule ElvenGard.Network.PacketSerializer do
   structured packets with specified fields and decode binary data into packet structs.
 
   To learn more about the available macros and how to define packet serializers, refer
-  to the [Packet Serializer DSL guide](<PACKETSERIALIZER_URL>).
+  to the [Packet Serializer DSL guide](https://hexdocs.pm/elvengard_network/packet_definitions.html).
 
   ## Packet Macros
 
