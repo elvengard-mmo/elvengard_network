@@ -2,6 +2,8 @@
 
 <!-- MDOC !-->
 
+[![Hex.pm version](https://img.shields.io/hexpm/v/elvengard_network.svg?style=flat)](https://hex.pm/packages/elvengard_network)
+[![Hex.pm license](https://img.shields.io/hexpm/l/elvengard_network.svg?style=flat)](https://hex.pm/packages/elvengard_network)
 [![Build Status](https://github.com/ImNotAVirus/elvengard_network/actions/workflows/elixir.yml/badge.svg?branch=main)](https://github.com/ImNotAVirus/elvengard_network/actions/workflows/elixir.yml)
 [![Coverage Status](https://coveralls.io/repos/github/ImNotAVirus/elvengard_network/badge.svg?branch=main)](https://coveralls.io/github/ImNotAVirus/elvengard_network?branch=main)
 
