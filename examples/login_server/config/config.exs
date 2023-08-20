@@ -7,5 +7,5 @@ config :login_server, LoginServer.Endpoint,
   protocol: LoginServer.Endpoint.Protocol
 
 config :login_server, LoginServer.Endpoint.Protocol,
-  packet_handler: LoginServer.Endpoint.PacketHandlers,
+  packet_handler: LoginServer.Endpoint.PacketHandler,
   network_codec: LoginServer.Endpoint.NetworkCodec

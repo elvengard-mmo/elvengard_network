@@ -81,7 +81,7 @@ defmodule ElvenGard.Network.MixProject do
         "guides/introduction/packet_definitions.md",
         "guides/introduction/network_codec.md",
         "guides/introduction/packet_views.md",
-        "guides/introduction/packet_handlers.md"
+        "guides/introduction/packet_handler.md"
       ]
     )
   end
@@ -105,6 +105,7 @@ defmodule ElvenGard.Network.MixProject do
         ElvenGard.Network.Endpoint,
         ElvenGard.Network.Endpoint.Protocol,
         ElvenGard.Network.NetworkCodec,
+        ElvenGard.Network.PacketHandler,
         ElvenGard.Network.PacketSerializer
       ]
     ]

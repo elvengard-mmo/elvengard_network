@@ -10,7 +10,7 @@ Configuration is performed via the `config/config.exs` file as you did previousl
 
 ```elixir
 config :login_server, LoginServer.Endpoint.Protocol,
-  packet_handler: LoginServer.Endpoint.PacketHandlers,
+  packet_handler: LoginServer.Endpoint.PacketHandler,
   network_codec: LoginServer.Endpoint.NetworkCodec
 ```
 

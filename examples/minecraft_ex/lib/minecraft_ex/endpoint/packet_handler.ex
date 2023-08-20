@@ -1,6 +1,6 @@
-defmodule MinecraftEx.Endpoint.PacketHandlers do
+defmodule MinecraftEx.Endpoint.PacketHandler do
   @moduledoc """
-  Documentation for MinecraftEx.Endpoint.PacketHandlers
+  Documentation for MinecraftEx.Endpoint.PacketHandler
   """
 
   import ElvenGard.Network.Socket, only: [assign: 3]

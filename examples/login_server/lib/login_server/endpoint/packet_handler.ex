@@ -1,7 +1,9 @@
-defmodule LoginServer.Endpoint.PacketHandlers do
+defmodule LoginServer.Endpoint.PacketHandler do
   @moduledoc """
   LoginServer.Endpoint.PacketHandler
   """
+
+  @behaviour ElvenGard.Network.PacketHandler
 
   alias ElvenGard.Network.Socket
 
@@ -10,6 +12,7 @@ defmodule LoginServer.Endpoint.PacketHandlers do
 
   ## Handlers
 
+  @impl true
   def handle_packet(%PingRequest{}, socket) do
     render = PacketViews.render(:pong_response, %{time: DateTime.utc_now()})
     :ok = Socket.send(socket, render)

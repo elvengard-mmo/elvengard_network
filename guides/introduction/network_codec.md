@@ -13,7 +13,8 @@ It must define 3 callbacks :
   - `encode/2`: this callback will be called when you call `ElvenGard.Network.Socket.send/2` 
     with your module as encoder. It returns an 
     [iodata](https://hexdocs.pm/elixir/IO.html#module-io-data) that will, then, be send to 
-    your client.
+    your client. You should use the `serialize/1` helper created by 
+    [defpacket](packet_definitions.html#decorators)
 
 ## Create a Network Codec
 

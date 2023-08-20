@@ -13,5 +13,5 @@ config :minecraft_ex, MinecraftEx.Endpoint,
   protocol: MinecraftEx.Endpoint.Protocol
 
 config :minecraft_ex, MinecraftEx.Endpoint.Protocol,
-  packet_handler: MinecraftEx.Endpoint.PacketHandlers,
+  packet_handler: MinecraftEx.Endpoint.PacketHandler,
   network_codec: MinecraftEx.Endpoint.NetworkCodec
