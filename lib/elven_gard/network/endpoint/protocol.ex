@@ -1,18 +1,48 @@
 defmodule ElvenGard.Network.Endpoint.Protocol do
-  @moduledoc """
-  TODO: Documentation
+  @moduledoc ~S"""
+  Wrapper on top of [Ranch protocols](https://ninenines.eu/docs/en/ranch/2.1/guide/protocols/).
+
+  This module defines a protocol behavior to handle incoming connections in the
+  ElvenGard.Network library. It provides callbacks for initializing, handling
+  incoming messages, and handling connection termination.
+
+  This protocol behavior serves as a wrapper around Ranch protocols, providing
+  a structured way to implement connection handling within ElvenGard.Network.
+
+  For detailed information on implementing and using network protocols
+  with ElvenGard.Network, please refer to the 
+  [Endpoint Protocol guide](https://hexdocs.pm/elvengard_network/protocol.html).
   """
 
   alias ElvenGard.Network.Socket
 
-  @doc "Called just before entering the GenServer loop"
+  @doc """
+  Callback called just before entering the GenServer loop.
+
+  This callback is invoked when a new connection is established and before the
+  GenServer loop starts processing messages.
+
+  For the return values, see `c:GenServer.init/1`
+  """
   @callback handle_init(socket :: Socket.t()) ::
               {:ok, new_socket}
               | {:ok, new_socket, timeout | :hibernate | {:continue, continue_arg}}
               | {:stop, reason :: term, new_socket}
             when new_socket: Socket.t(), continue_arg: term
 
-  @doc "Called just after receiving a message"
+  @doc """
+  Callback called just after receiving a message.
+
+  This callback is invoked whenever a message is received on the connection. It should
+  return one of the following:
+
+    - `:ignore`: the message received will not be decoded or processed by the protocol.
+      It will just be ignored
+    - `{:ignore, new_socket}`: same as `:ignore` but also modifies the socket
+    - `{:ok, new_socket}`: classic loop - decode the packet and process it
+    - `{:stop, reason, new_socket}`: stop the GenServer/Protocol and disconnect the client
+
+  """
   @callback handle_message(message :: binary, socket :: Socket.t()) ::
               :ignore
               | {:ignore, new_socket}
@@ -20,22 +50,19 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
               | {:stop, reason :: term, new_socket}
             when new_socket: Socket.t()
 
-  @doc "Called after the socket connection is closed and before the GenServer shutdown"
+  @doc """
+  Callback called after the socket connection is closed and before the GenServer
+  shutdown.
+
+  """
   @callback handle_halt(reason :: term, socket :: Socket.t()) ::
               {:ok, new_socket}
               | {:ok, stop_reason :: term, new_socket}
             when new_socket: term
 
-  @doc "Called when an error occurs and specifies what to do"
-  @callback handle_error(reason :: term, socket :: Socket.t()) ::
-              {:ignore, new_socket}
-              | {:stop, reason :: term, new_socket}
-            when new_socket: term
-
   @optional_callbacks handle_init: 1,
                       handle_message: 2,
-                      handle_halt: 2,
-                      handle_error: 2
+                      handle_halt: 2
 
   ## Public API
 
@@ -115,12 +142,14 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
 
       @app Mix.Project.get().project[:app]
       defp env_config(), do: Application.fetch_env!(@app, __MODULE__)
-      defp codec(), do: env_config()[:packet_codec]
+      defp codec(), do: env_config()[:network_codec]
       defp handlers(), do: env_config()[:packet_handler]
 
+      defp packet_loop(<<>>, socket), do: {:noreply, socket}
+
       defp packet_loop(data, socket) do
-        with {:next, {raw, rest}} when not is_nil(raw) <- {:next, codec().next(data)},
-             struct <- codec().deserialize(raw, socket),
+        with {:next, {raw, rest}} when not is_nil(raw) <- {:next, codec().next(data, socket)},
+             struct <- codec().decode(raw, socket),
              {:handle, {:cont, new_socket}} <- {:handle, handlers().handle_packet(struct, socket)} do
           packet_loop(rest, new_socket)
         else
@@ -170,13 +199,9 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
       @impl true
       def handle_halt(_reason, socket), do: {:ok, socket}
 
-      @impl true
-      def handle_error(reason, socket), do: {:stop, reason, socket}
-
       defoverridable handle_init: 1,
                      handle_message: 2,
-                     handle_halt: 2,
-                     handle_error: 2
+                     handle_halt: 2
     end
   end
 end

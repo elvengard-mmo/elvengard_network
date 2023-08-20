@@ -1,7 +1,9 @@
-# TODOLIST
+# Todo list
 
-- [ ] Fix Endpoint start_link and child_spec
-- [ ] Serializers for `ElvenGard.Network.Socket`
-- [ ] Rewrite the doc for `ElvenGard.Network.Socket`
-- [ ] Use `c:handle_error/2` in `ElvenGard.Network.Endpoint.Protocol`
-- [ ] Check if the lib is working in clustered mode
+- Abstract the message handler and provide a generic way to handle all transport (ranch, gen_tcp, gen_udp, ...)
+- Refacto ElvenGard.Network.PacketSerializer
+- Refacto ElvenGard.Network.Endpoint.Protocol
+- Document all `use` according to the bests practices
+- Add telemetry
+- use @derive for packet serialization/deserialization instead of `@serializable` and `@deserializable` ??
+- mix task `elven_network.new` to create a project structure

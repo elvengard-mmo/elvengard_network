@@ -1,7 +1,6 @@
 defmodule ElvenGard.Network.UUID do
-  @moduledoc ~S"""
-  UUID helpers inspired by `zyro/elixir-uuid`
-  """
+  @moduledoc false
+  # UUID helpers inspired by `zyro/elixir-uuid`
 
   ## Public API
 
@@ -43,6 +42,8 @@ defmodule ElvenGard.Network.UUID do
       e(e1), e(e2), e(e3), e(e4), e(e5), e(e6), e(e7), e(e8), e(e9), e(e10), e(e11), e(e12)
     >>
   end
+
+  ## Private functions
 
   @compile {:inline, e: 1}
 

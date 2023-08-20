@@ -1,6 +1,13 @@
 defmodule ElvenGard.Network.Endpoint do
   @moduledoc ~S"""
-  TODO: Documentation for ElvenGard.Network.Endpoint
+  Wrapper on top of [Ranch listeners](https://ninenines.eu/docs/en/ranch/2.1/guide/listeners/).
+
+  This module provides a wrapper around the Ranch library to define network
+  endpoints. Endpoints are crucial for managing incoming connections and
+  handling network traffic efficiently.
+
+  For in-depth information on how to use and configure network endpoints, please
+  refer to the [Endpoint documentation](https://hexdocs.pm/elvengard_network/endpoint.html).
   """
 
   @doc "Called just before starting the ranch listener"
@@ -36,30 +43,17 @@ defmodule ElvenGard.Network.Endpoint do
       end
 
       @doc """
-      Returns the child specification to start the endpoint
-      under a supervision tree.
+      Returns a specification to start this module under a supervisor.
+
+      See `Supervisor`.
       """
       def child_spec(opts) do
+        # Not sure if the is a better way to do this (call a callback on Endpoint start)
         if opts[:ignore_init] != true do
           :ok = handle_start(@config)
         end
 
         :ranch.child_spec(
-          __listener_name__(),
-          @config[:transport],
-          @config[:transport_opts],
-          @config[:protocol],
-          @config[:protocol_opts]
-        )
-      end
-
-      @doc """
-      Starts the endpoint.
-      """
-      def start_link(_opts) do
-        :ok = handle_start(@config)
-
-        :ranch.start_listener(
           __listener_name__(),
           @config[:transport],
           @config[:transport_opts],

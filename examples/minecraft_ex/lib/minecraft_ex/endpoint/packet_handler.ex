@@ -1,6 +1,6 @@
-defmodule MinecraftEx.Endpoint.PacketHandlers do
+defmodule MinecraftEx.Endpoint.PacketHandler do
   @moduledoc """
-  Documentation for MinecraftEx.Endpoint.PacketHandlers
+  Documentation for MinecraftEx.Endpoint.PacketHandler
   """
 
   import ElvenGard.Network.Socket, only: [assign: 3]
@@ -8,13 +8,13 @@ defmodule MinecraftEx.Endpoint.PacketHandlers do
   alias ElvenGard.Network.Socket
   alias MinecraftEx.Resources
 
-  alias MinecraftEx.Endpoint.PacketSchemas.{
+  alias MinecraftEx.Client.HandshakePackets.{
     Handshake,
     PingRequest,
     StatusRequest
   }
 
-  alias MinecraftEx.Endpoint.PacketViews
+  alias MinecraftEx.PacketViews
 
   def handle_packet(%Handshake{} = packet, socket) do
     {:cont, assign(socket, :state, packet.next_state)}

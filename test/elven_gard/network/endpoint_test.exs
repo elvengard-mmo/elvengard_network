@@ -119,13 +119,4 @@ defmodule ElvenGard.Network.EndpointTest do
       refute_receive :handle_start
     end
   end
-
-  describe "start_link/0" do
-    test "call c:handle_start/1" do
-      {:ok, _} = MyEndpoint.start_link([])
-      assert_received :handle_start
-      # Crash tests sometimes ???
-      # GenServer.stop(endpoint)
-    end
-  end
 end

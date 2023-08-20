@@ -2,7 +2,7 @@ defmodule ElvenGard.Network.MixProject do
   use Mix.Project
 
   @app_name "ElvenGard.Network"
-  @version "0.1.0-alpha"
+  @version "0.1.0"
   @github_link "https://github.com/ImNotAVirus/elvengard_network"
 
   def project do
@@ -11,7 +11,7 @@ defmodule ElvenGard.Network.MixProject do
       version: @version,
       elixir: "~> 1.13",
       name: @app_name,
-      description: "MMORPG Game Server toolkit written in Elixir",
+      description: "Game server toolkit written in Elixir # Network",
       elixirc_paths: elixirc_paths(Mix.env()),
       package: package(),
       docs: docs(),
@@ -63,23 +63,51 @@ defmodule ElvenGard.Network.MixProject do
       # logo: "path/to/logo.png",
       extra_section: "GUIDES",
       extras: extras(),
-      groups_for_extras: groups_for_extras()
-      # groups_for_modules: [
-      #   "Textual protocol specs": ~r/ElvenGard\.Protocol\.Textual\.?/,
-      #   "Binary protocol specs": ~r/ElvenGard\.Protocol\.Binary\.?/,
-      #   PacketHandler: ~r/ElvenGard\.PacketHandler\./
-      # ]
+      groups_for_extras: groups_for_extras(),
+      groups_for_modules: groups_for_modules()
     ]
   end
 
-  defp extras do
-    ["README.md": [title: "Overview"]] ++ Path.wildcard("guides/**/*.md")
+  defp extras() do
+    Enum.concat(
+      ["README.md": [title: "Overview"]],
+      [
+        "CHANGELOG.md",
+        "guides/introduction/network_protocol.md",
+        "guides/introduction/getting_started.md",
+        "guides/introduction/endpoint.md",
+        "guides/introduction/protocol.md",
+        "guides/introduction/types_and_subpackets.md",
+        "guides/introduction/packet_definitions.md",
+        "guides/introduction/network_codec.md",
+        "guides/introduction/packet_views.md",
+        "guides/introduction/packet_handler.md"
+      ]
+    )
   end
 
-  defp groups_for_extras do
+  defp groups_for_extras() do
     [
-      Introduction: ~r/(README.md|guides\/introduction\/.?)/,
-      Topics: ~r/guides\/topics\/.?/
+      Introduction: ~r/(README.md|guides\/introduction\/.?)/
+    ]
+  end
+
+  defp groups_for_modules() do
+    # Ungrouped Modules:
+    #
+    # ElvenGard.Network
+    # ElvenGard.Network.Socket
+    # ElvenGard.Network.Type
+    # ElvenGard.Network.View
+
+    [
+      Endpoint: [
+        ElvenGard.Network.Endpoint,
+        ElvenGard.Network.Endpoint.Protocol,
+        ElvenGard.Network.NetworkCodec,
+        ElvenGard.Network.PacketHandler,
+        ElvenGard.Network.PacketSerializer
+      ]
     ]
   end
 end
