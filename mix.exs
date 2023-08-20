@@ -50,7 +50,7 @@ defmodule ElvenGard.Network.MixProject do
     [
       maintainers: ["ImNotAVirus"],
       licenses: ["MIT"],
-      links: %{github: @github_link},
+      links: %{"GitHub" => @github_link},
       files: ~w(lib CHANGELOG.md LICENSE.md mix.exs README.md)
     ]
   end
