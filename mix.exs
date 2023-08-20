@@ -11,7 +11,7 @@ defmodule ElvenGard.Network.MixProject do
       version: @version,
       elixir: "~> 1.13",
       name: @app_name,
-      description: "MMORPG Game Server toolkit written in Elixir",
+      description: "Game server toolkit written in Elixir # Network",
       elixirc_paths: elixirc_paths(Mix.env()),
       package: package(),
       docs: docs(),
