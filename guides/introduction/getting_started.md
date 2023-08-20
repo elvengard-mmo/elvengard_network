@@ -21,7 +21,7 @@ To add ElvenGard.Network to this application, just add an entry to your mix.exs:
 ```elixir
 defp deps do
   [
-    {:elvengard_network, "~> 0.1.0-alpha"}
+    {:elvengard_network, "~> 0.1.0"}
   ]
 end
 ```

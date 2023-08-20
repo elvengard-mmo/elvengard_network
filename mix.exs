@@ -2,7 +2,7 @@ defmodule ElvenGard.Network.MixProject do
   use Mix.Project
 
   @app_name "ElvenGard.Network"
-  @version "0.1.0-alpha"
+  @version "0.1.0"
   @github_link "https://github.com/ImNotAVirus/elvengard_network"
 
   def project do

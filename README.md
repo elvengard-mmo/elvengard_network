@@ -37,14 +37,14 @@ The package can be installed by adding `elvengard_network` to your list of depen
 ```elixir
 def deps do
   [
-    {:elvengard_network, "~> 0.1.0-alpha"}
+    {:elvengard_network, "~> 0.1.0"}
   ]
 end
 ```
 
 The docs can be found at [https://hexdocs.pm/elvengard_network](https://hexdocs.pm/elvengard_network).
 
-**/!\ This application is currently not production ready !**
+**/!\ This toolkit is currently not production ready !**
 
 ## Projects using ElvenGard
 
