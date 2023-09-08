@@ -2,7 +2,7 @@ defmodule ElvenGard.Network.MixProject do
   use Mix.Project
 
   @app_name "ElvenGard.Network"
-  @version "0.1.0"
+  @version "0.1.1"
   @github_link "https://github.com/ImNotAVirus/elvengard_network"
 
   def project do
@@ -51,7 +51,7 @@ defmodule ElvenGard.Network.MixProject do
       maintainers: ["ImNotAVirus"],
       licenses: ["MIT"],
       links: %{"GitHub" => @github_link},
-      files: ~w(lib CHANGELOG.md LICENSE.md mix.exs README.md)
+      files: ~w(lib CHANGELOG.md LICENSE.md mix.exs .formatter.exs README.md)
     ]
   end
 
