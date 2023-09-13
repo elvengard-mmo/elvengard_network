@@ -221,14 +221,26 @@ defmodule ElvenGard.Network.PacketSerializer do
   defp def_serialize(%{id: id, fields: fields}) do
     fields_ast =
       Enum.map(fields, fn %{name: name, type: type, opts: opts} ->
-        quote location: :keep do
-          unquote(type).encode(Map.fetch!(var!(packet), unquote(name)), unquote(opts))
+        case Keyword.get(opts, :if) do
+          nil ->
+            quote location: :keep do
+              unquote(type).encode(Map.fetch!(var!(packet), unquote(name)), unquote(opts))
+            end
+
+          condition ->
+            quote location: :keep do
+              if unquote(condition) in [nil, false] do
+                :"$drop"
+              else
+                unquote(type).encode(Map.fetch!(var!(packet), unquote(name)), unquote(opts))
+              end
+            end
         end
       end)
 
     quote location: :keep, generated: true do
       def serialize(%__MODULE__{} = var!(packet)) do
-        {unquote(id), unquote(fields_ast)}
+        {unquote(id), Enum.reject(unquote(fields_ast), &match?(:"$drop", &1))}
       end
     end
   end
