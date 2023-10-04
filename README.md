@@ -39,7 +39,7 @@ The package can be installed by adding `elvengard_network` to your list of depen
 ```elixir
 def deps do
   [
-    {:elvengard_network, "~> 0.1.0"}
+    {:elvengard_network, "~> 0.1.1"}
   ]
 end
 ```
