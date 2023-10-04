@@ -222,7 +222,10 @@ defmodule ElvenGard.Network.PacketSerializer do
     fields_ast =
       Enum.map(fields, fn %{name: name, type: type, opts: opts} ->
         quote location: :keep do
-          unquote(type).encode(Map.fetch!(var!(packet), unquote(name)), unquote(opts))
+          case {Map.fetch!(var!(packet), unquote(name)), opts[:default]} do
+            {nil, value} when not is_nil(value) -> value
+            {value, _} -> unquote(type).encode(value, unquote(opts))
+          end
         end
       end)
 
