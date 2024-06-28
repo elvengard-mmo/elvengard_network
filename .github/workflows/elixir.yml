@@ -67,3 +67,4 @@ jobs:
 
       - name: Post Coverage
         run: mix coveralls.github
+        if: matrix.elixir_version == '1.17'
