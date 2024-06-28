@@ -218,6 +218,7 @@ defmodule ElvenGard.Network.PacketSerializer do
     end
   end
 
+  # credo:disable-for-lines:32
   defp def_serialize(%{id: id, fields: fields}) do
     fields_ast =
       Enum.map(fields, fn %{name: name, type: type, opts: opts} ->
