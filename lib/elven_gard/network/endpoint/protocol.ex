@@ -10,7 +10,7 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
   a structured way to implement connection handling within ElvenGard.Network.
 
   For detailed information on implementing and using network protocols
-  with ElvenGard.Network, please refer to the 
+  with ElvenGard.Network, please refer to the
   [Endpoint Protocol guide](https://hexdocs.pm/elvengard_network/protocol.html).
   """
 
@@ -140,7 +140,7 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
 
       ## Helpers
 
-      @app Mix.Project.get().project[:app]
+      @app Mix.Project.get().project()[:app]
       defp env_config(), do: Application.fetch_env!(@app, __MODULE__)
       defp codec(), do: env_config()[:network_codec]
       defp handlers(), do: env_config()[:packet_handler]
