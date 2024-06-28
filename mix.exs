@@ -39,7 +39,8 @@ defmodule ElvenGard.Network.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ranch, "~> 2.1"},
+      {:ranch, "~> 2.1", optional: true},
+      {:thousand_island, "~> 1.3", optional: true},
       {:ex_doc, "~> 0.34", only: :dev, runtime: false},
       {:excoveralls, "~> 0.18", only: :test, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false}

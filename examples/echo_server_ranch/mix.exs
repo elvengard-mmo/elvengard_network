@@ -23,7 +23,8 @@ defmodule EchoServer.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:elvengard_network, path: "../.."}
+      {:elvengard_network, path: "../.."},
+      {:ranch, "~> 2.1", optional: true}
     ]
   end
 end

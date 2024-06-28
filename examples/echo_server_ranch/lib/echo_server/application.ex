@@ -7,8 +7,10 @@ defmodule EchoServer.Application do
 
   @impl true
   def start(_type, _args) do
+    endpoint_opts = Application.fetch_env!(:echo_server, :endpoint)
+
     children = [
-      EchoServer.Endpoint
+      {ElvenGard.Network.Endpoint, endpoint_opts}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
