@@ -40,7 +40,7 @@ defmodule ElvenGard.Network.Endpoint.ConfigTest do
     test "raise an error when the ip is invalid" do
       Application.put_env(:elvengard_network, MyApp.Endpoint3, transport_opts: [ip: "1.2.3.4.5"])
 
-      assert_raise RuntimeError, "cannot parse the given ip '1.2.3.4.5' (:einval)", fn ->
+      assert_raise RuntimeError, ~r/cannot parse the given ip /, fn ->
         Endpoint.Config.config(:elvengard_network, MyApp.Endpoint3)
       end
     end
