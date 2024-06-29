@@ -23,7 +23,7 @@ defmodule ElvenGard.Network.ProtocolTest do
     @timeout 100
 
     @impl true
-    def handle_init(%Socket{transport: transport, transport_pid: transport_pid} = socket) do
+    def handle_connection(%Socket{transport: transport, transport_pid: transport_pid} = socket) do
       # the first packet (link's pid) is prefixed with the packet length (cf. serialized_self/0)
       transport.setopts(transport_pid, packet: 1)
       {:ok, bin} = transport.recv(transport_pid, 0, @timeout)
@@ -31,14 +31,14 @@ defmodule ElvenGard.Network.ProtocolTest do
 
       link = :erlang.binary_to_term(bin)
 
-      send(link, :handle_init)
+      send(link, :handle_connection)
       {:ok, assign(socket, :link, link)}
     end
 
     @impl true
     def handle_message(message, socket) do
       send(socket.assigns[:link], {:handle_message, message})
-      :ignore
+      {:skip, socket}
     end
 
     @impl true
@@ -53,10 +53,10 @@ defmodule ElvenGard.Network.ProtocolTest do
     :ok
   end
 
-  describe "c:handle_init/1" do
+  describe "c:handle_connection/1" do
     test "is called" do
       _socket = connect()
-      assert_receive :handle_init
+      assert_receive :handle_connection
     end
   end
 

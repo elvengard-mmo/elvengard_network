@@ -42,7 +42,7 @@ defmodule LoginServer.Endpoint.Protocol do
   ## Callbacks
 
   @impl true
-  def handle_init(%Socket{} = socket) do
+  def handle_connection(%Socket{} = socket) do
     Logger.info("New connection: #{socket.id}")
 
     %Socket{transport: transport, transport_pid: transport_pid} = socket
@@ -54,7 +54,7 @@ defmodule LoginServer.Endpoint.Protocol do
   @impl true
   def handle_message(message, %Socket{} = socket) do
     Logger.debug("New message from #{socket.id}: #{inspect(message)}")
-    :ignore
+    {:skip, socket}
   end
 
   @impl true
@@ -69,15 +69,15 @@ Once again, creating a Protocol is fairly straightforward.
 
 This example defines 3 callbacks :
 
-  - `handle_init/1`: called when a client connects, it is mainly used to set 
+  - `handle_connection/1`: called when a client connects, it is mainly used to set 
     [socket options](https://www.erlang.org/doc/man/inet#setopts-2) or 
     call `ElvenGard.Network.Socket.assign/2` to init assigns.
   - `handle_message/2`: called when we receive a packet from a client, we can 
-    either ignore it by returning `:ignore`, or choose to decode it and then 
+    either skip it by returning `:skip`, or choose to decode it and then 
     handle it by returning `:ok`.
   - `handle_halt/2`: called when a client disconnects.
 
-**NOTE**: you may notice that we define the `packet: :line` option in `handle_init/1`. 
+**NOTE**: you may notice that we define the `packet: :line` option in `handle_connection/1`. 
 We use this option because we want to use a line break as a separator for our packets. 
 This works because, according to our [network protocol](network_protocol.html), we use 
 a text protocol where each packet is separated by a `\n`. However, for a binary protocol, 

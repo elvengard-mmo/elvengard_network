@@ -14,7 +14,7 @@ defmodule MinecraftEx.Endpoint.Protocol do
   ## Callbacks
 
   @impl true
-  def handle_init(%Socket{} = socket) do
+  def handle_connection(%Socket{} = socket) do
     Logger.info("New connection: #{socket.id}")
     Logger.metadata(socket_id: socket.id)
 
