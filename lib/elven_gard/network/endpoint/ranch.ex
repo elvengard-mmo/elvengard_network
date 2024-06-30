@@ -18,6 +18,11 @@ if Code.ensure_loaded?(:ranch) do
       Supervisor.start_link([{__MODULE__.Listener, opts}], strategy: :one_for_one)
     end
 
+    @impl true
+    def setopts({transport, conn}, opts) do
+      transport.setopts(conn, opts)
+    end
+
     ## Private functions
 
     defp build_info(opts) do
@@ -31,6 +36,8 @@ if Code.ensure_loaded?(:ranch) do
 
     alias ElvenGard.Network.Endpoint
 
+    @adapter ElvenGard.Network.Endpoint.Ranch
+
     ## Public API
 
     @spec child_spec(Endpoint.options()) :: :supervisor.child_spec()
@@ -41,8 +48,8 @@ if Code.ensure_loaded?(:ranch) do
         {__MODULE__, socket_handler},
         transport_module!(opts),
         transport_options!(opts),
-        socket_handler,
-        []
+        @adapter.Protocol,
+        socket_handler
       )
     end
 
@@ -57,6 +64,7 @@ if Code.ensure_loaded?(:ranch) do
     end
 
     defp transport_options!(opts) do
+      # FIXME: use same default as ThousandIsland
       port = Keyword.fetch!(opts, :port)
 
       ip =
@@ -73,6 +81,56 @@ if Code.ensure_loaded?(:ranch) do
       |> Map.new()
       |> put_in([socket_opts_access, :ip], ip)
       |> put_in([socket_opts_access, :port], port)
+    end
+  end
+
+  defmodule ElvenGard.Network.Endpoint.Ranch.Protocol do
+    @moduledoc false
+
+    use GenServer
+
+    alias ElvenGard.Network.Socket
+
+    @behaviour :ranch_protocol
+
+    @adapter ElvenGard.Network.Endpoint.Ranch
+
+    ## ranch_protocol behaviour
+
+    @impl :ranch_protocol
+    def start_link(ref, transport, protocol) do
+      {:ok, :proc_lib.spawn_link(__MODULE__, :init, [{ref, transport, protocol}])}
+    end
+
+    ## GenServer behaviour
+
+    @impl GenServer
+    def init({ref, transport, protocol}) do
+      {:ok, conn} = :ranch.handshake(ref)
+
+      state = {transport, conn}
+      socket = Socket.new(@adapter, state, protocol)
+
+      init_error =
+        "handle_init/1 must return `{:ok, socket}`, `{:ok, socket, timeout}` " <>
+          "or `{:stop, reason, new_socket}`"
+
+      case protocol.handle_connection(socket) do
+        {:ok, new_socket} -> do_enter_loop(new_socket)
+        {:ok, new_socket, timeout} -> do_enter_loop(new_socket, timeout)
+        # FIXME: call handle_error, handle_halt callbacks
+        {:stop, :normal, _new_socket} -> {:stop, :normal}
+        {:stop, reason, _new_socket} -> {:stop, reason}
+        _ -> raise init_error
+      end
+    end
+
+    ## Helpers
+
+    defp do_enter_loop(socket, timeout \\ :infinity) do
+      %Socket{adapter_state: {transport, conn}} = socket
+      :ok = transport.setopts(conn, active: :once)
+      :gen_server.enter_loop(__MODULE__, [], socket, timeout)
     end
   end
 end

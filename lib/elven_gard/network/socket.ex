@@ -40,4 +40,14 @@ defmodule ElvenGard.Network.Socket do
       protocol: protocol
     }
   end
+
+  @doc """
+  Sets the given flags on the socket.
+
+  Errors are usually from `:inet.posix()`, however, SSL module defines return type as `any()`
+  """
+  @spec setopts(t(), [:inet.socket_setopt()]) :: :ok | {:error, :inet.posix()}
+  def setopts(%Socket{adapter: adapter, adapter_state: adapter_state}, opts) do
+    adapter.setopts(adapter_state, opts)
+  end
 end

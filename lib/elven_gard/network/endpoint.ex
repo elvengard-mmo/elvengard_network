@@ -22,6 +22,8 @@ defmodule ElvenGard.Network.Endpoint do
   ## Endpoint behaviour
 
   @callback start_link(options()) :: Supervisor.on_start()
+  @callback setopts(state, opts) :: :ok | {:error, :inet.posix()}
+            when state: any(), opts: [:inet.socket_setopt()]
 
   ## Public API
 

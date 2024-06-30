@@ -30,6 +30,11 @@ if Code.ensure_loaded?(ThousandIsland) do
       ThousandIsland.start_link(thousand_island_opts)
     end
 
+    @impl true
+    def setopts(ti_socket, opts) do
+      ThousandIsland.Socket.setopts(ti_socket, opts)
+    end
+
     ## Private functions
 
     defp build_info(opts) do
@@ -82,7 +87,6 @@ if Code.ensure_loaded?(ThousandIsland) do
         {:ok, new_socket} -> {:continue, new_socket}
         {:ok, new_socket, timeout} -> {:continue, new_socket, timeout}
         {:stop, :normal, new_socket} -> {:close, new_socket}
-        # TODO: Add :shutdown
         {:stop, reason, new_socket} -> {:error, reason, new_socket}
         _ -> raise init_error
       end

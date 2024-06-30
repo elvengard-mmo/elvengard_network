@@ -9,10 +9,10 @@ config :echo_server, :endpoint,
   adapter: ElvenGard.Network.Endpoint.ThousandIsland,
   ip: "127.0.0.1",
   port: 3333,
-  socket_handler: EchoServer.Endpoint.Protocol,
+  socket_handler: EchoServer.SocketHandler,
   transport: :tcp
 
-# config :echo_server, EchoServer.Endpoint.Protocol,
+# config :echo_server, EchoServer.SocketHandler,
 #   # Here, the packet handler is not needed because we bypass the packet
 #   # handling by returning `:skip` in `handle_message/2`
 #   packet_handler: :unset,
