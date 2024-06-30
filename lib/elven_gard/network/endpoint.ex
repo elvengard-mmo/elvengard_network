@@ -12,9 +12,11 @@ defmodule ElvenGard.Network.Endpoint do
   @type options :: [
           adapter: module(),
           adapter_options: any(),
-          protocol: module(),
-          ip_address: String.t(),
-          port: :inet.port_number()
+          socket_handler: module(),
+          ip: String.t(),
+          port: :inet.port_number(),
+          transport: :tcp | :ssl | atom(),
+          transport_options: any()
         ]
 
   ## Endpoint behaviour
@@ -29,16 +31,27 @@ defmodule ElvenGard.Network.Endpoint do
     default = [
       # adapter: ElvenGard.Network.Endpoint.Ranch,
       adapter: ElvenGard.Network.Endpoint.ThousandIsland,
-      adapter_options: nil,
-      ip_address: "127.0.0.1"
+      # adapter_options: [],
+      ip: "127.0.0.1",
+      transport: :tcp
+      # transport_options: []
     ]
 
     opts = Keyword.merge(default, opts)
+
+    _port = required_opt!(opts, :port)
+    _socket_handler = required_opt!(opts, :socket_handler)
 
     %{
       id: {__MODULE__, make_ref()},
       start: {opts[:adapter], :start_link, [opts]},
       restart: :permanent
     }
+  end
+
+  ## Private function
+
+  defp required_opt!(opts, name) do
+    opts[name] || raise ArgumentError, "#{inspect(name)} option is required"
   end
 end

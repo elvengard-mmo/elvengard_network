@@ -11,29 +11,55 @@ defmodule ElvenGard.Network.Endpoint.ThousandIsland do
 
   @impl true
   def start_link(opts) do
-    adapter_options = opts[:adapter_options] || []
-    ip_address = Keyword.fetch!(opts, :ip_address)
-    port = Keyword.fetch!(opts, :port)
-    protocol = Keyword.fetch!(opts, :protocol)
-
-    Logger.info(build_info(protocol, ip_address, port))
+    Logger.info(build_info(opts))
 
     thousand_island_opts =
-      Keyword.merge(adapter_options,
-        port: port,
+      opts
+      |> Keyword.get(:adapter_options, [])
+      |> Keyword.merge(
+        port: Keyword.fetch!(opts, :port),
         handler_module: __MODULE__.Handler,
-        handler_options: {protocol}
+        handler_options: Keyword.fetch!(opts, :protocol),
+        transport_module: transport_module!(opts),
+        transport_options: transport_options!(opts)
       )
+      |> IO.inspect()
 
     ThousandIsland.start_link(thousand_island_opts)
   end
 
   ## Private functions
 
-  defp build_info(protocol, ip_address, port) do
+  defp build_info(opts) do
+    ip = Keyword.fetch!(opts, :ip)
+    port = Keyword.fetch!(opts, :port)
+    protocol = Keyword.fetch!(opts, :protocol)
+    transport = Keyword.fetch!(opts, :transport)
+
     server = "ThousandIsland #{Application.spec(:thousand_island)[:vsn]}"
-    bind = "#{ip_address}:#{port}"
-    "Running #{inspect(protocol)} with #{server} at #{bind}"
+    bind = "#{ip}:#{port}"
+    "Running #{inspect(protocol)} with #{server} at #{bind} (#{transport})"
+  end
+
+  defp transport_module!(opts) do
+    case Keyword.get(opts, :transport) do
+      :tcp -> ThousandIsland.Transports.TCP
+      :ssl -> ThousandIsland.Transports.SSL
+      transport -> raise "transport #{inspect(transport)} not supported by ThousandIsland"
+    end
+  end
+
+  defp transport_options!(opts) do
+    ip =
+      opts
+      |> Keyword.fetch!(:ip)
+      |> String.to_charlist()
+      |> :inet.parse_address()
+      |> then(fn {:ok, tuple} -> tuple end)
+
+    opts
+    |> Keyword.get(:transport_options, [])
+    |> Keyword.put(:ip, ip)
   end
 end
 
@@ -49,7 +75,7 @@ defmodule ElvenGard.Network.Endpoint.ThousandIsland.Handler do
   ## ThousandIsland.Handler behaviour
 
   @impl ThousandIsland.Handler
-  def handle_connection(ti_socket, {protocol}) do
+  def handle_connection(ti_socket, protocol) do
     socket = Socket.new(@adapter, ti_socket, protocol)
 
     init_error =
@@ -72,6 +98,4 @@ defmodule ElvenGard.Network.Endpoint.ThousandIsland.Handler do
     ThousandIsland.Socket.send(socket, data)
     {:continue, state}
   end
-
-  ## Private functions
 end

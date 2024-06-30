@@ -8,8 +8,10 @@ config :logger, :console,
 config :echo_server, :endpoint,
   adapter: ElvenGard.Network.Endpoint.ThousandIsland,
   protocol: EchoServer.Endpoint.Protocol,
-  ip_address: "127.0.0.1",
-  port: 3333
+  ip: "127.0.0.1",
+  port: 3333,
+  socket_handler: EchoServer.Endpoint.Protocol,
+  transport: :tcp
 
 # config :echo_server, EchoServer.Endpoint.Protocol,
 #   # Here, the packet handler is not needed because we bypass the packet

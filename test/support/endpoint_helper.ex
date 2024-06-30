@@ -3,7 +3,7 @@ defmodule ElvenGard.Network.EndpointHelper do
   Utility functions for integration testing endpoints.
   """
 
-  @spec get_unused_port_number() :: 1..65_536
+  @spec get_unused_port_number() :: :inet.port_number()
   def get_unused_port_number() do
     listen_on_os_assigned_port()
     |> get_port_number_and_close()
