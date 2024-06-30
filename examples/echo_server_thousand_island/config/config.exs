@@ -7,7 +7,6 @@ config :logger, :console,
 
 config :echo_server, :endpoint,
   adapter: ElvenGard.Network.Endpoint.ThousandIsland,
-  protocol: EchoServer.Endpoint.Protocol,
   ip: "127.0.0.1",
   port: 3333,
   socket_handler: EchoServer.Endpoint.Protocol,

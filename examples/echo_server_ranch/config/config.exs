@@ -2,8 +2,7 @@ import Config
 
 config :logger, :console,
   level: :debug,
-  format: "$time $metadata[$level] $message\n",
-  metadata: [:application],
+  format: "[$time] [$level] $message\n",
   colors: [info: :green]
 
 config :echo_server, :endpoint,

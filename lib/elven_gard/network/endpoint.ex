@@ -11,12 +11,12 @@ defmodule ElvenGard.Network.Endpoint do
   """
   @type options :: [
           adapter: module(),
-          adapter_options: any(),
+          adapter_options: list(),
           socket_handler: module(),
           ip: String.t(),
           port: :inet.port_number(),
           transport: :tcp | :ssl | atom(),
-          transport_options: any()
+          transport_options: list()
         ]
 
   ## Endpoint behaviour
@@ -29,12 +29,12 @@ defmodule ElvenGard.Network.Endpoint do
   @spec child_spec(options()) :: Supervisor.child_spec()
   def child_spec(opts) do
     default = [
-      # adapter: ElvenGard.Network.Endpoint.Ranch,
-      adapter: ElvenGard.Network.Endpoint.ThousandIsland,
-      # adapter_options: [],
+      adapter: ElvenGard.Network.Endpoint.Ranch,
+      # adapter: ElvenGard.Network.Endpoint.ThousandIsland,
+      adapter_options: [],
       ip: "127.0.0.1",
-      transport: :tcp
-      # transport_options: []
+      transport: :tcp,
+      transport_options: []
     ]
 
     opts = Keyword.merge(default, opts)
@@ -47,6 +47,18 @@ defmodule ElvenGard.Network.Endpoint do
       start: {opts[:adapter], :start_link, [opts]},
       restart: :permanent
     }
+  end
+
+  @doc false
+  @spec build_info(String.t(), options()) :: String.t()
+  def build_info(server, opts) do
+    ip = Keyword.fetch!(opts, :ip)
+    port = Keyword.fetch!(opts, :port)
+    socket_handler = Keyword.fetch!(opts, :socket_handler)
+    transport = Keyword.fetch!(opts, :transport)
+
+    bind = "#{ip}:#{port}"
+    "Running #{inspect(socket_handler)} with #{server} at #{bind} (#{transport})"
   end
 
   ## Private function
