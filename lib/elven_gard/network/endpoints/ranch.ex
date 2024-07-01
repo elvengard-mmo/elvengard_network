@@ -109,20 +109,54 @@ if Code.ensure_loaded?(:ranch) do
       {:ok, conn} = :ranch.handshake(ref)
 
       state = {transport, conn}
-      socket = Socket.new(@adapter, state)
-
-      init_error =
-        "handle_init/1 must return `{:ok, socket}`, `{:ok, socket, timeout}` " <>
-          "or `{:stop, reason, new_socket}`"
+      socket = Socket.new(@adapter, state, socket_handler)
 
       case socket_handler.handle_connection(socket) do
         {:ok, new_socket} -> do_enter_loop(new_socket)
         {:ok, new_socket, timeout} -> do_enter_loop(new_socket, timeout)
         # FIXME: call handle_error, handle_halt callbacks
-        {:stop, :normal, _new_socket} -> {:stop, :normal}
-        {:stop, reason, _new_socket} -> {:stop, reason}
-        _ -> raise init_error
+        {:stop, :normal, new_socket} -> handle_close(new_socket, true)
+        {:stop, reason, new_socket} -> handle_error(reason, new_socket, true)
       end
+    end
+
+    @impl GenServer
+    def handle_info({type, _conn, _data}, %Socket{} = _socket) when type in [:tcp, :ssl] do
+      #   %Socket{transport: transport, remaining: remaining} = socket
+      #   full_data = <<remaining::bitstring, data::bitstring>>
+
+      #   result =
+      #     case handle_message(full_data, socket) do
+      #       :ignore -> {:noreply, socket}
+      #       {:ignore, new_socket} -> {:noreply, new_socket}
+      #       {:ok, new_socket} -> packet_loop(full_data, new_socket)
+      #       {:stop, reason, new_socket} -> {:stop, reason, new_socket}
+      #       term -> raise "invalid return value for handle_message/2 (got: #{inspect(term)})"
+      #     end
+
+      #   transport.setopts(conn, active: :once)
+      #   result
+    end
+
+    @impl GenServer
+    def handle_info({type, _conn}, %Socket{} = socket) when type in [:tcp_closed, :ssl_closed] do
+      handle_close(socket)
+    end
+
+    @impl GenServer
+    def handle_info({type, _conn, reason}, %Socket{} = socket)
+        when type in [:tcp_error, :ssl_error] do
+      handle_error(reason, socket)
+    end
+
+    @impl GenServer
+    def handle_info(:timeout, %Socket{} = socket) do
+      handle_timeout(socket)
+    end
+
+    @impl GenServer
+    def handle_info(_, %Socket{} = socket) do
+      {:noreply, socket}
     end
 
     ## Helpers
@@ -131,6 +165,36 @@ if Code.ensure_loaded?(:ranch) do
       %Socket{adapter_state: {transport, conn}} = socket
       :ok = transport.setopts(conn, active: :once)
       :gen_server.enter_loop(__MODULE__, [], socket, timeout)
+    end
+
+    defp handle_close(socket, init? \\ false) do
+      %Socket{adapter_state: {transport, conn}, handler: socket_handler} = socket
+      :ok = transport.close(conn)
+      _ = socket_handler.handle_close(socket)
+
+      case init? do
+        false -> {:stop, {:shutdown, :local_closed}, socket}
+        true -> {:stop, {:shutdown, :local_closed}}
+      end
+    end
+
+    defp handle_error(reason, socket, init? \\ false) do
+      %Socket{adapter_state: {transport, conn}, handler: socket_handler} = socket
+      :ok = transport.close(conn)
+      _ = socket_handler.handle_error(reason, socket)
+
+      case init? do
+        false -> {:stop, reason, socket}
+        true -> {:stop, reason}
+      end
+    end
+
+    defp handle_timeout(socket) do
+      %Socket{adapter_state: {transport, conn}, handler: socket_handler} = socket
+      :ok = transport.close(conn)
+      _ = socket_handler.handle_timeout(socket)
+
+      {:stop, {:shutdown, :timeout}, socket}
     end
   end
 end
