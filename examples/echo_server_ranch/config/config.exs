@@ -6,7 +6,7 @@ config :logger, :console,
   colors: [info: :green]
 
 config :echo_server, :endpoint,
-  # adapter: ElvenGard.Network.Endpoint.Ranch,
+  # adapter: ElvenGard.Network.Endpoints.Ranch,
   # listener_name: :echo_server,
   # transport: :ranch_tcp,
   # transport_opts: [ip: "127.0.0.1", port: 3333],

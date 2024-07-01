@@ -1,5 +1,5 @@
 if Code.ensure_loaded?(:ranch) do
-  defmodule ElvenGard.Network.Endpoint.Ranch do
+  defmodule ElvenGard.Network.Endpoints.Ranch do
     @moduledoc """
     Endpoint adapter using Ranch
     """
@@ -31,12 +31,12 @@ if Code.ensure_loaded?(:ranch) do
     end
   end
 
-  defmodule ElvenGard.Network.Endpoint.Ranch.Listener do
+  defmodule ElvenGard.Network.Endpoints.Ranch.Listener do
     @moduledoc false
 
     alias ElvenGard.Network.Endpoint
 
-    @adapter ElvenGard.Network.Endpoint.Ranch
+    @adapter ElvenGard.Network.Endpoints.Ranch
 
     ## Public API
 
@@ -84,7 +84,7 @@ if Code.ensure_loaded?(:ranch) do
     end
   end
 
-  defmodule ElvenGard.Network.Endpoint.Ranch.Protocol do
+  defmodule ElvenGard.Network.Endpoints.Ranch.Protocol do
     @moduledoc false
 
     use GenServer
@@ -93,7 +93,7 @@ if Code.ensure_loaded?(:ranch) do
 
     @behaviour :ranch_protocol
 
-    @adapter ElvenGard.Network.Endpoint.Ranch
+    @adapter ElvenGard.Network.Endpoints.Ranch
 
     ## ranch_protocol behaviour
 

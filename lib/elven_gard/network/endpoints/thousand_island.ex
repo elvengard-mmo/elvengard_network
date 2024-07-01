@@ -1,5 +1,5 @@
 if Code.ensure_loaded?(ThousandIsland) do
-  defmodule ElvenGard.Network.Endpoint.ThousandIsland do
+  defmodule ElvenGard.Network.Endpoints.ThousandIsland do
     @moduledoc """
     Endpoint adapter using ThousandIsland
     """
@@ -64,14 +64,14 @@ if Code.ensure_loaded?(ThousandIsland) do
     end
   end
 
-  defmodule ElvenGard.Network.Endpoint.ThousandIsland.Handler do
+  defmodule ElvenGard.Network.Endpoints.ThousandIsland.Handler do
     @moduledoc false
 
     use ThousandIsland.Handler
 
     alias ElvenGard.Network.{Endpoint, Socket}
 
-    @adapter ElvenGard.Network.Endpoint.ThousandIsland
+    @adapter ElvenGard.Network.Endpoints.ThousandIsland
 
     ## ThousandIsland.Handler behaviour
 

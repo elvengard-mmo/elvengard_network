@@ -6,7 +6,7 @@ config :logger, :console,
   colors: [info: :green]
 
 config :echo_server, :endpoint,
-  adapter: ElvenGard.Network.Endpoint.ThousandIsland,
+  adapter: ElvenGard.Network.Endpoints.ThousandIsland,
   ip: "127.0.0.1",
   port: 3333,
   socket_handler: EchoServer.SocketHandler,

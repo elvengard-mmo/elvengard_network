@@ -31,8 +31,8 @@ defmodule ElvenGard.Network.Endpoint do
   @spec child_spec(options()) :: Supervisor.child_spec()
   def child_spec(opts) do
     default = [
-      adapter: ElvenGard.Network.Endpoint.Ranch,
-      # adapter: ElvenGard.Network.Endpoint.ThousandIsland,
+      adapter: ElvenGard.Network.Endpoints.Ranch,
+      # adapter: ElvenGard.Network.Endpoints.ThousandIsland,
       adapter_options: [],
       ip: "127.0.0.1",
       transport: :tcp,
