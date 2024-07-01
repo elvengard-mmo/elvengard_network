@@ -69,34 +69,70 @@ if Code.ensure_loaded?(ThousandIsland) do
 
     use ThousandIsland.Handler
 
-    alias ElvenGard.Network.Socket
+    alias ElvenGard.Network.{Endpoint, Socket}
 
     @adapter ElvenGard.Network.Endpoint.ThousandIsland
 
     ## ThousandIsland.Handler behaviour
 
     @impl ThousandIsland.Handler
-    def handle_connection(ti_socket, protocol) do
-      socket = Socket.new(@adapter, ti_socket, protocol)
+    def handle_connection(ti_socket, socket_handler) do
+      socket = Socket.new(@adapter, ti_socket, socket_handler)
 
-      init_error =
-        "handle_connection/1 must return `{:ok, socket}`, `{:ok, socket, timeout}` " <>
-          "or `{:stop, reason, new_socket}`"
-
-      case protocol.handle_connection(socket) do
+      case socket_handler.handle_connection(socket) do
         {:ok, new_socket} -> {:continue, new_socket}
         {:ok, new_socket, timeout} -> {:continue, new_socket, timeout}
         {:stop, :normal, new_socket} -> {:close, new_socket}
-        {:stop, reason, new_socket} -> {:error, reason, new_socket}
-        _ -> raise init_error
+        {:stop, reason, new_socket} -> {:error, {:stop, reason}, new_socket}
       end
     end
 
     @impl ThousandIsland.Handler
-    def handle_data(data, socket, state) do
-      IO.inspect(data, label: "data")
-      ThousandIsland.Socket.send(socket, data)
-      {:continue, state}
+    def handle_data(data, _ti_socket, socket) do
+      %Socket{remaining: remaining, handler: socket_handler} = socket
+      full_data = <<remaining::bitstring, data::bitstring>>
+
+      case socket_handler.handle_data(full_data, socket) do
+        {:ok, new_socket} -> packet_loop(full_data, new_socket)
+        {:skip, new_socket} -> {:continue, new_socket}
+        {:stop, :normal, new_socket} -> {:close, new_socket}
+        {:stop, reason, new_socket} -> {:error, {:stop, reason}, new_socket}
+        term -> raise "invalid return value for handle_data/2 (got: #{inspect(term)})"
+      end
+    end
+
+    @impl ThousandIsland.Handler
+    def handle_close(_ti_socket, socket) do
+      %Socket{handler: socket_handler} = socket
+      socket_handler.handle_close(socket)
+    end
+
+    @impl ThousandIsland.Handler
+    def handle_error(reason, _ti_socket, socket) do
+      %Socket{handler: socket_handler} = socket
+      socket_handler.handle_error(reason, socket)
+    end
+
+    @impl ThousandIsland.Handler
+    def handle_shutdown(_ti_socket, socket) do
+      %Socket{handler: socket_handler} = socket
+      socket_handler.handle_shutdown(socket)
+    end
+
+    @impl ThousandIsland.Handler
+    def handle_timeout(_ti_socket, socket) do
+      %Socket{handler: socket_handler} = socket
+      socket_handler.handle_timeout(socket)
+    end
+
+    ## Private functions
+
+    defp packet_loop(data, socket) do
+      case Endpoint.packet_loop(data, socket) do
+        {:ok, socket} -> {:continue, socket}
+        {:stop, :normal, socket} -> {:close, socket}
+        {:stop, reason, socket} -> {:error, {:stop, reason}, socket}
+      end
     end
   end
 end

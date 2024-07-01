@@ -98,24 +98,24 @@ if Code.ensure_loaded?(:ranch) do
     ## ranch_protocol behaviour
 
     @impl :ranch_protocol
-    def start_link(ref, transport, protocol) do
-      {:ok, :proc_lib.spawn_link(__MODULE__, :init, [{ref, transport, protocol}])}
+    def start_link(ref, transport, socket_handler) do
+      {:ok, :proc_lib.spawn_link(__MODULE__, :init, [{ref, transport, socket_handler}])}
     end
 
     ## GenServer behaviour
 
     @impl GenServer
-    def init({ref, transport, protocol}) do
+    def init({ref, transport, socket_handler}) do
       {:ok, conn} = :ranch.handshake(ref)
 
       state = {transport, conn}
-      socket = Socket.new(@adapter, state, protocol)
+      socket = Socket.new(@adapter, state)
 
       init_error =
         "handle_init/1 must return `{:ok, socket}`, `{:ok, socket, timeout}` " <>
           "or `{:stop, reason, new_socket}`"
 
-      case protocol.handle_connection(socket) do
+      case socket_handler.handle_connection(socket) do
         {:ok, new_socket} -> do_enter_loop(new_socket)
         {:ok, new_socket, timeout} -> do_enter_loop(new_socket, timeout)
         # FIXME: call handle_error, handle_halt callbacks

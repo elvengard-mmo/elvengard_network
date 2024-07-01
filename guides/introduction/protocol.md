@@ -52,15 +52,35 @@ defmodule LoginServer.Endpoint.Protocol do
   end
 
   @impl true
-  def handle_message(message, %Socket{} = socket) do
+  def handle_data(message, %Socket{} = socket) do
     Logger.debug("New message from #{socket.id}: #{inspect(message)}")
     {:skip, socket}
   end
 
   @impl true
-  def handle_halt(reason, %Socket{} = socket) do
+  def handle_close(%Socket{} = socket) do
+    info_disconnected(socket, :closed)
+  end
+
+  @impl true
+  def handle_error(reason, %Socket{} = socket) do
+    info_disconnected(socket, reason)
+  end
+
+  @impl true
+  def handle_shutdown(%Socket{} = socket) do
+    info_disconnected(socket, :shutdown)
+  end
+
+  @impl true
+  def handle_timeout(%Socket{} = socket) do
+    info_disconnected(socket, :timeout)
+  end
+
+  ## Private functions
+
+  defp info_disconnected(socket, reason) do
     Logger.info("#{socket.id} is now disconnected (reason: #{inspect(reason)})")
-    {:ok, socket}
   end
 end
 ```
@@ -72,7 +92,7 @@ This example defines 3 callbacks :
   - `handle_connection/1`: called when a client connects, it is mainly used to set 
     [socket options](https://www.erlang.org/doc/man/inet#setopts-2) or 
     call `ElvenGard.Network.Socket.assign/2` to init assigns.
-  - `handle_message/2`: called when we receive a packet from a client, we can 
+  - `handle_data/2`: called when we receive a packet from a client, we can 
     either skip it by returning `:skip`, or choose to decode it and then 
     handle it by returning `:ok`.
   - `handle_halt/2`: called when a client disconnects.

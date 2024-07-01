@@ -18,12 +18,26 @@ defmodule ElvenGard.Network.Socket do
   alias __MODULE__
   alias ElvenGard.Network.UUID
 
-  defstruct id: nil,
-            adapter: nil,
-            adapter_state: nil,
-            protocol: nil
+  @enforce_keys [:id, :adapter, :adapter_state, :handler]
+  defstruct [
+    :id,
+    :adapter,
+    :adapter_state,
+    :handler,
+    remaining: <<>>,
+    assigns: %{},
+    encoder: :unset
+  ]
 
-  @type t :: %Socket{}
+  @type t :: %Socket{
+          id: String.t(),
+          adapter: module(),
+          adapter_state: any(),
+          handler: module(),
+          remaining: bitstring(),
+          assigns: map(),
+          encoder: module() | :unset
+        }
 
   @doc """
   Create a new socket structure.
@@ -32,12 +46,12 @@ defmodule ElvenGard.Network.Socket do
   and `encoder` module.
   """
   @spec new(module(), any(), module()) :: Socket.t()
-  def new(adapter, adapter_state, protocol) do
+  def new(adapter, adapter_state, handler) do
     %Socket{
       id: UUID.uuid4(),
       adapter: adapter,
       adapter_state: adapter_state,
-      protocol: protocol
+      handler: handler
     }
   end
 

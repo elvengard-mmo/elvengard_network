@@ -36,8 +36,8 @@ defmodule ElvenGard.Network.ProtocolTest do
     end
 
     @impl true
-    def handle_message(message, socket) do
-      send(socket.assigns[:link], {:handle_message, message})
+    def handle_data(message, socket) do
+      send(socket.assigns[:link], {:handle_data, message})
       {:skip, socket}
     end
 
@@ -60,12 +60,12 @@ defmodule ElvenGard.Network.ProtocolTest do
     end
   end
 
-  describe "c:handle_message/1" do
+  describe "c:handle_data/1" do
     test "is called" do
       socket = connect()
-      send_data(socket, "test c:handle_message/1")
+      send_data(socket, "test c:handle_data/1")
 
-      assert_receive {:handle_message, "test c:handle_message/1"}
+      assert_receive {:handle_data, "test c:handle_data/1"}
     end
   end
 
