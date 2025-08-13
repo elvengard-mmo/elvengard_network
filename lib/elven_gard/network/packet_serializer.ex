@@ -44,50 +44,54 @@ defmodule ElvenGard.Network.PacketSerializer do
 
   """
 
-  ## Helpers
-
-  defguardp is_packet_id(id) when is_integer(id) or is_binary(id)
-
   ## Public API
 
-  # defpacket 0x0000
-  defmacro defpacket(id) when is_packet_id(id) do
-    do_packet(id, id_to_name(id), nil, nil, __CALLER__)
-  end
-
   # defpacket 0x0000 when ...
-  defmacro defpacket({:when, _, [id, guards]}) when is_packet_id(id) do
+  defmacro defpacket({:when, _, [id, guards]}) do
+    id = validate_packet_id!(id, __CALLER__)
     do_packet(id, id_to_name(id), guards, nil, __CALLER__)
   end
 
-  # defpacket 0x0000, as: ModuleName
-  defmacro defpacket(id, as: name) when is_packet_id(id) do
-    do_packet(id, name, nil, nil, __CALLER__)
+  # defpacket 0x0000
+  defmacro defpacket(id) do
+    id = validate_packet_id!(id, __CALLER__)
+    do_packet(id, id_to_name(id), nil, nil, __CALLER__)
   end
 
   # defpacket 0x0000 when ..., as: ModuleName
-  defmacro defpacket({:when, _, [id, guards]}, as: name) when is_packet_id(id) do
+  defmacro defpacket({:when, _, [id, guards]}, as: name) do
+    id = validate_packet_id!(id, __CALLER__)
     do_packet(id, name, guards, nil, __CALLER__)
   end
 
-  # defpacket 0x0000 do ... end
-  defmacro defpacket(id, do: exp) when is_packet_id(id) do
-    do_packet(id, id_to_name(id), nil, exp, __CALLER__)
+  # defpacket 0x0000, as: ModuleName
+  defmacro defpacket(id, as: name) do
+    id = validate_packet_id!(id, __CALLER__)
+    do_packet(id, name, nil, nil, __CALLER__)
   end
 
   # defpacket 0x0000 when ... do ... end
-  defmacro defpacket({:when, _, [id, guards]}, do: exp) when is_packet_id(id) do
+  defmacro defpacket({:when, _, [id, guards]}, do: exp) do
+    id = validate_packet_id!(id, __CALLER__)
     do_packet(id, id_to_name(id), guards, exp, __CALLER__)
   end
 
-  # defpacket 0x0000, as: ModuleName do ... end
-  defmacro defpacket(id, [as: name], do: exp) when is_packet_id(id) do
-    do_packet(id, name, nil, exp, __CALLER__)
+  # defpacket 0x0000 do ... end
+  defmacro defpacket(id, do: exp) do
+    id = validate_packet_id!(id, __CALLER__)
+    do_packet(id, id_to_name(id), nil, exp, __CALLER__)
   end
 
   # defpacket 0x0000 when ..., as: ModuleName do ... end
-  defmacro defpacket({:when, _, [id, guards]}, [as: name], do: exp) when is_packet_id(id) do
+  defmacro defpacket({:when, _, [id, guards]}, [as: name], do: exp) do
+    id = validate_packet_id!(id, __CALLER__)
     do_packet(id, name, guards, exp, __CALLER__)
+  end
+
+  # defpacket 0x0000, as: ModuleName do ... end
+  defmacro defpacket(id, [as: name], do: exp) do
+    id = validate_packet_id!(id, __CALLER__)
+    do_packet(id, name, nil, exp, __CALLER__)
   end
 
   # field :protocol_version, VarInt
@@ -175,6 +179,16 @@ defmodule ElvenGard.Network.PacketSerializer do
       @doc false
       def __schemas__(), do: @egn_packets
     end
+  end
+
+  defp validate_packet_id!(id, caller) do
+    expanded_id = Macro.expand(id, caller)
+
+    if not is_integer(expanded_id) and not is_binary(expanded_id) do
+      raise ArgumentError, "invalid packet id: #{inspect(expanded_id)}"
+    end
+
+    expanded_id
   end
 
   defp do_packet(id, name, guards, exp, caller) do
