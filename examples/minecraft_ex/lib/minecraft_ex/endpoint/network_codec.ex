@@ -38,7 +38,7 @@ defmodule MinecraftEx.Endpoint.NetworkCodec do
 
   @impl true
   def encode(struct, socket) when is_struct(struct) do
-    {packet_id, params} = struct.__struct__.serialize(struct)
+    {packet_id, params} = struct.__struct__.serialize(struct, socket)
     encode([VarInt.encode(packet_id), params], socket)
   end
 

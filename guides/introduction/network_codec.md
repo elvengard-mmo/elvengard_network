@@ -49,11 +49,11 @@ defmodule LoginServer.Endpoint.NetworkCodec do
   end
 
   @impl true
-  def encode(struct, _socket) when is_struct(struct) do
+  def encode(struct, socket) when is_struct(struct) do
     # %LoginSucceed{world_info: %WorldInfo{host: "127.0.0.1", port: 5000}}
     struct
     # {"SUCCESS", ["127.0.0.1", ":", "5000"]}
-    |> struct.__struct__.serialize()
+    |> struct.__struct__.serialize(socket)
     # ["SUCCESS", ["127.0.0.1", ":", "5000"]]
     |> Tuple.to_list()
     # ["SUCCESS", " ", ["127.0.0.1", ":", "5000"]]

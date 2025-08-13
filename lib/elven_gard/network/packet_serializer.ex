@@ -248,7 +248,7 @@ defmodule ElvenGard.Network.PacketSerializer do
           condition ->
             quote location: :keep do
               if unquote(condition) in [nil, false] do
-                :"$drop"
+                []
               else
                 case {Map.get(var!(packet), unquote(name)), unquote(opts)[:default]} do
                   {nil, value} when not is_nil(value) ->
@@ -263,8 +263,8 @@ defmodule ElvenGard.Network.PacketSerializer do
       end)
 
     quote location: :keep, generated: true do
-      def serialize(%__MODULE__{} = var!(packet)) do
-        {unquote(id), Enum.reject(unquote(fields_ast), &match?(:"$drop", &1))}
+      def serialize(%__MODULE__{} = var!(packet), var!(socket)) do
+        {unquote(id), unquote(fields_ast)}
       end
     end
   end
@@ -334,7 +334,7 @@ defmodule ElvenGard.Network.PacketSerializer do
         if unquote(serializable) do
           unquote(def_serialize(packet))
         else
-          def serialize(_), do: raise("unimplemented")
+          def serialize(_, _), do: raise("unimplemented")
         end
 
         if unquote(deserializable) do
