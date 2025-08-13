@@ -239,8 +239,8 @@ defmodule ElvenGard.Network.PacketSerializer do
         case Keyword.get(opts, :if) do
           nil ->
             quote location: :keep do
-              case {Map.fetch!(var!(packet), unquote(name)), unquote(opts)[:default]} do
-                {nil, value} when not is_nil(value) -> value
+              case {Map.get(var!(packet), unquote(name)), unquote(opts)[:default]} do
+                {nil, value} when not is_nil(value) -> unquote(type).encode(value, unquote(opts))
                 {value, _} -> unquote(type).encode(value, unquote(opts))
               end
             end
@@ -250,9 +250,12 @@ defmodule ElvenGard.Network.PacketSerializer do
               if unquote(condition) in [nil, false] do
                 :"$drop"
               else
-                case {Map.fetch!(var!(packet), unquote(name)), unquote(opts)[:default]} do
-                  {nil, value} when not is_nil(value) -> value
-                  {value, _} -> unquote(type).encode(value, unquote(opts))
+                case {Map.get(var!(packet), unquote(name)), unquote(opts)[:default]} do
+                  {nil, value} when not is_nil(value) ->
+                    unquote(type).encode(value, unquote(opts))
+
+                  {value, _} ->
+                    unquote(type).encode(value, unquote(opts))
                 end
               end
             end
