@@ -4,17 +4,34 @@ defmodule ElvenGard.Network.SocketTest do
   alias ElvenGard.Network.EchoServer
   alias ElvenGard.Network.EndpointHelper
   alias ElvenGard.Network.Socket
+  alias ElvenGard.Network.Socket.Adapters.Ranch
 
   @transport :gen_tcp
 
   defmodule TransportMock do
+    import Kernel, except: [send: 2]
+
+    @behaviour ElvenGard.Network.Socket.Adapter
+
+    @impl true
+    def new(options) do
+      owner = Keyword.fetch!(options, :owner)
+      Kernel.send(owner, :adapter_initialized)
+      owner
+    end
+
+    @impl true
+    def send(_owner, _data), do: :ok
+
+    @impl true
     def setopts(owner, opts) do
-      send(owner, {:setopts, opts})
+      Kernel.send(owner, {:setopts, opts})
       :ok
     end
 
+    @impl true
     def close(owner) do
-      send(owner, :close)
+      Kernel.send(owner, :close)
       :ok
     end
   end
@@ -26,16 +43,17 @@ defmodule ElvenGard.Network.SocketTest do
     [port: port, endpoint: pid]
   end
 
-  describe "new/2" do
+  describe "new/3" do
     test "create a Socket structure" do
-      socket = Socket.new(123, :gen_tcp, MyApp.Encoder)
+      socket = Socket.new(TransportMock, [owner: self()], MyApp.Encoder)
 
       assert socket.__struct__ == Socket
       assert is_binary(socket.id)
-      assert socket.transport_pid == 123
-      assert socket.transport == :gen_tcp
+      assert socket.adapter == TransportMock
+      assert socket.adapter_state == self()
       assert socket.remaining == <<>>
       assert socket.encoder == MyApp.Encoder
+      assert_received :adapter_initialized
     end
   end
 
@@ -84,8 +102,8 @@ defmodule ElvenGard.Network.SocketTest do
   end
 
   describe "setopts/2" do
-    test "delegates to the socket transport" do
-      socket = %Socket{transport: TransportMock, transport_pid: self()}
+    test "delegates to the socket adapter" do
+      socket = Socket.new(TransportMock, [owner: self()], MyApp.Encoder)
 
       assert :ok = Socket.setopts(socket, active: :once)
       assert_received {:setopts, [active: :once]}
@@ -93,8 +111,8 @@ defmodule ElvenGard.Network.SocketTest do
   end
 
   describe "close/1" do
-    test "delegates to the socket transport" do
-      socket = %Socket{transport: TransportMock, transport_pid: self()}
+    test "delegates to the socket adapter" do
+      socket = Socket.new(TransportMock, [owner: self()], MyApp.Encoder)
 
       assert :ok = Socket.close(socket)
       assert_received :close
@@ -107,10 +125,10 @@ defmodule ElvenGard.Network.SocketTest do
     connect_opts = [:binary] ++ Keyword.merge([active: false], opts)
     {:ok, socket} = @transport.connect({127, 0, 0, 1}, port, connect_opts)
 
-    %Socket{
-      transport: @transport,
-      transport_pid: socket,
-      encoder: ElvenGard.Network.DummyEncoder
-    }
+    Socket.new(
+      Ranch,
+      [transport: @transport, socket: socket],
+      ElvenGard.Network.DummyEncoder
+    )
   end
 end

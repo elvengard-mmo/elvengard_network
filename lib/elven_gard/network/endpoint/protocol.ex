@@ -92,8 +92,14 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
 
       @impl GenServer
       def init({ref, transport, opts}) do
-        {:ok, transport_pid} = :ranch.handshake(ref)
-        socket = Socket.new(transport_pid, transport, codec())
+        {:ok, transport_socket} = :ranch.handshake(ref)
+
+        socket =
+          Socket.new(
+            ElvenGard.Network.Socket.Adapters.Ranch,
+            [transport: transport, socket: transport_socket],
+            codec()
+          )
 
         init_error =
           "handle_init/1 must return `{:ok, socket}`, `{:ok, socket, timeout}` " <>
@@ -120,7 +126,7 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
   defp message_callbacks() do
     quote generated: true, location: :keep do
       @impl true
-      def handle_info({:tcp, _transport_pid, data}, %Socket{} = socket) do
+      def handle_info({:tcp, _transport_socket, data}, %Socket{} = socket) do
         %Socket{remaining: remaining} = socket
 
         full_data =
@@ -177,7 +183,7 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
   defp halt_callbacks() do
     quote generated: true, location: :keep do
       @impl true
-      def handle_info({:tcp_closed, _transport_pid}, %Socket{} = socket) do
+      def handle_info({:tcp_closed, _transport_socket}, %Socket{} = socket) do
         do_handle_halt(:tcp_closed, socket)
       end
 

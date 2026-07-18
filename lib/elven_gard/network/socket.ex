@@ -12,9 +12,8 @@ defmodule ElvenGard.Network.Socket do
   - `:id`: The unique string ID of the socket.
   - `:assigns`: A map of socket assigns, which can be used to store custom data
     associated with the socket. The default value is `%{}`.
-  - `:transport`: The [Ranch transport](https://ninenines.eu/docs/en/ranch/2.2/guide/transports/)
-    used for the socket.
-  - `:transport_pid`: The PID (Process ID) of the socket's transport process.
+  - `:adapter`: The module implementing `ElvenGard.Network.Socket.Adapter`.
+  - `:adapter_state`: The opaque connection state managed exclusively by the adapter.
   - `:remaining`: The remaining bytes after receiving and packet deserialization.
   - `:encoder`: The `ElvenGard.Network.NetworkCodec` module used to encode packets
     in the `send/2` function.
@@ -22,36 +21,39 @@ defmodule ElvenGard.Network.Socket do
   """
 
   alias __MODULE__
+  alias __MODULE__.Adapter
   alias ElvenGard.Network.UUID
 
   defstruct id: nil,
-            transport: nil,
-            transport_pid: nil,
+            adapter: nil,
+            adapter_state: nil,
             remaining: <<>>,
             assigns: %{},
             encoder: :unset
 
   @type t :: %Socket{
           id: String.t(),
-          transport: atom,
-          transport_pid: pid,
-          remaining: binary,
-          assigns: map,
-          encoder: module | :unset
+          adapter: module(),
+          adapter_state: Adapter.state(),
+          remaining: binary(),
+          assigns: map(),
+          encoder: module() | :unset
         }
 
   @doc """
   Create a new socket structure.
 
-  This function initializes a new socket with the given `transport_pid`, `transport`,
-  and `encoder` module.
+  This function initializes a new socket with the given `adapter`, the keyword
+  options used by the adapter to create its opaque state, and the `encoder` module.
   """
-  @spec new(pid, atom, module) :: Socket.t()
-  def new(transport_pid, transport, encoder) do
+  @spec new(module(), Adapter.options(), module()) :: Socket.t()
+  def new(adapter, adapter_options, encoder) do
+    adapter_state = adapter.new(adapter_options)
+
     %Socket{
       id: UUID.uuid4(),
-      transport_pid: transport_pid,
-      transport: transport,
+      adapter: adapter,
+      adapter_state: adapter_state,
       encoder: encoder
     }
   end
@@ -69,32 +71,34 @@ defmodule ElvenGard.Network.Socket do
       :ok
 
   """
-  @spec send(Socket.t(), struct() | iodata()) :: :ok | {:error, atom}
+  @spec send(Socket.t(), struct() | iodata()) :: :ok | {:error, term()}
   def send(%Socket{encoder: :unset} = socket, data) do
-    %Socket{transport: transport, transport_pid: transport_pid} = socket
-    transport.send(transport_pid, data)
+    %Socket{adapter: adapter, adapter_state: adapter_state} = socket
+    adapter.send(adapter_state, data)
   end
 
   def send(%Socket{} = socket, message) do
-    %Socket{transport: transport, transport_pid: transport_pid, encoder: encoder} = socket
+    %Socket{adapter: adapter, adapter_state: adapter_state, encoder: encoder} = socket
     data = encoder.encode(message, socket)
-    transport.send(transport_pid, data)
+    adapter.send(adapter_state, data)
   end
 
   @doc """
   Sets transport options for the socket.
   """
-  @spec setopts(Socket.t(), list) :: :ok | {:error, term}
-  def setopts(%Socket{transport: transport, transport_pid: transport_pid}, opts) do
-    transport.setopts(transport_pid, opts)
+  @spec setopts(Socket.t(), list()) :: :ok | {:error, term()}
+  def setopts(%Socket{} = socket, opts) do
+    %Socket{adapter: adapter, adapter_state: adapter_state} = socket
+    adapter.setopts(adapter_state, opts)
   end
 
   @doc """
   Closes the socket through its transport.
   """
   @spec close(Socket.t()) :: :ok
-  def close(%Socket{transport: transport, transport_pid: transport_pid}) do
-    transport.close(transport_pid)
+  def close(%Socket{} = socket) do
+    %Socket{adapter: adapter, adapter_state: adapter_state} = socket
+    adapter.close(adapter_state)
   end
 
   @doc """
@@ -116,12 +120,12 @@ defmodule ElvenGard.Network.Socket do
       iex> socket.assigns.logo == "🌸"
       true
   """
-  @spec assign(Socket.t(), atom, any) :: Socket.t()
+  @spec assign(Socket.t(), atom(), any()) :: Socket.t()
   def assign(%Socket{} = socket, key, value) do
     assign(socket, [{key, value}])
   end
 
-  @spec assign(Socket.t(), map | keyword) :: Socket.t()
+  @spec assign(Socket.t(), map() | keyword()) :: Socket.t()
   def assign(%Socket{} = socket, attrs) when is_map(attrs) or is_list(attrs) do
     %{socket | assigns: Map.merge(socket.assigns, Map.new(attrs))}
   end
