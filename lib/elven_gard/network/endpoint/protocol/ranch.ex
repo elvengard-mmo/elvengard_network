@@ -108,10 +108,19 @@ if Code.ensure_loaded?(:ranch) do
       do_handle_halt(:timeout, socket, state)
     end
 
+    @impl GenServer
+    def terminate(reason, %State{} = state) do
+      case reason do
+        :shutdown -> halt_on_shutdown(state)
+        _reason -> :ok
+      end
+    end
+
     ## Private function
 
     defp do_enter_loop(%State{} = state, timeout \\ :infinity) do
       %State{socket: socket} = state
+      Process.flag(:trap_exit, true)
       Socket.setopts(socket, active: :once)
       :gen_server.enter_loop(__MODULE__, [], state, timeout)
     end
@@ -129,10 +138,20 @@ if Code.ensure_loaded?(:ranch) do
 
     defp do_handle_halt(reason, socket, %State{} = state) do
       %State{socket_handler: socket_handler} = state
-      Socket.close(socket)
-      new_socket = Connection.halt(reason, socket, socket_handler)
+      new_socket = halt_connection(reason, socket, socket_handler)
 
       {:stop, :normal, %State{state | socket: new_socket}}
+    end
+
+    defp halt_on_shutdown(%State{} = state) do
+      %State{socket: socket, socket_handler: socket_handler} = state
+      _socket = halt_connection(:closed, socket, socket_handler)
+      :ok
+    end
+
+    defp halt_connection(reason, socket, socket_handler) do
+      Socket.close(socket)
+      Connection.halt(reason, socket, socket_handler)
     end
   end
 end

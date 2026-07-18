@@ -49,6 +49,22 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
     transport_options: [certfile: @tls_certfile, keyfile: @tls_keyfile]
   )
 
+  Application.put_env(:elvengard_network, __MODULE__.ShutdownEndpoint,
+    adapter: ElvenGard.Network.Endpoint.Adapters.ThousandIsland,
+    adapter_options: [num_acceptors: 1],
+    ip: {127, 0, 0, 1},
+    listener_name: __MODULE__.ShutdownListener,
+    port: 0,
+    socket_handler: __MODULE__.ShutdownSocketHandler,
+    transport: :tcp,
+    transport_options: []
+  )
+
+  Application.put_env(:elvengard_network, __MODULE__.ShutdownSocketHandler,
+    network_codec: __MODULE__.Codec,
+    packet_handler: __MODULE__.PacketHandler
+  )
+
   defmodule Packet do
     defstruct [:data]
   end
@@ -100,6 +116,10 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
   end
 
   defmodule TlsEndpoint do
+    use ElvenGard.Network.Endpoint, otp_app: :elvengard_network
+  end
+
+  defmodule ShutdownEndpoint do
     use ElvenGard.Network.Endpoint, otp_app: :elvengard_network
   end
 
@@ -175,6 +195,24 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
     def handle_init(_socket), do: :invalid
   end
 
+  defmodule ShutdownSocketHandler do
+    use ElvenGard.Network.SocketHandler
+
+    ## SocketHandler callbacks
+
+    @impl true
+    def handle_init(socket) do
+      send(Process.whereis(__MODULE__.Observer), :shutdown_init)
+      {:ok, socket}
+    end
+
+    @impl true
+    def handle_halt(reason, socket) do
+      send(Process.whereis(__MODULE__.Observer), {:shutdown_halt, reason})
+      {:ok, socket}
+    end
+  end
+
   setup_all do
     start_supervised!(Endpoint)
     start_supervised!(TlsEndpoint)
@@ -214,6 +252,26 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
 
     :ok = :ssl.close(socket)
     assert_receive {:handle_halt, :closed}
+  end
+
+  test "closes active connections and runs halt cleanup when the listener shuts down" do
+    Process.register(self(), ShutdownSocketHandler.Observer)
+    child_spec = ShutdownEndpoint.child_spec([])
+    start_supervised!(child_spec)
+
+    {:ok, socket} =
+      :gen_tcp.connect(
+        {127, 0, 0, 1},
+        ShutdownEndpoint.get_port(),
+        [:binary, active: false]
+      )
+
+    assert_receive :shutdown_init
+    :ok = stop_supervised(child_spec.id)
+
+    assert_receive {:shutdown_halt, :closed}
+    assert {:error, :closed} = :gen_tcp.recv(socket, 0)
+    refute_received {:shutdown_halt, :closed}
   end
 
   test "closes and runs halt cleanup when the packet handler halts" do
