@@ -12,7 +12,7 @@ defmodule LoginServer.Endpoint.NetworkCodec do
   @impl true
   def next(raw, _socket) do
     case String.split(raw, "\n", parts: 2) do
-      [packet] -> {packet, ""}
+      [packet] -> {nil, packet}
       [packet, rest] -> {packet, rest}
     end
   end

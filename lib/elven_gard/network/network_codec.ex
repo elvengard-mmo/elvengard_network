@@ -18,7 +18,8 @@ defmodule ElvenGard.Network.NetworkCodec do
 
   This function searches for the first packet within the raw binary data and
   returns it along with the remaining binary data. The extracted packet will
-  be passed to the `decode/2` callback for further processing.
+  be passed to the `decode/2` callback for further processing. If the data does
+  not contain a complete packet, it should return `nil` with the unconsumed data.
 
   ## Examples
 
@@ -26,8 +27,8 @@ defmodule ElvenGard.Network.NetworkCodec do
       {^packet1, ^remaining} = MyNetworkCodec.next(raw, socket)
 
   """
-  @callback next(raw :: bitstring, socket :: Socket.t()) ::
-              {packet_raw :: bitstring, remaining :: bitstring}
+  @callback next(raw :: binary, socket :: Socket.t()) ::
+              {packet_raw :: binary | nil, remaining :: binary}
 
   @doc """
   Decodes a packet from raw binary data.
@@ -42,7 +43,7 @@ defmodule ElvenGard.Network.NetworkCodec do
       %MessageStruct{id: 123, data: "some data"} = MyNetworkCodec.decode(raw_packet, socket)
 
   """
-  @callback decode(raw :: bitstring, socket :: Socket.t()) :: struct
+  @callback decode(raw :: binary, socket :: Socket.t()) :: struct
 
   @doc """
   Encodes a packet for network transmission.

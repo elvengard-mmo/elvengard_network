@@ -123,7 +123,12 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
       @impl true
       def handle_info({:tcp, transport_pid, data}, %Socket{} = socket) do
         %Socket{transport: transport, remaining: remaining} = socket
-        full_data = <<remaining::bitstring, data::bitstring>>
+
+        full_data =
+          case remaining do
+            <<>> -> data
+            _ -> :erlang.iolist_to_binary([remaining | data])
+          end
 
         result =
           case handle_message(full_data, socket) do
@@ -134,7 +139,10 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
             term -> raise "invalid return value for handle_message/2 (got: #{inspect(term)})"
           end
 
-        transport.setopts(transport_pid, active: :once)
+        if match?({:noreply, _socket}, result) do
+          transport.setopts(transport_pid, active: :once)
+        end
+
         result
       end
 

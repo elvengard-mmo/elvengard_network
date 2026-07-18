@@ -7,6 +7,7 @@ It must define 3 callbacks :
 
   - `next/2`: this callback takes a raw binary and a socket as parameters. It returns 
     the first packet found in the form of a tuple: `{packet_binary, rest_of_binary}`.
+    If the data is incomplete, it returns `{nil, unconsumed_binary}`.
   - `decode/2`: this callback takes the binary return by `next/2` and returns the 
     deserialized packet (a structure). You should use the `deserialize/3` helper created 
     by [defpacket](packet_definitions.html#decorators)
@@ -35,7 +36,7 @@ defmodule LoginServer.Endpoint.NetworkCodec do
   @impl true
   def next(raw, _socket) do
     case String.split(raw, "\n", parts: 2) do
-      [packet] -> {packet, ""}
+      [packet] -> {nil, packet}
       [packet, rest] -> {packet, rest}
     end
   end

@@ -35,7 +35,7 @@ defmodule ElvenGard.Network.Socket do
           id: String.t(),
           transport: atom,
           transport_pid: pid,
-          remaining: bitstring,
+          remaining: binary,
           assigns: map,
           encoder: module | :unset
         }
