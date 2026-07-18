@@ -18,8 +18,7 @@ defmodule MinecraftEx.Endpoint.Protocol do
     Logger.info("New connection: #{socket.id}")
     Logger.metadata(socket_id: socket.id)
 
-    %Socket{transport: transport, transport_pid: transport_pid} = socket
-    :ok = transport.setopts(transport_pid, packet: :raw, reuseaddr: true)
+    :ok = Socket.setopts(socket, packet: :raw, reuseaddr: true)
 
     {:ok, assign(socket, :state, :init)}
   end

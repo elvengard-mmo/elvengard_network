@@ -14,9 +14,7 @@ defmodule LoginServer.Endpoint.Protocol do
   @impl true
   def handle_init(%Socket{} = socket) do
     Logger.info("New connection: #{socket.id}")
-
-    %Socket{transport: transport, transport_pid: transport_pid} = socket
-    :ok = transport.setopts(transport_pid, packet: :line, reuseaddr: true)
+    :ok = Socket.setopts(socket, packet: :line, reuseaddr: true)
 
     {:ok, socket}
   end

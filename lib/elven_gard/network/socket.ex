@@ -82,6 +82,22 @@ defmodule ElvenGard.Network.Socket do
   end
 
   @doc """
+  Sets transport options for the socket.
+  """
+  @spec setopts(Socket.t(), list) :: :ok | {:error, term}
+  def setopts(%Socket{transport: transport, transport_pid: transport_pid}, opts) do
+    transport.setopts(transport_pid, opts)
+  end
+
+  @doc """
+  Closes the socket through its transport.
+  """
+  @spec close(Socket.t()) :: :ok
+  def close(%Socket{transport: transport, transport_pid: transport_pid}) do
+    transport.close(transport_pid)
+  end
+
+  @doc """
   Adds key value pairs to socket assigns.
 
   A single key value pair may be passed, a keyword list or map

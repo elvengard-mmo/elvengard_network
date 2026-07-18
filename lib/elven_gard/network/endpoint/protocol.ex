@@ -110,8 +110,7 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
       ## Helpers
 
       defp do_enter_loop(%Socket{} = socket, timeout \\ :infinity) do
-        %Socket{transport: transport, transport_pid: transport_pid} = socket
-        transport.setopts(transport_pid, active: :once)
+        Socket.setopts(socket, active: :once)
         :gen_server.enter_loop(__MODULE__, [], socket, timeout)
       end
     end
@@ -121,8 +120,8 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
   defp message_callbacks() do
     quote generated: true, location: :keep do
       @impl true
-      def handle_info({:tcp, transport_pid, data}, %Socket{} = socket) do
-        %Socket{transport: transport, remaining: remaining} = socket
+      def handle_info({:tcp, _transport_pid, data}, %Socket{} = socket) do
+        %Socket{remaining: remaining} = socket
 
         full_data =
           case remaining do
@@ -139,10 +138,7 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
             term -> raise "invalid return value for handle_message/2 (got: #{inspect(term)})"
           end
 
-        if match?({:noreply, _socket}, result) do
-          transport.setopts(transport_pid, active: :once)
-        end
-
+        rearm_transport(result)
         result
       end
 
@@ -152,6 +148,13 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
       defp env_config(), do: Application.fetch_env!(@app, __MODULE__)
       defp codec(), do: env_config()[:network_codec]
       defp handlers(), do: env_config()[:packet_handler]
+
+      defp rearm_transport(result) do
+        case result do
+          {:noreply, new_socket} -> Socket.setopts(new_socket, active: :once)
+          _ -> :ok
+        end
+      end
 
       defp packet_loop(<<>>, %Socket{} = socket) do
         {:noreply, %Socket{socket | remaining: <<>>}}
@@ -174,7 +177,7 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
   defp halt_callbacks() do
     quote generated: true, location: :keep do
       @impl true
-      def handle_info({:tcp_closed, transport_pid}, %Socket{} = socket) do
+      def handle_info({:tcp_closed, _transport_pid}, %Socket{} = socket) do
         do_handle_halt(:tcp_closed, socket)
       end
 
@@ -186,8 +189,7 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
       ## Helpers
 
       defp do_handle_halt(reason, socket) do
-        %Socket{transport: transport, transport_pid: transport_pid} = socket
-        transport.close(transport_pid)
+        Socket.close(socket)
 
         case handle_halt(reason, socket) do
           {:ok, new_socket} -> {:stop, :normal, new_socket}

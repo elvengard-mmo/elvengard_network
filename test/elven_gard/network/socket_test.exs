@@ -7,6 +7,18 @@ defmodule ElvenGard.Network.SocketTest do
 
   @transport :gen_tcp
 
+  defmodule TransportMock do
+    def setopts(owner, opts) do
+      send(owner, {:setopts, opts})
+      :ok
+    end
+
+    def close(owner) do
+      send(owner, :close)
+      :ok
+    end
+  end
+
   setup do
     port = EndpointHelper.get_unused_port_number()
     pid = start_supervised!({EchoServer, port: port})
@@ -68,6 +80,24 @@ defmodule ElvenGard.Network.SocketTest do
 
       assert :ok = Socket.send(socket, "send/2 first test")
       assert_receive {:tcp, _, "send/2 first test"}
+    end
+  end
+
+  describe "setopts/2" do
+    test "delegates to the socket transport" do
+      socket = %Socket{transport: TransportMock, transport_pid: self()}
+
+      assert :ok = Socket.setopts(socket, active: :once)
+      assert_received {:setopts, [active: :once]}
+    end
+  end
+
+  describe "close/1" do
+    test "delegates to the socket transport" do
+      socket = %Socket{transport: TransportMock, transport_pid: self()}
+
+      assert :ok = Socket.close(socket)
+      assert_received :close
     end
   end
 

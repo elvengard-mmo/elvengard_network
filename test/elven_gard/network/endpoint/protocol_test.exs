@@ -115,9 +115,9 @@ defmodule ElvenGard.Network.ProtocolTest do
     @impl true
     def handle_init(%Socket{transport: transport, transport_pid: transport_pid} = socket) do
       # the first packet (link's pid) is prefixed with the packet length (cf. serialized_self/0)
-      transport.setopts(transport_pid, packet: 1)
+      Socket.setopts(socket, packet: 1)
       {:ok, bin} = transport.recv(transport_pid, 0, @timeout)
-      transport.setopts(transport_pid, packet: 0)
+      Socket.setopts(socket, packet: 0)
 
       link = :erlang.binary_to_term(bin)
 
