@@ -2,7 +2,8 @@
 
 In this section, we will learn how to use `ElvenGard.Network.Endpoint.Protocol`.
 
-An Protocol is wrapper around [Ranch protocols](https://ninenines.eu/docs/en/ranch/2.2/guide/protocols/).
+A Protocol combines the Ranch runtime with the transport-independent callbacks
+defined by `ElvenGard.Network.SocketHandler`.
 
 ## Configuration
 

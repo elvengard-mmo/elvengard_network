@@ -71,7 +71,7 @@ Note that each handler takes as parameter a structure with decoded fields repres
 and the socket associated with it. A handler must return `{:cont, new_socket}` if we want to 
 continue receiving packets, or `{:halt, new_socket}` to close the connection to the socket 
 and shutdown the associated GenServer. It can also return `{:halt, reason, new_socket}` to pass a
-reason to the protocol's `handle_halt/2` callback.
+reason to the socket handler's `handle_halt/2` callback.
 
 Here, our handlers are quite simple: the first will just send to our client a `PongResponse` packet 
 with the current time and the second will return a `LoginSucceed` or a `LoginFailed` depending 

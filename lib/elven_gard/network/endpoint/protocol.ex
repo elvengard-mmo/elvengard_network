@@ -2,12 +2,9 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
   @moduledoc ~S"""
   Wrapper on top of [Ranch protocols](https://ninenines.eu/docs/en/ranch/2.2/guide/protocols/).
 
-  This module defines a protocol behavior to handle incoming connections in the
-  ElvenGard.Network library. It provides callbacks for initializing, handling
-  incoming messages, and handling connection termination.
-
-  This protocol behavior serves as a wrapper around Ranch protocols, providing
-  a structured way to implement connection handling within ElvenGard.Network.
+  Using this module installs the `ElvenGard.Network.SocketHandler` callbacks and
+  the Ranch runtime required to serve a connection. The socket-handler contract
+  itself is independent from Ranch.
 
   For detailed information on implementing and using network protocols
   with ElvenGard.Network, please refer to the
@@ -17,68 +14,19 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
   alias ElvenGard.Network.PacketProcessor
   alias ElvenGard.Network.Socket
 
-  @doc """
-  Callback called just before entering the GenServer loop.
-
-  This callback is invoked when a new connection is established and before the
-  GenServer loop starts processing messages.
-
-  For the return values, see `c:GenServer.init/1`
-  """
-  @callback handle_init(socket :: Socket.t()) ::
-              {:ok, new_socket}
-              | {:ok, new_socket, timeout() | :hibernate | {:continue, continue_arg}}
-              | {:stop, reason :: any(), new_socket}
-            when new_socket: Socket.t(), continue_arg: any()
-
-  @doc """
-  Callback called just after receiving a message.
-
-  This callback is invoked whenever a message is received on the connection. It should
-  return one of the following:
-
-    - `:ignore`: the message received will not be decoded or processed by the protocol.
-      It will just be ignored
-    - `{:ignore, new_socket}`: same as `:ignore` but also modifies the socket
-    - `{:ok, new_socket}`: classic loop - decode the packet and process it
-    - `{:stop, reason, new_socket}`: stop the GenServer/Protocol and disconnect the client
-
-  """
-  @callback handle_message(message :: binary(), socket :: Socket.t()) ::
-              :ignore
-              | {:ignore, new_socket}
-              | {:ok, new_socket}
-              | {:stop, reason :: any(), new_socket}
-            when new_socket: Socket.t()
-
-  @doc """
-  Callback called after the socket connection is closed and before the GenServer
-  shutdown.
-
-  """
-  @callback handle_halt(reason :: any(), socket :: Socket.t()) ::
-              {:ok, new_socket}
-              | {:ok, stop_reason :: any(), new_socket}
-            when new_socket: Socket.t()
-
-  @optional_callbacks handle_init: 1,
-                      handle_message: 2,
-                      handle_halt: 2
-
   ## Public API
 
   @doc false
   defmacro __using__(_opts) do
     quote do
       use GenServer
+      use ElvenGard.Network.SocketHandler
 
-      @behaviour unquote(__MODULE__)
       @behaviour :ranch_protocol
 
       unquote(defs())
       unquote(message_callbacks())
       unquote(halt_callbacks())
-      unquote(default_callbacks())
     end
   end
 
@@ -195,23 +143,6 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
           _ -> raise "handle_halt/2 must return `{:ok, socket}` or `{:ok, stop_reason, socket}`"
         end
       end
-    end
-  end
-
-  defp default_callbacks() do
-    quote do
-      @impl true
-      def handle_init(socket), do: {:ok, socket}
-
-      @impl true
-      def handle_message(_message, socket), do: {:ok, socket}
-
-      @impl true
-      def handle_halt(_reason, socket), do: {:ok, socket}
-
-      defoverridable handle_init: 1,
-                     handle_message: 2,
-                     handle_halt: 2
     end
   end
 end

@@ -23,7 +23,7 @@ defmodule ElvenGard.Network.PacketHandler do
   - `{:halt, socket}`: Indicates that packet processing is complete, and the client connection
     should be terminated.
   - `{:halt, reason, socket}`: Same as `{:halt, socket}`, passing `reason` to the protocol's
-    `c:ElvenGard.Network.Endpoint.Protocol.handle_halt/2` callback.
+    `c:ElvenGard.Network.SocketHandler.handle_halt/2` callback.
 
   ## Parameters
 
