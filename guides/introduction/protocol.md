@@ -1,9 +1,9 @@
 # Protocol
 
-In this section, we will learn how to use `ElvenGard.Network.Endpoint.Protocol`.
+In this section, we will learn how to use `ElvenGard.Network.SocketHandler`.
 
-A Protocol combines the Ranch runtime with the transport-independent callbacks
-defined by `ElvenGard.Network.SocketHandler`.
+A socket handler defines transport-independent callbacks. The Endpoint runs it
+through its Ranch runtime; application modules do not implement Ranch callbacks.
 
 ## Configuration
 
@@ -34,7 +34,7 @@ defmodule LoginServer.Endpoint.Protocol do
   Documentation for LoginServer.Endpoint.Protocol
   """
 
-  use ElvenGard.Network.Endpoint.Protocol
+  use ElvenGard.Network.SocketHandler
 
   require Logger
 

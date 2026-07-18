@@ -1,6 +1,7 @@
 defmodule ElvenGard.Network.ProtocolTest do
   use ExUnit.Case, async: true
 
+  alias ElvenGard.Network.Endpoint.Protocol.Ranch
   alias ElvenGard.Network.Socket
   alias ElvenGard.Network.Socket.Adapters.Ranch, as: RanchAdapter
 
@@ -10,9 +11,7 @@ defmodule ElvenGard.Network.ProtocolTest do
     transport_opts: [ip: {127, 0, 0, 1}, port: 0]
   )
 
-  Application.put_env(:elvengard_network, __MODULE__.MyProtocol, [])
-
-  Application.put_env(:elvengard_network, __MODULE__.HaltProtocol,
+  Application.put_env(:elvengard_network, __MODULE__.MyProtocol,
     network_codec: __MODULE__.HaltCodec,
     packet_handler: __MODULE__.HaltHandler
   )
@@ -73,7 +72,7 @@ defmodule ElvenGard.Network.ProtocolTest do
   end
 
   defmodule HaltProtocol do
-    use ElvenGard.Network.Endpoint.Protocol
+    use ElvenGard.Network.SocketHandler
 
     @impl true
     def handle_message(_message, %{assigns: %{observer: observer}} = socket) do
@@ -102,7 +101,7 @@ defmodule ElvenGard.Network.ProtocolTest do
   end
 
   defmodule MyProtocol do
-    use ElvenGard.Network.Endpoint.Protocol
+    use ElvenGard.Network.SocketHandler
 
     @impl true
     def handle_init(%Socket{} = socket) do
@@ -169,30 +168,30 @@ defmodule ElvenGard.Network.ProtocolTest do
 
   describe "message processing" do
     test "receives the socket returned by the packet handler" do
-      socket = halt_socket()
+      state = halt_state()
 
-      assert {:stop, :normal, %{assigns: %{halted: true}}} =
-               HaltProtocol.handle_info({:tcp, self(), "halt\n"}, socket)
+      assert {:stop, :normal, %Ranch.State{socket: %Socket{assigns: %{halted: true}}}} =
+               Ranch.handle_info({:tcp, self(), "halt\n"}, state)
 
       assert_received :transport_closed
       refute_received {:transport_opts, active: :once}
     end
 
     test "clears buffered data when the reconstructed message is ignored" do
-      socket = halt_socket(remaining: "frag", assigns: %{ignore: true})
+      state = halt_state(remaining: "frag", assigns: %{ignore: true})
 
-      assert {:noreply, %{remaining: <<>>}} =
-               HaltProtocol.handle_info({:tcp, self(), "ment"}, socket)
+      assert {:noreply, %Ranch.State{socket: %Socket{remaining: <<>>}}} =
+               Ranch.handle_info({:tcp, self(), "ment"}, state)
 
       assert_received {:transport_opts, active: :once}
       refute_received :transport_closed
     end
 
     test "clears buffered data after the reconstructed packet is consumed" do
-      socket = halt_socket(remaining: "frag", assigns: %{observer: self()})
+      state = halt_state(remaining: "frag", assigns: %{observer: self()})
 
-      assert {:noreply, %{remaining: <<>>}} =
-               HaltProtocol.handle_info({:tcp, self(), "ment\n"}, socket)
+      assert {:noreply, %Ranch.State{socket: %Socket{remaining: <<>>}}} =
+               Ranch.handle_info({:tcp, self(), "ment\n"}, state)
 
       assert_received {:remaining_seen_by_callback, "frag"}
       assert_received {:transport_opts, active: :once}
@@ -200,40 +199,40 @@ defmodule ElvenGard.Network.ProtocolTest do
     end
 
     test "buffers an incomplete packet" do
-      socket = halt_socket()
+      state = halt_state()
 
-      assert {:noreply, %{remaining: "partial"}} =
-               HaltProtocol.handle_info({:tcp, self(), "partial"}, socket)
+      assert {:noreply, %Ranch.State{socket: %Socket{remaining: "partial"}}} =
+               Ranch.handle_info({:tcp, self(), "partial"}, state)
 
       assert_received {:transport_opts, active: :once}
       refute_received :transport_closed
     end
 
     test "preserves socket changes and clears buffered data with {:ignore, socket}" do
-      socket = halt_socket(remaining: "frag", assigns: %{ignore_with_socket: true})
+      state = halt_state(remaining: "frag", assigns: %{ignore_with_socket: true})
 
-      assert {:noreply, %{remaining: <<>>, assigns: %{ignored: true}}} =
-               HaltProtocol.handle_info({:tcp, self(), "ment"}, socket)
+      assert {:noreply, %Ranch.State{socket: %Socket{remaining: <<>>, assigns: %{ignored: true}}}} =
+               Ranch.handle_info({:tcp, self(), "ment"}, state)
 
       assert_received {:transport_opts, active: :once}
       refute_received :transport_closed
     end
 
     test "does not rearm the transport after handle_message/2 stops" do
-      socket = halt_socket(assigns: %{stop: true})
+      state = halt_state(assigns: %{stop: true})
 
-      assert {:stop, :requested, ^socket} =
-               HaltProtocol.handle_info({:tcp, self(), "stop"}, socket)
+      assert {:stop, :requested, ^state} =
+               Ranch.handle_info({:tcp, self(), "stop"}, state)
 
       refute_received {:transport_opts, active: :once}
       refute_received :transport_closed
     end
 
     test "passes the packet handler halt reason without rearming the transport" do
-      socket = halt_socket()
+      state = halt_state()
 
-      assert {:stop, :requested, %{assigns: %{halted: true}}} =
-               HaltProtocol.handle_info({:tcp, self(), "halt:reason\n"}, socket)
+      assert {:stop, :requested, %Ranch.State{socket: %Socket{assigns: %{halted: true}}}} =
+               Ranch.handle_info({:tcp, self(), "halt:reason\n"}, state)
 
       assert_received :transport_closed
       refute_received {:transport_opts, active: :once}
@@ -242,7 +241,7 @@ defmodule ElvenGard.Network.ProtocolTest do
 
   ## Private/internals helpers
 
-  defp halt_socket(attrs \\ []) do
+  defp halt_state(attrs \\ []) do
     socket =
       Socket.new(
         RanchAdapter,
@@ -250,7 +249,11 @@ defmodule ElvenGard.Network.ProtocolTest do
         HaltCodec
       )
 
-    struct!(socket, attrs)
+    %Ranch.State{
+      socket: struct!(socket, attrs),
+      socket_handler: HaltProtocol,
+      packet_handler: HaltHandler
+    }
   end
 
   defp connect() do

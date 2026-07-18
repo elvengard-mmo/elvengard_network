@@ -3,7 +3,7 @@ defmodule EchoServer.Endpoint.Protocol do
   Documentation for EchoServer.Endpoint.Protocol
   """
 
-  use ElvenGard.Network.Endpoint.Protocol
+  use ElvenGard.Network.SocketHandler
 
   require Logger
 

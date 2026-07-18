@@ -3,7 +3,7 @@ defmodule MinecraftEx.Endpoint.Protocol do
   Documentation for MinecraftEx.Endpoint.Protocol
   """
 
-  use ElvenGard.Network.Endpoint.Protocol
+  use ElvenGard.Network.SocketHandler
 
   require Logger
 

@@ -5,30 +5,34 @@ defmodule ElvenGard.Network.EndpointTest do
 
   Application.put_env(:elvengard_network, __MODULE__.MyEndpoint,
     listener_name: :my_endpoint,
+    protocol: __MODULE__.MyHandler,
     transport_opts: [ip: {127, 0, 0, 1}, port: 0]
+  )
+
+  Application.put_env(:elvengard_network, __MODULE__.MyHandler,
+    network_codec: ElvenGard.Network.DummyEncoder,
+    packet_handler: __MODULE__.MyPacketHandler
   )
 
   defmodule MyEndpoint do
     use ElvenGard.Network.Endpoint, otp_app: :elvengard_network
-
-    @behaviour :ranch_protocol
 
     @impl ElvenGard.Network.Endpoint
     def handle_start(_config) do
       send(self(), :handle_start)
       :ok
     end
+  end
 
-    @impl :ranch_protocol
-    def start_link(ref, transport, opts) do
-      {:ok, :proc_lib.spawn_link(__MODULE__, :init, [{ref, transport, opts}])}
-    end
+  defmodule MyHandler do
+    use ElvenGard.Network.SocketHandler
+  end
 
-    def init({ref, transport, _opts}) do
-      {:ok, socket} = :ranch.handshake(ref)
-      transport.close(socket)
-      :ignore
-    end
+  defmodule MyPacketHandler do
+    @behaviour ElvenGard.Network.PacketHandler
+
+    @impl true
+    def handle_packet(_packet, socket), do: {:cont, socket}
   end
 
   setup_all do
@@ -79,7 +83,7 @@ defmodule ElvenGard.Network.EndpointTest do
     assert config[:listener_name] == :my_endpoint
     assert config[:transport] == :ranch_tcp
     assert config[:transport_opts]
-    assert config[:protocol] == ElvenGard.Network.EndpointTest.MyEndpoint
+    assert config[:protocol] == ElvenGard.Network.EndpointTest.MyHandler
     assert config[:protocol_opts]
   end
 
@@ -103,8 +107,11 @@ defmodule ElvenGard.Network.EndpointTest do
                    {ElvenGard.Network.EndpointTest.MyEndpoint, :my_endpoint},
                    :ranch_tcp,
                    %{socket_opts: [ip: {127, 0, 0, 1}, port: 0]},
-                   ElvenGard.Network.EndpointTest.MyEndpoint,
-                   []
+                   ElvenGard.Network.Endpoint.Protocol.Ranch,
+                   [
+                     otp_app: :elvengard_network,
+                     socket_handler: ElvenGard.Network.EndpointTest.MyHandler
+                   ]
                  ]
                },
                type: :supervisor

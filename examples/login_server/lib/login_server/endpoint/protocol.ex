@@ -3,7 +3,7 @@ defmodule LoginServer.Endpoint.Protocol do
   Documentation for LoginServer.Endpoint.Protocol
   """
 
-  use ElvenGard.Network.Endpoint.Protocol
+  use ElvenGard.Network.SocketHandler
 
   require Logger
 
