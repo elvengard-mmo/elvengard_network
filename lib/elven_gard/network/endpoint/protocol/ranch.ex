@@ -4,7 +4,7 @@ if Code.ensure_loaded?(:ranch) do
 
     use GenServer
 
-    alias ElvenGard.Network.PacketProcessor
+    alias ElvenGard.Network.Endpoint.MessageProcessor
     alias ElvenGard.Network.Socket
     alias ElvenGard.Network.Socket.Adapters.Ranch, as: RanchAdapter
 
@@ -79,31 +79,16 @@ if Code.ensure_loaded?(:ranch) do
     @impl GenServer
     def handle_info({transport, _transport_socket, data}, %State{} = state)
         when transport in [:tcp, :ssl] do
-      %State{socket: socket, socket_handler: socket_handler} = state
-      %Socket{remaining: remaining} = socket
-
-      full_data =
-        case remaining do
-          <<>> -> data
-          _ -> :erlang.iolist_to_binary([remaining | data])
-        end
+      %State{
+        socket: socket,
+        socket_handler: socket_handler,
+        packet_handler: packet_handler
+      } = state
 
       result =
-        case socket_handler.handle_message(full_data, socket) do
-          :ignore ->
-            {:noreply, %State{state | socket: %Socket{socket | remaining: <<>>}}}
-
-          {:ignore, %Socket{} = new_socket} ->
-            {:noreply, %State{state | socket: %Socket{new_socket | remaining: <<>>}}}
-
-          {:ok, %Socket{} = new_socket} ->
-            process_packets(full_data, new_socket, state)
-
-          {:stop, reason, %Socket{} = new_socket} ->
-            {:stop, reason, %State{state | socket: new_socket}}
-
-          value ->
-            raise "invalid return value for handle_message/2 (got: #{inspect(value)})"
+        case MessageProcessor.process(data, socket, socket_handler, packet_handler) do
+          {:cont, new_socket} -> {:noreply, %State{state | socket: new_socket}}
+          {:halt, reason, new_socket} -> do_handle_halt(reason, new_socket, state)
         end
 
       rearm_transport(result)
@@ -146,16 +131,6 @@ if Code.ensure_loaded?(:ranch) do
 
         _ ->
           :ok
-      end
-    end
-
-    defp process_packets(data, %Socket{} = socket, %State{} = state) do
-      %State{packet_handler: packet_handler} = state
-      %Socket{encoder: codec} = socket
-
-      case PacketProcessor.process(data, socket, codec, packet_handler) do
-        {:cont, new_socket} -> {:noreply, %State{state | socket: new_socket}}
-        {:halt, reason, new_socket} -> do_handle_halt(reason, new_socket, state)
       end
     end
 

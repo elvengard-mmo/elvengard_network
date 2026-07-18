@@ -96,6 +96,11 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
     def handle_message(_message, socket), do: {:ok, socket}
 
     @impl true
+    def handle_halt(reason, %{assigns: %{stop: true}} = socket) do
+      send(self(), {:socket_handler_halt, reason})
+      {:ok, reason, socket}
+    end
+
     def handle_halt(reason, socket), do: {:ok, reason, socket}
   end
 
@@ -221,14 +226,17 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
       refute_received :transport_closed
     end
 
-    test "does not rearm the transport after handle_message/2 stops" do
+    test "closes and runs halt cleanup after handle_message/2 stops" do
       state = halt_state(assigns: %{stop: true})
 
       assert {:stop, :requested, ^state} =
                Ranch.handle_info({:tcp, self(), "stop"}, state)
 
-      refute_received {:transport_opts, active: :once}
+      assert_received {:socket_handler_halt, :requested}
+      assert_received :transport_closed
+      refute_received {:socket_handler_halt, :requested}
       refute_received :transport_closed
+      refute_received {:transport_opts, active: :once}
     end
 
     test "passes the packet handler halt reason without rearming the transport" do

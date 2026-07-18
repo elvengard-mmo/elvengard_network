@@ -190,6 +190,7 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
 
     assert_receive {:handle_halt, :normal}
     assert {:error, :closed} = :gen_tcp.recv(socket, 0)
+    refute_received {:handle_halt, :normal}
   end
 
   test "preserves a stop reason returned by the socket handler" do
@@ -200,6 +201,7 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
 
     assert_receive {:handle_halt, :requested}
     assert {:error, :closed} = :gen_tcp.recv(socket, 0)
+    refute_received {:handle_halt, :requested}
   end
 
   test "translates socket handler init timeouts and stops" do
