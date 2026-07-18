@@ -17,19 +17,26 @@ defmodule ElvenGard.Network.Endpoint.Adapters.ThousandIslandTest do
     transport_options: [reuseaddr: true]
   ]
 
+  @runtime_options [
+    socket_handler: __MODULE__.SocketHandler,
+    network_codec: __MODULE__.NetworkCodec,
+    packet_handler: __MODULE__.PacketHandler
+  ]
+
   test "builds a Thousand Island child spec from generic endpoint configuration" do
     assert %{
              id: {ThousandIslandServer, __MODULE__.Endpoint, :test_thousand_island_listener},
              start: {ThousandIslandServer, :start_link, [options]},
              restart: :permanent,
              type: :supervisor
-           } = Adapter.child_spec(__MODULE__.Endpoint, @base_config)
+           } = Adapter.child_spec(__MODULE__.Endpoint, @base_config, @runtime_options)
 
     assert options[:handler_module] == Protocol.ThousandIsland
 
     assert options[:handler_options] == [
-             otp_app: :elvengard_network,
-             socket_handler: __MODULE__.SocketHandler
+             socket_handler: __MODULE__.SocketHandler,
+             network_codec: __MODULE__.NetworkCodec,
+             packet_handler: __MODULE__.PacketHandler
            ]
 
     assert options[:num_acceptors] == 10
@@ -49,7 +56,7 @@ defmodule ElvenGard.Network.Endpoint.Adapters.ThousandIslandTest do
       )
 
     %{start: {ThousandIslandServer, :start_link, [options]}} =
-      Adapter.child_spec(__MODULE__.Endpoint, config)
+      Adapter.child_spec(__MODULE__.Endpoint, config, @runtime_options)
 
     assert options[:supervisor_options] == [name: :test_thousand_island_listener]
   end
@@ -58,7 +65,7 @@ defmodule ElvenGard.Network.Endpoint.Adapters.ThousandIslandTest do
     config = Keyword.put(@base_config, :transport, :ssl)
 
     %{start: {ThousandIslandServer, :start_link, [options]}} =
-      Adapter.child_spec(__MODULE__.Endpoint, config)
+      Adapter.child_spec(__MODULE__.Endpoint, config, @runtime_options)
 
     assert options[:transport_module] == ThousandIsland.Transports.SSL
   end
@@ -67,7 +74,7 @@ defmodule ElvenGard.Network.Endpoint.Adapters.ThousandIslandTest do
     config = Keyword.put(@base_config, :ip, "1.2.3.4.5")
 
     assert_raise ArgumentError, ~r/invalid IP address/, fn ->
-      Adapter.child_spec(__MODULE__.Endpoint, config)
+      Adapter.child_spec(__MODULE__.Endpoint, config, @runtime_options)
     end
   end
 end

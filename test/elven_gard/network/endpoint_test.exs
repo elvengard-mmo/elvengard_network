@@ -49,8 +49,8 @@ defmodule ElvenGard.Network.EndpointTest do
     ## Callbacks
 
     @impl true
-    def child_spec(endpoint, config) do
-      send(self(), {:adapter_child_spec, endpoint, config})
+    def child_spec(endpoint, config, runtime_options) do
+      send(self(), {:adapter_child_spec, endpoint, config, runtime_options})
       Supervisor.child_spec({Task, fn -> :ok end}, id: endpoint)
     end
 
@@ -126,6 +126,41 @@ defmodule ElvenGard.Network.EndpointTest do
     assert error.key == :adapter
   end
 
+  test "raises before calling the adapter if the socket handler configuration is incomplete" do
+    endpoint = __MODULE__.EndpointWithIncompleteHandler
+    socket_handler = __MODULE__.IncompleteHandler
+
+    Application.put_env(:elvengard_network, endpoint,
+      adapter: DelegatingAdapter,
+      socket_handler: socket_handler
+    )
+
+    Application.put_env(:elvengard_network, socket_handler,
+      network_codec: ElvenGard.Network.DummyEncoder
+    )
+
+    on_exit(fn ->
+      Application.delete_env(:elvengard_network, endpoint)
+      Application.delete_env(:elvengard_network, socket_handler)
+    end)
+
+    Code.eval_quoted(
+      quote do
+        defmodule ElvenGard.Network.EndpointTest.EndpointWithIncompleteHandler do
+          use ElvenGard.Network.Endpoint, otp_app: :elvengard_network
+        end
+      end
+    )
+
+    error =
+      assert_raise KeyError, fn ->
+        endpoint.child_spec([])
+      end
+
+    assert error.key == :packet_handler
+    refute_received {:adapter_child_spec, ^endpoint, _config, _runtime_options}
+  end
+
   test "starts a tcp listener" do
     host = {127, 0, 0, 1}
     port = MyEndpoint.get_port()
@@ -133,6 +168,25 @@ defmodule ElvenGard.Network.EndpointTest do
     assert {:ok, socket} = :gen_tcp.connect(host, port, [])
 
     :gen_tcp.close(socket)
+  end
+
+  test "reuses the handler configuration resolved when the listener started" do
+    handler_config = Application.fetch_env!(:elvengard_network, MyHandler)
+    Application.delete_env(:elvengard_network, MyHandler)
+
+    on_exit(fn ->
+      Application.put_env(:elvengard_network, MyHandler, handler_config)
+    end)
+
+    assert {:ok, socket} =
+             :gen_tcp.connect(
+               {127, 0, 0, 1},
+               MyEndpoint.get_port(),
+               [:binary, active: false]
+             )
+
+    assert {:error, :timeout} = :gen_tcp.recv(socket, 0, 50)
+    :ok = :gen_tcp.close(socket)
   end
 
   test "config/0 returns the config" do
@@ -173,8 +227,14 @@ defmodule ElvenGard.Network.EndpointTest do
   test "delegates listener operations to the configured adapter" do
     config = DelegatingEndpoint.config()
 
+    runtime_options = [
+      socket_handler: MyHandler,
+      network_codec: ElvenGard.Network.DummyEncoder,
+      packet_handler: MyPacketHandler
+    ]
+
     assert %{id: DelegatingEndpoint} = DelegatingEndpoint.child_spec([])
-    assert_received {:adapter_child_spec, DelegatingEndpoint, ^config}
+    assert_received {:adapter_child_spec, DelegatingEndpoint, ^config, ^runtime_options}
 
     assert DelegatingEndpoint.get_addr() == "adapter-address"
     assert_received {:adapter_get_addr, DelegatingEndpoint, ^config}
@@ -197,8 +257,9 @@ defmodule ElvenGard.Network.EndpointTest do
                    %{socket_opts: [ip: {127, 0, 0, 1}, port: 0]},
                    ElvenGard.Network.Endpoint.Protocol.Ranch,
                    [
-                     otp_app: :elvengard_network,
-                     socket_handler: ElvenGard.Network.EndpointTest.MyHandler
+                     socket_handler: ElvenGard.Network.EndpointTest.MyHandler,
+                     network_codec: ElvenGard.Network.DummyEncoder,
+                     packet_handler: ElvenGard.Network.EndpointTest.MyPacketHandler
                    ]
                  ]
                },

@@ -30,10 +30,8 @@ if Code.ensure_loaded?(ThousandIsland.Handler) do
     @impl ThousandIsland.Handler
     def handle_connection(transport_socket, options) do
       socket_handler = Keyword.fetch!(options, :socket_handler)
-      otp_app = Keyword.fetch!(options, :otp_app)
-      handler_config = Application.fetch_env!(otp_app, socket_handler)
-      codec = Keyword.fetch!(handler_config, :network_codec)
-      packet_handler = Keyword.fetch!(handler_config, :packet_handler)
+      codec = Keyword.fetch!(options, :network_codec)
+      packet_handler = Keyword.fetch!(options, :packet_handler)
 
       socket = Socket.new(ThousandIslandAdapter, [socket: transport_socket], codec)
 

@@ -4,6 +4,11 @@ defmodule ElvenGard.Network.Endpoint.ConfigTest do
   alias ElvenGard.Network.Endpoint
   alias ElvenGard.Network.Endpoint.Adapters.Ranch
 
+  Application.put_env(:elvengard_network, MyApp.SocketHandler,
+    network_codec: MyApp.NetworkCodec,
+    packet_handler: MyApp.PacketHandler
+  )
+
   @configured_options [
     adapter: Ranch,
     adapter_options: [num_acceptors: 10],
@@ -15,7 +20,7 @@ defmodule ElvenGard.Network.Endpoint.ConfigTest do
     transport_options: [reuseaddr: true]
   ]
 
-  describe "config/2" do
+  describe "config/3" do
     test "returns generic endpoint configuration" do
       config =
         Endpoint.Config.config(:elvengard_network, MyApp.Endpoint, @configured_options)
@@ -63,6 +68,41 @@ defmodule ElvenGard.Network.Endpoint.ConfigTest do
           socket_handler: MyApp.SocketHandler
         )
       end
+    end
+  end
+
+  describe "runtime_options/1" do
+    test "resolves the connection modules from the socket handler configuration" do
+      config =
+        Endpoint.Config.config(:elvengard_network, MyApp.Endpoint, @configured_options)
+
+      assert Endpoint.Config.runtime_options(config) == [
+               socket_handler: MyApp.SocketHandler,
+               network_codec: MyApp.NetworkCodec,
+               packet_handler: MyApp.PacketHandler
+             ]
+    end
+
+    test "requires a complete socket handler configuration" do
+      socket_handler = __MODULE__.IncompleteSocketHandler
+
+      Application.put_env(:elvengard_network, socket_handler, network_codec: MyApp.NetworkCodec)
+
+      on_exit(fn -> Application.delete_env(:elvengard_network, socket_handler) end)
+
+      config =
+        Endpoint.Config.config(
+          :elvengard_network,
+          MyApp.Endpoint,
+          Keyword.put(@configured_options, :socket_handler, socket_handler)
+        )
+
+      error =
+        assert_raise KeyError, fn ->
+          Endpoint.Config.runtime_options(config)
+        end
+
+      assert error.key == :packet_handler
     end
   end
 end

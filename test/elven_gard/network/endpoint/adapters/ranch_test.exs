@@ -16,8 +16,14 @@ defmodule ElvenGard.Network.Endpoint.Adapters.RanchTest do
     transport_options: [reuseaddr: true]
   ]
 
+  @runtime_options [
+    socket_handler: __MODULE__.SocketHandler,
+    network_codec: __MODULE__.NetworkCodec,
+    packet_handler: __MODULE__.PacketHandler
+  ]
+
   test "builds a Ranch child spec from generic endpoint configuration" do
-    assert Ranch.child_spec(__MODULE__.Endpoint, @base_config) == %{
+    assert Ranch.child_spec(__MODULE__.Endpoint, @base_config, @runtime_options) == %{
              id: {:ranch_embedded_sup, {__MODULE__.Endpoint, :test_listener}},
              start: {
                :ranch_embedded_sup,
@@ -31,8 +37,9 @@ defmodule ElvenGard.Network.Endpoint.Adapters.RanchTest do
                  },
                  Protocol.Ranch,
                  [
-                   otp_app: :elvengard_network,
-                   socket_handler: __MODULE__.SocketHandler
+                   socket_handler: __MODULE__.SocketHandler,
+                   network_codec: __MODULE__.NetworkCodec,
+                   packet_handler: __MODULE__.PacketHandler
                  ]
                ]
              },
@@ -44,7 +51,7 @@ defmodule ElvenGard.Network.Endpoint.Adapters.RanchTest do
     config = Keyword.put(@base_config, :transport, :ssl)
 
     %{start: {:ranch_embedded_sup, :start_link, [_ref, transport | _rest]}} =
-      Ranch.child_spec(__MODULE__.Endpoint, config)
+      Ranch.child_spec(__MODULE__.Endpoint, config, @runtime_options)
 
     assert transport == :ranch_ssl
   end
@@ -53,7 +60,7 @@ defmodule ElvenGard.Network.Endpoint.Adapters.RanchTest do
     config = Keyword.put(@base_config, :ip, "1.2.3.4.5")
 
     assert_raise ArgumentError, ~r/invalid IP address/, fn ->
-      Ranch.child_spec(__MODULE__.Endpoint, config)
+      Ranch.child_spec(__MODULE__.Endpoint, config, @runtime_options)
     end
   end
 end

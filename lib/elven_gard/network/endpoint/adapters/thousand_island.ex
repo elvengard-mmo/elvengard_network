@@ -16,10 +16,11 @@ if Code.ensure_loaded?(ThousandIsland) do
     ## Endpoint.Adapter callbacks
 
     @impl true
-    @spec child_spec(module(), Endpoint.config()) :: Supervisor.child_spec()
-    def child_spec(endpoint, config) do
+    @spec child_spec(module(), Endpoint.config(), Endpoint.runtime_options()) ::
+            Supervisor.child_spec()
+    def child_spec(endpoint, config, runtime_options) do
       config
-      |> server_options()
+      |> server_options(runtime_options)
       |> ThousandIslandServer.child_spec()
       |> Map.put(:id, {ThousandIslandServer, endpoint, listener_name(config)})
     end
@@ -50,12 +51,7 @@ if Code.ensure_loaded?(ThousandIsland) do
 
     ## Private function
 
-    defp server_options(config) do
-      runtime_options = [
-        otp_app: Keyword.fetch!(config, :otp_app),
-        socket_handler: Keyword.fetch!(config, :socket_handler)
-      ]
-
+    defp server_options(config, runtime_options) do
       config
       |> Keyword.fetch!(:adapter_options)
       |> Keyword.update(

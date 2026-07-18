@@ -13,13 +13,9 @@ if Code.ensure_loaded?(:ranch) do
     ## Endpoint.Adapter callbacks
 
     @impl true
-    @spec child_spec(module(), Endpoint.config()) :: Supervisor.child_spec()
-    def child_spec(endpoint, config) do
-      runtime_options = [
-        otp_app: Keyword.fetch!(config, :otp_app),
-        socket_handler: Keyword.fetch!(config, :socket_handler)
-      ]
-
+    @spec child_spec(module(), Endpoint.config(), Endpoint.runtime_options()) ::
+            Supervisor.child_spec()
+    def child_spec(endpoint, config, runtime_options) do
       :ranch.child_spec(
         listener_ref(endpoint, config),
         transport_module(config),

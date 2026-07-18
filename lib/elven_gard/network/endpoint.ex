@@ -9,6 +9,8 @@ defmodule ElvenGard.Network.Endpoint do
   refer to the [Endpoint documentation](https://hexdocs.pm/elvengard_network/endpoint.html).
   """
 
+  alias __MODULE__.Config, as: EndpointConfig
+
   @type transport :: :tcp | :ssl
   @type ip_address :: :inet.ip_address() | String.t()
 
@@ -25,6 +27,12 @@ defmodule ElvenGard.Network.Endpoint do
   @type options :: [option()]
   @type config :: [{:otp_app, atom()} | option()]
 
+  @type runtime_options :: [
+          socket_handler: module(),
+          network_codec: module(),
+          packet_handler: module()
+        ]
+
   ## Callbacks
 
   @doc "Called just before starting the endpoint listener."
@@ -40,7 +48,7 @@ defmodule ElvenGard.Network.Endpoint do
 
       @otp_app unquote(opts)[:otp_app] || raise("endpoint expects :otp_app to be given")
 
-      @config ElvenGard.Network.Endpoint.Config.config(
+      @config unquote(EndpointConfig).config(
                 @otp_app,
                 __MODULE__,
                 Application.compile_env(@otp_app, __MODULE__, [])
@@ -62,10 +70,11 @@ defmodule ElvenGard.Network.Endpoint do
       """
       @spec child_spec(Keyword.t()) :: Supervisor.child_spec()
       def child_spec(_opts) do
+        runtime_options = unquote(EndpointConfig).runtime_options(@config)
         :ok = handle_start(@config)
 
         adapter = Keyword.fetch!(@config, :adapter)
-        adapter.child_spec(__MODULE__, @config)
+        adapter.child_spec(__MODULE__, @config, runtime_options)
       end
 
       @doc """

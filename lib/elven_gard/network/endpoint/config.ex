@@ -16,6 +16,22 @@ defmodule ElvenGard.Network.Endpoint.Config do
     config
   end
 
+  @doc """
+  Resolves the modules used by every connection started by an endpoint.
+  """
+  @spec runtime_options(Endpoint.config()) :: Endpoint.runtime_options()
+  def runtime_options(config) do
+    otp_app = Keyword.fetch!(config, :otp_app)
+    socket_handler = Keyword.fetch!(config, :socket_handler)
+    handler_config = Application.fetch_env!(otp_app, socket_handler)
+
+    [
+      socket_handler: socket_handler,
+      network_codec: Keyword.fetch!(handler_config, :network_codec),
+      packet_handler: Keyword.fetch!(handler_config, :packet_handler)
+    ]
+  end
+
   ## Private function
 
   defp defaults(otp_app, endpoint) do

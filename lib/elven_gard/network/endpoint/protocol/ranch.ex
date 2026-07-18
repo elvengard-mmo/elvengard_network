@@ -37,10 +37,8 @@ if Code.ensure_loaded?(:ranch) do
     @impl GenServer
     def init({ref, transport, opts}) do
       socket_handler = Keyword.fetch!(opts, :socket_handler)
-      otp_app = Keyword.fetch!(opts, :otp_app)
-      handler_config = Application.fetch_env!(otp_app, socket_handler)
-      codec = Keyword.fetch!(handler_config, :network_codec)
-      packet_handler = Keyword.fetch!(handler_config, :packet_handler)
+      codec = Keyword.fetch!(opts, :network_codec)
+      packet_handler = Keyword.fetch!(opts, :packet_handler)
 
       {:ok, transport_socket} = :ranch.handshake(ref)
 

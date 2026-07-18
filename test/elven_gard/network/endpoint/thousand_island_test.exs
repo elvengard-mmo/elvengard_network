@@ -23,21 +23,6 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
     packet_handler: __MODULE__.PacketHandler
   )
 
-  Application.put_env(:elvengard_network, __MODULE__.TimeoutSocketHandler,
-    network_codec: __MODULE__.Codec,
-    packet_handler: __MODULE__.PacketHandler
-  )
-
-  Application.put_env(:elvengard_network, __MODULE__.StopSocketHandler,
-    network_codec: __MODULE__.Codec,
-    packet_handler: __MODULE__.PacketHandler
-  )
-
-  Application.put_env(:elvengard_network, __MODULE__.InvalidSocketHandler,
-    network_codec: __MODULE__.Codec,
-    packet_handler: __MODULE__.PacketHandler
-  )
-
   Application.put_env(:elvengard_network, __MODULE__.TlsEndpoint,
     adapter: ElvenGard.Network.Endpoint.Adapters.ThousandIsland,
     adapter_options: [num_acceptors: 2],
@@ -300,15 +285,13 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
     assert {:continue, %Protocol.State{}, 250} =
              Protocol.handle_connection(
                :transport_socket,
-               otp_app: :elvengard_network,
-               socket_handler: TimeoutSocketHandler
+               runtime_options(TimeoutSocketHandler)
              )
 
     assert {:close, %Protocol.State{halt_reason: :requested} = state} =
              Protocol.handle_connection(
                :transport_socket,
-               otp_app: :elvengard_network,
-               socket_handler: StopSocketHandler
+               runtime_options(StopSocketHandler)
              )
 
     refute_received {:init_stop_halt, :requested}
@@ -321,8 +304,7 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
     assert_raise RuntimeError, ~r/handle_init\/1 must return/, fn ->
       Protocol.handle_connection(
         :transport_socket,
-        otp_app: :elvengard_network,
-        socket_handler: InvalidSocketHandler
+        runtime_options(InvalidSocketHandler)
       )
     end
   end
@@ -354,6 +336,14 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
   end
 
   ## Private function
+
+  defp runtime_options(socket_handler) do
+    [
+      socket_handler: socket_handler,
+      network_codec: Codec,
+      packet_handler: PacketHandler
+    ]
+  end
 
   defp runtime_state(socket_attrs \\ []) do
     assigns =
