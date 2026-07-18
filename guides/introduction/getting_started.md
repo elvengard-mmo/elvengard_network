@@ -38,10 +38,14 @@ Then, we need to add a bit of configuration in `config/config.exs`
 import Config
 
 config :login_server, LoginServer.Endpoint,
+  adapter: ElvenGard.Network.Endpoint.Adapters.Ranch,
+  adapter_options: [],
+  ip: "127.0.0.1",
   listener_name: :login_server,
-  transport: :ranch_tcp,
-  transport_opts: [ip: "127.0.0.1", port: 3000],
-  socket_handler: LoginServer.Endpoint.SocketHandler
+  port: 3000,
+  socket_handler: LoginServer.Endpoint.SocketHandler,
+  transport: :tcp,
+  transport_options: []
 
 config :login_server, LoginServer.Endpoint.SocketHandler,
   packet_handler: LoginServer.Endpoint.PacketHandler,

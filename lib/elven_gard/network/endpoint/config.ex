@@ -1,92 +1,33 @@
 defmodule ElvenGard.Network.Endpoint.Config do
-  # Handles ElvenGard Endpoints configuration.
-  #
-  # This module is private to ElvenGard and should not be accessed
-  # directly. The ElvenGard endpoint configuration can be accessed
-  # at runtime using the `config/2` function (TODO).
   @moduledoc false
+
+  alias ElvenGard.Network.Endpoint
+  alias ElvenGard.Network.Endpoint.Adapters.Ranch
 
   ## Public API
 
   @doc """
-  The endpoint configuration used at compile time.
+  Returns the endpoint configuration used at compile time.
   """
-  def config(otp_app, endpoint) do
-    config(otp_app, endpoint, defaults(otp_app, endpoint))
+  @spec config(atom(), module(), Endpoint.options()) :: Endpoint.config()
+  def config(otp_app, endpoint, configured_options) do
+    config = Keyword.merge(defaults(otp_app, endpoint), configured_options)
+    _socket_handler = Keyword.fetch!(config, :socket_handler)
+    config
   end
 
-  defp config(otp_app, endpoint, defaults) do
-    from_env(otp_app, endpoint, defaults)
-  end
+  ## Private function
 
-  @doc """
-  Reads the configuration for module from the given otp app.
-
-  Useful to read a particular value at compilation time.
-  """
-  def from_env(otp_app, module, defaults) do
-    config = fetch_config(otp_app, module)
-
-    merge(defaults, config)
-  end
-
-  ## Private API
-
-  # Take 2 keyword lists and merge them recursively.
-  # Used to merge configuration values into defaults.
-  @doc false
-  defp merge(a, b), do: Keyword.merge(a, b, &merger/3)
-
-  @doc false
-  defp defaults(otp_app, module) do
+  defp defaults(otp_app, endpoint) do
     [
       otp_app: otp_app,
-
-      # Ranch options
-      listener_name: module,
-      transport: :ranch_tcp,
-      transport_opts: %{
-        socket_opts: [
-          ip: {127, 0, 0, 1},
-          port: 3000
-        ]
-      }
+      adapter: Ranch,
+      adapter_options: [],
+      listener_name: endpoint,
+      ip: {127, 0, 0, 1},
+      port: 3000,
+      transport: :tcp,
+      transport_options: []
     ]
-  end
-
-  @doc false
-  defp fetch_config(otp_app, module) do
-    case Application.fetch_env(otp_app, module) do
-      {:ok, conf} -> conf
-      :error -> []
-    end
-  end
-
-  @doc false
-  defp merger(k, v1, v2) do
-    cond do
-      Keyword.keyword?(v1) and Keyword.keyword?(v2) ->
-        Keyword.merge(v1, v2, &merger/3)
-
-      k == :transport_opts ->
-        Map.merge(:ranch.normalize_opts(v1), :ranch.normalize_opts(v2), &merger/3)
-
-      k == :ip ->
-        normalize_ip!(v2)
-
-      true ->
-        v2
-    end
-  end
-
-  @doc false
-  defp normalize_ip!(ip) when is_tuple(ip), do: ip
-  defp normalize_ip!(ip) when is_binary(ip), do: ip |> to_charlist() |> normalize_ip!()
-
-  defp normalize_ip!(ip) when is_list(ip) do
-    case :inet.parse_address(ip) do
-      {:ok, tuple} -> tuple
-      {:error, einval} -> raise "cannot parse the given ip #{inspect(ip)} (#{inspect(einval)})"
-    end
   end
 end

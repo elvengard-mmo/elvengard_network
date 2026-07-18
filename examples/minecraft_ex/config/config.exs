@@ -7,10 +7,14 @@ config :logger, :console,
   colors: [info: :green]
 
 config :minecraft_ex, MinecraftEx.Endpoint,
+  adapter: ElvenGard.Network.Endpoint.Adapters.Ranch,
+  adapter_options: [],
+  ip: "127.0.0.1",
   listener_name: :minecraft_ex,
-  transport: :ranch_tcp,
-  transport_opts: [ip: "127.0.0.1", port: 25565],
-  socket_handler: MinecraftEx.Endpoint.SocketHandler
+  port: 25565,
+  socket_handler: MinecraftEx.Endpoint.SocketHandler,
+  transport: :tcp,
+  transport_options: []
 
 config :minecraft_ex, MinecraftEx.Endpoint.SocketHandler,
   packet_handler: MinecraftEx.Endpoint.PacketHandler,

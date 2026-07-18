@@ -1,17 +1,25 @@
 defmodule ElvenGard.Network.EndpointTest do
   use ExUnit.Case, async: true
 
-  import ExUnit.CaptureIO
-
   Application.put_env(:elvengard_network, __MODULE__.MyEndpoint,
+    adapter: ElvenGard.Network.Endpoint.Adapters.Ranch,
+    adapter_options: [],
+    ip: {127, 0, 0, 1},
     listener_name: :my_endpoint,
+    port: 0,
     socket_handler: __MODULE__.MyHandler,
-    transport_opts: [ip: {127, 0, 0, 1}, port: 0]
+    transport: :tcp,
+    transport_options: []
   )
 
   Application.put_env(:elvengard_network, __MODULE__.MyHandler,
     network_codec: ElvenGard.Network.DummyEncoder,
     packet_handler: __MODULE__.MyPacketHandler
+  )
+
+  Application.put_env(:elvengard_network, __MODULE__.DelegatingEndpoint,
+    adapter: __MODULE__.DelegatingAdapter,
+    socket_handler: __MODULE__.MyHandler
   )
 
   defmodule MyEndpoint do
@@ -35,6 +43,34 @@ defmodule ElvenGard.Network.EndpointTest do
     def handle_packet(_packet, socket), do: {:cont, socket}
   end
 
+  defmodule DelegatingAdapter do
+    @behaviour ElvenGard.Network.Endpoint.Adapter
+
+    ## Callbacks
+
+    @impl true
+    def child_spec(endpoint, config) do
+      send(self(), {:adapter_child_spec, endpoint, config})
+      Supervisor.child_spec({Task, fn -> :ok end}, id: endpoint)
+    end
+
+    @impl true
+    def get_addr(endpoint, config) do
+      send(self(), {:adapter_get_addr, endpoint, config})
+      "adapter-address"
+    end
+
+    @impl true
+    def get_port(endpoint, config) do
+      send(self(), {:adapter_get_port, endpoint, config})
+      12_345
+    end
+  end
+
+  defmodule DelegatingEndpoint do
+    use ElvenGard.Network.Endpoint, otp_app: :elvengard_network
+  end
+
   setup_all do
     start_supervised!(MyEndpoint)
     :ok
@@ -48,8 +84,8 @@ defmodule ElvenGard.Network.EndpointTest do
     end
   end
 
-  test "warns if no config" do
-    fun = fn ->
+  test "raises if no socket handler is configured" do
+    assert_raise KeyError, fn ->
       Code.eval_quoted(
         quote do
           defmodule EndpointWithNoConfig do
@@ -58,8 +94,6 @@ defmodule ElvenGard.Network.EndpointTest do
         end
       )
     end
-
-    assert capture_io(:stderr, fun) =~ "no config found"
   end
 
   test "starts a tcp listener" do
@@ -71,30 +105,52 @@ defmodule ElvenGard.Network.EndpointTest do
     :gen_tcp.close(socket)
   end
 
-  test "__listener_name__/0 returns listener name from env" do
-    assert MyEndpoint.__listener_name__() ==
-             {ElvenGard.Network.EndpointTest.MyEndpoint, :my_endpoint}
-  end
-
   test "config/0 returns the config" do
     config = MyEndpoint.config()
 
     assert config[:otp_app] == :elvengard_network
+    assert config[:adapter] == ElvenGard.Network.Endpoint.Adapters.Ranch
+    assert config[:adapter_options] == []
     assert config[:listener_name] == :my_endpoint
-    assert config[:transport] == :ranch_tcp
-    assert config[:transport_opts]
+    assert config[:ip] == {127, 0, 0, 1}
+    assert config[:port] == 0
+    assert config[:transport] == :tcp
+    assert config[:transport_options] == []
     assert config[:socket_handler] == ElvenGard.Network.EndpointTest.MyHandler
 
     assert Enum.sort(Keyword.keys(config)) ==
-             [:listener_name, :otp_app, :socket_handler, :transport, :transport_opts]
+             [
+               :adapter,
+               :adapter_options,
+               :ip,
+               :listener_name,
+               :otp_app,
+               :port,
+               :socket_handler,
+               :transport,
+               :transport_options
+             ]
   end
 
   test "get_addr/0 returns the endpoint's address" do
     assert MyEndpoint.get_addr() == "127.0.0.1"
   end
 
-  test "get_port/0 returns the endpoint's address" do
+  test "get_port/0 returns the endpoint's port" do
     assert is_integer(MyEndpoint.get_port())
+  end
+
+  test "delegates listener operations to the configured adapter" do
+    config = DelegatingEndpoint.config()
+
+    assert %{id: DelegatingEndpoint} = DelegatingEndpoint.child_spec([])
+    assert_received {:adapter_child_spec, DelegatingEndpoint, ^config}
+
+    assert DelegatingEndpoint.get_addr() == "adapter-address"
+    assert_received {:adapter_get_addr, DelegatingEndpoint, ^config}
+
+    assert DelegatingEndpoint.get_port() == 12_345
+    assert_received {:adapter_get_port, DelegatingEndpoint, ^config}
   end
 
   describe "child_spec/1" do
@@ -123,9 +179,6 @@ defmodule ElvenGard.Network.EndpointTest do
     test "call c:handle_start/1" do
       MyEndpoint.child_spec([])
       assert_received :handle_start
-
-      MyEndpoint.child_spec(ignore_init: true)
-      refute_receive :handle_start
     end
   end
 end

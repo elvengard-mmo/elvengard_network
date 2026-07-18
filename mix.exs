@@ -121,6 +121,8 @@ defmodule ElvenGard.Network.MixProject do
     [
       Endpoint: [
         ElvenGard.Network.Endpoint,
+        ElvenGard.Network.Endpoint.Adapter,
+        ElvenGard.Network.Endpoint.Adapters.Ranch,
         ElvenGard.Network.NetworkCodec,
         ElvenGard.Network.PacketHandler,
         ElvenGard.Network.PacketProcessor,

@@ -2,7 +2,8 @@
 
 The first thing to do is define a module using `ElvenGard.Network.Endpoint`.
 
-An Endpoint is simply a [Ranch listener](https://ninenines.eu/docs/en/ranch/2.2/guide/listeners/).
+An Endpoint is a supervised network listener. Its adapter translates generic
+Endpoint configuration to the selected networking server.
 
 ## Configuration
 
@@ -10,23 +11,27 @@ Configuration is performed via the `config/config.exs` file as you did previousl
 
 ```elixir
 config :login_server, LoginServer.Endpoint,
+  adapter: ElvenGard.Network.Endpoint.Adapters.Ranch,
+  adapter_options: [],
+  ip: "127.0.0.1",
   listener_name: :login_server,
-  transport: :ranch_tcp,
-  transport_opts: [ip: "127.0.0.1", port: 3000],
-  socket_handler: LoginServer.Endpoint.SocketHandler
+  port: 3000,
+  socket_handler: LoginServer.Endpoint.SocketHandler,
+  transport: :tcp,
+  transport_options: []
 ```
 
 Here's what each configuration option does:
 
-  - `listener_name: :login_server`: specifies a unique name for the listener. This is used by Ranch 
-    to manage the listener process.
-  - `transport: :ranch_tcp`: specifies the transport protocol to use. In this case, it's Ranch's TCP 
-    transport.
-  - `transport_opts: [ip: "127.0.0.1", port: 3000]`: provides options for configuring the transport. 
-    In this case, it specifies the IP address and port on which the server will listen for incoming 
-    connections.
+  - `adapter`: selects the module responsible for the listener lifecycle.
+  - `adapter_options`: provides server-specific options to the selected adapter.
+  - `ip`: specifies the local address on which the listener accepts connections.
+  - `listener_name`: specifies a unique name for the listener.
+  - `port`: specifies the local port on which the listener accepts connections.
   - `socket_handler: LoginServer.Endpoint.SocketHandler`: sets the socket handler that will handle client
     connections and communication.
+  - `transport`: selects `:tcp` or `:ssl` independently from the networking server.
+  - `transport_options`: provides options for the underlying socket transport.
 
 ## Creating an Endpoint
 
@@ -47,9 +52,9 @@ defmodule LoginServer.Endpoint do
 
   @impl true
   def handle_start(config) do
-    host = get_in(config, [:transport_opts, :socket_opts, :ip])
-    port = get_in(config, [:transport_opts, :socket_opts, :port])
-    Logger.info("LoginServer started on #{:inet.ntoa(host)}:#{port}")
+    host = Keyword.fetch!(config, :ip)
+    port = Keyword.fetch!(config, :port)
+    Logger.info("LoginServer started on #{host}:#{port}")
   end
 end
 ```

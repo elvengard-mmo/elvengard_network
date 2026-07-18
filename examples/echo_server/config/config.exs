@@ -7,10 +7,14 @@ config :logger, :console,
   colors: [info: :green]
 
 config :echo_server, EchoServer.Endpoint,
+  adapter: ElvenGard.Network.Endpoint.Adapters.Ranch,
+  adapter_options: [],
+  ip: "127.0.0.1",
   listener_name: :echo_server,
-  transport: :ranch_tcp,
-  transport_opts: [ip: "127.0.0.1", port: 3333],
-  socket_handler: EchoServer.Endpoint.SocketHandler
+  port: 3333,
+  socket_handler: EchoServer.Endpoint.SocketHandler,
+  transport: :tcp,
+  transport_options: []
 
 config :echo_server, EchoServer.Endpoint.SocketHandler,
   # Here, the packet handler is not needed because we bypass the packet

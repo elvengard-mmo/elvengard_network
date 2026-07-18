@@ -32,6 +32,8 @@ defmodule ElvenGard.Network.SocketHandler do
           {:ok, Socket.t()}
           | {:ok, stop_reason(), Socket.t()}
 
+  ## Callbacks
+
   @doc """
   Initializes a newly connected socket before the endpoint starts receiving data.
   """
@@ -48,12 +50,17 @@ defmodule ElvenGard.Network.SocketHandler do
 
   @doc """
   Performs cleanup after the endpoint halts the connection.
+
+  Transport lifecycle reasons are normalized to `:closed`, `:timeout`, or
+  `{:error, reason}`. Packet handlers may provide their own halt reason.
   """
   @callback handle_halt(reason :: stop_reason(), socket :: Socket.t()) :: halt_result()
 
   @optional_callbacks handle_init: 1,
                       handle_message: 2,
                       handle_halt: 2
+
+  ## Public API
 
   @doc false
   @spec __using__(Macro.t()) :: Macro.t()

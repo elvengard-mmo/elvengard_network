@@ -24,10 +24,14 @@ defmodule ElvenGard.Network.Endpoint.Protocol.Ranch do
           }
   end
 
+  ## Ranch callbacks
+
   @impl :ranch_protocol
   def start_link(ref, transport, opts) do
     {:ok, :proc_lib.spawn_link(__MODULE__, :init, [{ref, transport, opts}])}
   end
+
+  ## GenServer callbacks
 
   @impl GenServer
   def init({ref, transport, opts}) do
@@ -72,7 +76,8 @@ defmodule ElvenGard.Network.Endpoint.Protocol.Ranch do
   end
 
   @impl GenServer
-  def handle_info({:tcp, _transport_socket, data}, %State{} = state) do
+  def handle_info({transport, _transport_socket, data}, %State{} = state)
+      when transport in [:tcp, :ssl] do
     %State{socket: socket, socket_handler: socket_handler} = state
     %Socket{remaining: remaining} = socket
 
@@ -105,9 +110,17 @@ defmodule ElvenGard.Network.Endpoint.Protocol.Ranch do
   end
 
   @impl GenServer
-  def handle_info({:tcp_closed, _transport_socket}, %State{} = state) do
+  def handle_info({transport, _transport_socket}, %State{} = state)
+      when transport in [:tcp_closed, :ssl_closed] do
     %State{socket: socket} = state
-    do_handle_halt(:tcp_closed, socket, state)
+    do_handle_halt(:closed, socket, state)
+  end
+
+  @impl GenServer
+  def handle_info({transport, _transport_socket, reason}, %State{} = state)
+      when transport in [:tcp_error, :ssl_error] do
+    %State{socket: socket} = state
+    do_handle_halt({:error, reason}, socket, state)
   end
 
   @impl GenServer
@@ -115,6 +128,8 @@ defmodule ElvenGard.Network.Endpoint.Protocol.Ranch do
     %State{socket: socket} = state
     do_handle_halt(:timeout, socket, state)
   end
+
+  ## Private function
 
   defp do_enter_loop(%State{} = state, timeout \\ :infinity) do
     %State{socket: socket} = state

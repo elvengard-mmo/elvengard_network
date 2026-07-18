@@ -6,9 +6,11 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
   alias ElvenGard.Network.Socket.Adapters.Ranch, as: RanchAdapter
 
   Application.put_env(:elvengard_network, __MODULE__.MyEndpoint,
+    ip: {127, 0, 0, 1},
     listener_name: :my_endpoint,
+    port: 0,
     socket_handler: __MODULE__.MySocketHandler,
-    transport_opts: [ip: {127, 0, 0, 1}, port: 0]
+    transport: :tcp
   )
 
   Application.put_env(:elvengard_network, __MODULE__.MySocketHandler,
@@ -162,7 +164,7 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
       socket = connect()
       close(socket)
 
-      assert_receive {:handle_halt, :tcp_closed}
+      assert_receive {:handle_halt, :closed}
     end
   end
 
@@ -237,9 +239,39 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
       assert_received :transport_closed
       refute_received {:transport_opts, active: :once}
     end
+
+    test "processes data received through SSL" do
+      state = halt_state()
+
+      assert {:noreply, %Ranch.State{socket: %Socket{remaining: "partial"}}} =
+               Ranch.handle_info({:ssl, self(), "partial"}, state)
+
+      assert_received {:transport_opts, active: :once}
+      refute_received :transport_closed
+    end
+
+    test "normalizes a closed SSL connection" do
+      state = halt_state()
+
+      assert {:stop, :closed, ^state} =
+               Ranch.handle_info({:ssl_closed, self()}, state)
+
+      assert_received :transport_closed
+      refute_received {:transport_opts, active: :once}
+    end
+
+    test "normalizes transport errors" do
+      state = halt_state()
+
+      assert {:stop, {:error, :econnreset}, ^state} =
+               Ranch.handle_info({:tcp_error, self(), :econnreset}, state)
+
+      assert_received :transport_closed
+      refute_received {:transport_opts, active: :once}
+    end
   end
 
-  ## Private/internals helpers
+  ## Private function
 
   defp halt_state(attrs \\ []) do
     socket =
