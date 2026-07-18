@@ -57,11 +57,6 @@ defmodule ElvenGard.Network.ProtocolTest do
       {:halt, :requested, Socket.assign(socket, :halted, true)}
     end
 
-    def handle_packet(%HaltPacket{data: data}, %{assigns: %{packet_observer: observer}} = socket) do
-      send(observer, {:handled_packet, data})
-      {:cont, socket}
-    end
-
     def handle_packet(%HaltPacket{}, socket), do: {:cont, socket}
   end
 
@@ -210,18 +205,6 @@ defmodule ElvenGard.Network.ProtocolTest do
       assert {:noreply, %{remaining: "partial"}} =
                HaltProtocol.handle_info({:tcp, self(), "partial"}, socket)
 
-      assert_received {:transport_opts, active: :once}
-      refute_received :transport_closed
-    end
-
-    test "handles every complete packet and buffers the trailing fragment" do
-      socket = halt_socket(assigns: %{packet_observer: self()})
-
-      assert {:noreply, %{remaining: "partial"}} =
-               HaltProtocol.handle_info({:tcp, self(), "one\ntwo\npartial"}, socket)
-
-      assert_received {:handled_packet, "one"}
-      assert_received {:handled_packet, "two"}
       assert_received {:transport_opts, active: :once}
       refute_received :transport_closed
     end

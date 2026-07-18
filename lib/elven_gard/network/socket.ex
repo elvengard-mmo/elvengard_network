@@ -71,7 +71,7 @@ defmodule ElvenGard.Network.Socket do
       :ok
 
   """
-  @spec send(Socket.t(), struct() | iodata()) :: :ok | {:error, term()}
+  @spec send(Socket.t(), struct() | iodata()) :: :ok | {:error, Adapter.error_reason()}
   def send(%Socket{encoder: :unset} = socket, data) do
     %Socket{adapter: adapter, adapter_state: adapter_state} = socket
     adapter.send(adapter_state, data)
@@ -86,7 +86,7 @@ defmodule ElvenGard.Network.Socket do
   @doc """
   Sets transport options for the socket.
   """
-  @spec setopts(Socket.t(), list()) :: :ok | {:error, term()}
+  @spec setopts(Socket.t(), list()) :: :ok | {:error, Adapter.error_reason()}
   def setopts(%Socket{} = socket, opts) do
     %Socket{adapter: adapter, adapter_state: adapter_state} = socket
     adapter.setopts(adapter_state, opts)
@@ -125,7 +125,7 @@ defmodule ElvenGard.Network.Socket do
     assign(socket, [{key, value}])
   end
 
-  @spec assign(Socket.t(), map() | keyword()) :: Socket.t()
+  @spec assign(Socket.t(), map() | Keyword.t()) :: Socket.t()
   def assign(%Socket{} = socket, attrs) when is_map(attrs) or is_list(attrs) do
     %{socket | assigns: Map.merge(socket.assigns, Map.new(attrs))}
   end

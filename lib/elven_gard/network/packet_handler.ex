@@ -11,6 +11,8 @@ defmodule ElvenGard.Network.PacketHandler do
 
   alias ElvenGard.Network.Socket
 
+  @type halt_reason :: any()
+
   @doc """
   This callback function is called after a packet is received and decoded by the Endpoint.
 
@@ -31,5 +33,5 @@ defmodule ElvenGard.Network.PacketHandler do
   @callback handle_packet(packet :: struct(), socket :: Socket.t()) ::
               {:cont, Socket.t()}
               | {:halt, Socket.t()}
-              | {:halt, reason :: term, Socket.t()}
+              | {:halt, reason :: halt_reason(), Socket.t()}
 end

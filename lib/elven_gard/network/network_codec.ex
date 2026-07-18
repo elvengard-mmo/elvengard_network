@@ -27,8 +27,8 @@ defmodule ElvenGard.Network.NetworkCodec do
       {^packet1, ^remaining} = MyNetworkCodec.next(raw, socket)
 
   """
-  @callback next(raw :: binary, socket :: Socket.t()) ::
-              {packet_raw :: binary | nil, remaining :: binary}
+  @callback next(raw :: binary(), socket :: Socket.t()) ::
+              {packet_raw :: binary() | nil, remaining :: binary()}
 
   @doc """
   Decodes a packet from raw binary data.
@@ -43,7 +43,7 @@ defmodule ElvenGard.Network.NetworkCodec do
       %MessageStruct{id: 123, data: "some data"} = MyNetworkCodec.decode(raw_packet, socket)
 
   """
-  @callback decode(raw :: binary, socket :: Socket.t()) :: struct
+  @callback decode(raw :: binary(), socket :: Socket.t()) :: struct()
 
   @doc """
   Encodes a packet for network transmission.

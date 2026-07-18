@@ -124,6 +124,7 @@ defmodule ElvenGard.Network.MixProject do
         ElvenGard.Network.Endpoint.Protocol,
         ElvenGard.Network.NetworkCodec,
         ElvenGard.Network.PacketHandler,
+        ElvenGard.Network.PacketProcessor,
         ElvenGard.Network.PacketSerializer
       ]
     ]

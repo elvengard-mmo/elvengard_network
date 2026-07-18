@@ -14,6 +14,7 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
   [Endpoint Protocol guide](https://hexdocs.pm/elvengard_network/protocol.html).
   """
 
+  alias ElvenGard.Network.PacketProcessor
   alias ElvenGard.Network.Socket
 
   @doc """
@@ -26,9 +27,9 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
   """
   @callback handle_init(socket :: Socket.t()) ::
               {:ok, new_socket}
-              | {:ok, new_socket, timeout | :hibernate | {:continue, continue_arg}}
-              | {:stop, reason :: term, new_socket}
-            when new_socket: Socket.t(), continue_arg: term
+              | {:ok, new_socket, timeout() | :hibernate | {:continue, continue_arg}}
+              | {:stop, reason :: any(), new_socket}
+            when new_socket: Socket.t(), continue_arg: any()
 
   @doc """
   Callback called just after receiving a message.
@@ -43,11 +44,11 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
     - `{:stop, reason, new_socket}`: stop the GenServer/Protocol and disconnect the client
 
   """
-  @callback handle_message(message :: binary, socket :: Socket.t()) ::
+  @callback handle_message(message :: binary(), socket :: Socket.t()) ::
               :ignore
               | {:ignore, new_socket}
               | {:ok, new_socket}
-              | {:stop, reason :: term, new_socket}
+              | {:stop, reason :: any(), new_socket}
             when new_socket: Socket.t()
 
   @doc """
@@ -55,10 +56,10 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
   shutdown.
 
   """
-  @callback handle_halt(reason :: term, socket :: Socket.t()) ::
+  @callback handle_halt(reason :: any(), socket :: Socket.t()) ::
               {:ok, new_socket}
-              | {:ok, stop_reason :: term, new_socket}
-            when new_socket: term
+              | {:ok, stop_reason :: any(), new_socket}
+            when new_socket: Socket.t()
 
   @optional_callbacks handle_init: 1,
                       handle_message: 2,
@@ -139,7 +140,7 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
           case handle_message(full_data, socket) do
             :ignore -> {:noreply, %Socket{socket | remaining: <<>>}}
             {:ignore, new_socket} -> {:noreply, %Socket{new_socket | remaining: <<>>}}
-            {:ok, new_socket} -> packet_loop(full_data, new_socket)
+            {:ok, new_socket} -> process_packets(full_data, new_socket)
             {:stop, reason, new_socket} -> {:stop, reason, new_socket}
             term -> raise "invalid return value for handle_message/2 (got: #{inspect(term)})"
           end
@@ -162,19 +163,10 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
         end
       end
 
-      defp packet_loop(<<>>, %Socket{} = socket) do
-        {:noreply, %Socket{socket | remaining: <<>>}}
-      end
-
-      defp packet_loop(data, %Socket{} = socket) do
-        with {:next, {raw, rest}} when not is_nil(raw) <- {:next, codec().next(data, socket)},
-             struct <- codec().decode(raw, socket),
-             {:handle, {:cont, new_socket}} <- {:handle, handlers().handle_packet(struct, socket)} do
-          packet_loop(rest, new_socket)
-        else
-          {:next, {nil, rest}} -> {:noreply, %Socket{socket | remaining: rest}}
-          {:handle, {:halt, new_socket}} -> do_handle_halt(:normal, new_socket)
-          {:handle, {:halt, reason, new_socket}} -> do_handle_halt(reason, new_socket)
+      defp process_packets(data, %Socket{} = socket) do
+        case PacketProcessor.process(data, socket, codec(), handlers()) do
+          {:cont, new_socket} -> {:noreply, new_socket}
+          {:halt, reason, new_socket} -> do_handle_halt(reason, new_socket)
         end
       end
     end

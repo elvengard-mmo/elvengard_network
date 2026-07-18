@@ -58,7 +58,8 @@ defmodule ElvenGard.Network.Type do
   The function should return a tuple with the decoded value and the remaining
   unparsed bitstring.
   """
-  @callback decode(raw :: bitstring, opts :: keyword) :: {any, remaining :: bitstring}
+  @callback decode(raw :: bitstring(), opts :: Keyword.t()) ::
+              {any(), remaining :: bitstring()}
 
   @doc """
   Encode a value of the custom type into binary data.
@@ -70,18 +71,18 @@ defmodule ElvenGard.Network.Type do
 
   The function should return the encoded binary data as an iodata or a bitstring.
   """
-  @callback encode(value :: any, opts :: keyword) :: iodata | bitstring
+  @callback encode(value :: any(), opts :: Keyword.t()) :: iodata() | bitstring()
 
   defmacro __using__(_env) do
     quote location: :keep do
       @behaviour unquote(__MODULE__)
 
       @doc "Same as `decode/2` with empty options"
-      @spec decode(raw :: bitstring) :: {any, remaining :: bitstring}
+      @spec decode(raw :: bitstring()) :: {any(), remaining :: bitstring()}
       def decode(raw), do: decode(raw, [])
 
       @doc "Same as `encode/2` with empty options"
-      @spec encode(value :: any) :: iodata
+      @spec encode(value :: any()) :: iodata()
       def encode(raw), do: encode(raw, [])
     end
   end

@@ -3,8 +3,8 @@ defmodule ElvenGard.Network.Socket.Adapters.Ranch do
 
   @behaviour ElvenGard.Network.Socket.Adapter
 
-  @type options :: [transport: module(), socket: term()]
-  @type state :: {transport :: module(), socket :: term()}
+  @type options :: [transport: module(), socket: :ranch_transport.socket()]
+  @type state :: {transport :: module(), socket :: :ranch_transport.socket()}
 
   @impl true
   @spec new(options()) :: state()

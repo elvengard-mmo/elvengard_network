@@ -6,12 +6,12 @@ defmodule ElvenGard.Network.CustomTypes do
 
     use ElvenGard.Network.Type
 
-    @type t :: boolean
+    @type t :: boolean()
 
     ## Behaviour impls
 
     @impl true
-    @spec decode(bitstring, keyword) :: {t(), bitstring}
+    @spec decode(bitstring(), Keyword.t()) :: {t(), bitstring()}
     def decode(data, _opts) when is_binary(data) do
       {value, rest} =
         case String.split(data, " ", parts: 2) do
@@ -24,7 +24,7 @@ defmodule ElvenGard.Network.CustomTypes do
     end
 
     @impl true
-    @spec encode(t(), keyword) :: bitstring
+    @spec encode(t(), Keyword.t()) :: bitstring()
     def encode(data, _opts) when is_boolean(data) do
       if data, do: "1", else: "0"
     end
@@ -40,14 +40,14 @@ defmodule ElvenGard.Network.CustomTypes do
     ## Behaviour impls
 
     @impl true
-    @spec decode(bitstring, keyword) :: {t(), bitstring}
+    @spec decode(bitstring(), Keyword.t()) :: {t(), bitstring()}
     def decode(data, opts) when is_binary(data) do
       fill? = opts[:fill] == true
       do_decode(data, fill?)
     end
 
     @impl true
-    @spec encode(t(), keyword) :: bitstring
+    @spec encode(t(), Keyword.t()) :: bitstring()
     def encode(data, _opts) when is_binary(data), do: data
 
     ## Private functions
@@ -67,12 +67,12 @@ defmodule ElvenGard.Network.CustomTypes do
 
     use ElvenGard.Network.Type
 
-    @type t :: integer
+    @type t :: integer()
 
     ## Behaviour impls
 
     @impl true
-    @spec decode(bitstring, keyword) :: {t(), bitstring}
+    @spec decode(bitstring(), Keyword.t()) :: {t(), bitstring()}
     def decode(data, _opts) when is_binary(data) do
       case String.split(data, " ", parts: 2) do
         [value, rest] -> {String.to_integer(value, 10), rest}
@@ -81,7 +81,7 @@ defmodule ElvenGard.Network.CustomTypes do
     end
 
     @impl true
-    @spec encode(t(), keyword) :: bitstring
+    @spec encode(t(), Keyword.t()) :: bitstring()
     def encode(data, _opts) when is_integer(data), do: Integer.to_string(data)
   end
 
@@ -95,7 +95,7 @@ defmodule ElvenGard.Network.CustomTypes do
     ## Behaviour impls
 
     @impl true
-    @spec decode(bitstring, keyword) :: {t(), bitstring}
+    @spec decode(bitstring(), Keyword.t()) :: {t(), bitstring()}
     def decode(data, _opts) when is_binary(data) do
       case String.split(data, " ", parts: 2) do
         [value, rest] -> {Elixir.Date.from_iso8601!(value), rest}
@@ -104,7 +104,7 @@ defmodule ElvenGard.Network.CustomTypes do
     end
 
     @impl true
-    @spec encode(t(), keyword) :: bitstring
+    @spec encode(t(), Keyword.t()) :: bitstring()
     def encode(%Elixir.Date{} = data, _opts), do: Elixir.Date.to_string(data)
   end
 end

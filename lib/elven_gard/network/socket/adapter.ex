@@ -6,11 +6,12 @@ defmodule ElvenGard.Network.Socket.Adapter do
   operations to the underlying networking library.
   """
 
+  @type error_reason :: any()
   @type options :: Keyword.t()
-  @type state :: term()
+  @type state :: any()
 
   @callback new(options()) :: state()
-  @callback send(state(), iodata()) :: :ok | {:error, term()}
-  @callback setopts(state(), list()) :: :ok | {:error, term()}
+  @callback send(state(), iodata()) :: :ok | {:error, error_reason()}
+  @callback setopts(state(), list()) :: :ok | {:error, error_reason()}
   @callback close(state()) :: :ok
 end
