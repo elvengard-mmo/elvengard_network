@@ -10,9 +10,9 @@ config :echo_server, EchoServer.Endpoint,
   listener_name: :echo_server,
   transport: :ranch_tcp,
   transport_opts: [ip: "127.0.0.1", port: 3333],
-  protocol: EchoServer.Endpoint.Protocol
+  socket_handler: EchoServer.Endpoint.SocketHandler
 
-config :echo_server, EchoServer.Endpoint.Protocol,
+config :echo_server, EchoServer.Endpoint.SocketHandler,
   # Here, the packet handler is not needed because we bypass the packet
   # handling by returning `ignore` in `handle_message/2`
   packet_handler: :unset,

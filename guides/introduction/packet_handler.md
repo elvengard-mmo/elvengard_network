@@ -3,13 +3,13 @@
 If you remember, in our `config.exs`, we defined the following lines:
 
 ```elixir
-config :login_server, LoginServer.Endpoint.Protocol,
+config :login_server, LoginServer.Endpoint.SocketHandler,
   packet_handler: LoginServer.Endpoint.PacketHandler,
   ...
 ```
 
 Once the packets have been decoded by our Network Codec, they will be redirected to this module. 
-This module must implement the `ElvenGard.Network.PacketHandler` protocol.
+This module must implement the `ElvenGard.Network.PacketHandler` behaviour.
 
 A Packet Handler is the module that will manage the logic associated with our client packets. 
 

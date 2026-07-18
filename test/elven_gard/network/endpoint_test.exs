@@ -5,7 +5,7 @@ defmodule ElvenGard.Network.EndpointTest do
 
   Application.put_env(:elvengard_network, __MODULE__.MyEndpoint,
     listener_name: :my_endpoint,
-    protocol: __MODULE__.MyHandler,
+    socket_handler: __MODULE__.MyHandler,
     transport_opts: [ip: {127, 0, 0, 1}, port: 0]
   )
 
@@ -83,8 +83,10 @@ defmodule ElvenGard.Network.EndpointTest do
     assert config[:listener_name] == :my_endpoint
     assert config[:transport] == :ranch_tcp
     assert config[:transport_opts]
-    assert config[:protocol] == ElvenGard.Network.EndpointTest.MyHandler
-    assert config[:protocol_opts]
+    assert config[:socket_handler] == ElvenGard.Network.EndpointTest.MyHandler
+
+    assert Enum.sort(Keyword.keys(config)) ==
+             [:listener_name, :otp_app, :socket_handler, :transport, :transport_opts]
   end
 
   test "get_addr/0 returns the endpoint's address" do

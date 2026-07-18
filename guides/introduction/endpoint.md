@@ -13,7 +13,7 @@ config :login_server, LoginServer.Endpoint,
   listener_name: :login_server,
   transport: :ranch_tcp,
   transport_opts: [ip: "127.0.0.1", port: 3000],
-  protocol: LoginServer.Endpoint.Protocol
+  socket_handler: LoginServer.Endpoint.SocketHandler
 ```
 
 Here's what each configuration option does:
@@ -25,7 +25,7 @@ Here's what each configuration option does:
   - `transport_opts: [ip: "127.0.0.1", port: 3000]`: provides options for configuring the transport. 
     In this case, it specifies the IP address and port on which the server will listen for incoming 
     connections.
-  - `protocol: LoginServer.Endpoint.Protocol`: sets the protocol module that will handle client 
+  - `socket_handler: LoginServer.Endpoint.SocketHandler`: sets the socket handler that will handle client
     connections and communication.
 
 ## Creating an Endpoint
@@ -84,4 +84,4 @@ in your application's supervision tree.
 
 At the end of this part, you should have a working Endpoint listening on port 3000 
 (see config file).  
-Now it's time to create a Protocol to receive our first packets.
+Now it's time to create a socket handler to receive our first packets.

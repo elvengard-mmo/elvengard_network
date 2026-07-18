@@ -1,6 +1,6 @@
-defmodule LoginServer.Endpoint.Protocol do
+defmodule EchoServer.Endpoint.SocketHandler do
   @moduledoc """
-  Documentation for LoginServer.Endpoint.Protocol
+  Documentation for EchoServer.Endpoint.SocketHandler
   """
 
   use ElvenGard.Network.SocketHandler
@@ -21,8 +21,9 @@ defmodule LoginServer.Endpoint.Protocol do
 
   @impl true
   def handle_message(message, %Socket{} = socket) do
-    Logger.debug("New message from #{socket.id}: #{inspect(message)}")
-    {:ok, socket}
+    Logger.debug("New message from #{socket.id} (len: #{byte_size(message)})")
+    Socket.send(socket, "REPLY:" <> message)
+    :ignore
   end
 
   @impl true

@@ -41,16 +41,16 @@ config :login_server, LoginServer.Endpoint,
   listener_name: :login_server,
   transport: :ranch_tcp,
   transport_opts: [ip: "127.0.0.1", port: 3000],
-  protocol: LoginServer.Endpoint.Protocol
+  socket_handler: LoginServer.Endpoint.SocketHandler
 
-config :login_server, LoginServer.Endpoint.Protocol,
+config :login_server, LoginServer.Endpoint.SocketHandler,
   packet_handler: LoginServer.Endpoint.PacketHandler,
   network_codec: LoginServer.Endpoint.NetworkCodec
 ```
 
-This configuration example simply tells our endpoint to listen on port 3000 of the local address and defines the protocol, network encoder and packet handler to be used.
+This configuration example tells our endpoint to listen on port 3000 of the local address and defines the socket handler, network codec and packet handler to use.
   
-For more details on the configuration of each module, please refer to [Endpoint](endpoint.html#configuration) and [Protocol](protocol.html#configuration) guides and [Ranch documentation](https://ninenines.eu/docs/en/ranch/2.2/guide/).
+For more details on the configuration of each module, please refer to the [Endpoint](endpoint.html#configuration) and [Socket Handler](socket_handler.html#configuration) guides and [Ranch documentation](https://ninenines.eu/docs/en/ranch/2.2/guide/).
 
 ## Summary
 

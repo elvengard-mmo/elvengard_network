@@ -52,19 +52,19 @@ defmodule ElvenGard.Network.Endpoint do
           :ok = handle_start(@config)
         end
 
-        protocol_opts =
-          Keyword.merge(
-            @config[:protocol_opts],
-            otp_app: @config[:otp_app],
-            socket_handler: @config[:protocol]
-          )
+        socket_handler = Keyword.fetch!(@config, :socket_handler)
+
+        runtime_opts = [
+          otp_app: @config[:otp_app],
+          socket_handler: socket_handler
+        ]
 
         :ranch.child_spec(
           __listener_name__(),
           @config[:transport],
           @config[:transport_opts],
           ElvenGard.Network.Endpoint.Protocol.Ranch,
-          protocol_opts
+          runtime_opts
         )
       end
 

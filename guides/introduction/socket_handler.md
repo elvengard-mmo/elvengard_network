@@ -1,4 +1,4 @@
-# Protocol
+# Socket Handler
 
 In this section, we will learn how to use `ElvenGard.Network.SocketHandler`.
 
@@ -10,7 +10,7 @@ through its Ranch runtime; application modules do not implement Ranch callbacks.
 Configuration is performed via the `config/config.exs` file as you did previously.
 
 ```elixir
-config :login_server, LoginServer.Endpoint.Protocol,
+config :login_server, LoginServer.Endpoint.SocketHandler,
   packet_handler: LoginServer.Endpoint.PacketHandler,
   network_codec: LoginServer.Endpoint.NetworkCodec
 ```
@@ -22,16 +22,16 @@ Here's the explanation for these options:
   - `network_codec: LoginServer.NetworkCodec`: Specifies the module responsible for 
     encoding and decoding packets for communication between clients and the server.
 
-## Create a Protocol
+## Create a Socket Handler
 
-For this part, we're going to create a fairly simple protocol that will just display 
+For this part, we're going to create a fairly simple socket handler that will just display 
 our packets.
 
 ```elixir
-# file: lib/login_server/endpoint/protocol.ex
-defmodule LoginServer.Endpoint.Protocol do
+# file: lib/login_server/endpoint/socket_handler.ex
+defmodule LoginServer.Endpoint.SocketHandler do
   @moduledoc """
-  Documentation for LoginServer.Endpoint.Protocol
+  Documentation for LoginServer.Endpoint.SocketHandler
   """
 
   use ElvenGard.Network.SocketHandler
@@ -64,7 +64,7 @@ defmodule LoginServer.Endpoint.Protocol do
 end
 ```
 
-Once again, creating a Protocol is fairly straightforward.
+Once again, creating a socket handler is fairly straightforward.
 
 This example defines 3 callbacks :
 
@@ -73,7 +73,7 @@ This example defines 3 callbacks :
     call `ElvenGard.Network.Socket.assign/2` to init assigns.
   - `handle_message/2`: called when we receive a packet from a client, we can 
     either ignore it by returning `:ignore`, or choose to decode it and then 
-    handle it by returning `:ok`.
+    handle it by returning `{:ok, socket}`.
   - `handle_halt/2`: called when a client disconnects.
 
 **NOTE**: you may notice that we define the `packet: :line` option in `handle_init/1`. 

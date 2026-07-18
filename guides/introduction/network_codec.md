@@ -76,4 +76,4 @@ the [network protocol](network_protocol.html).
 ## Summary
 
 Now that we've defined our functions for transforming data structures, it's time to see how 
-to link them to our [Protocol](protocol.html).
+to link them to our [Socket Handler](socket_handler.html).

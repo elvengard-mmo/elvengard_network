@@ -1,4 +1,4 @@
-defmodule ElvenGard.Network.ProtocolTest do
+defmodule ElvenGard.Network.Endpoint.RanchTest do
   use ExUnit.Case, async: true
 
   alias ElvenGard.Network.Endpoint.Protocol.Ranch
@@ -7,11 +7,11 @@ defmodule ElvenGard.Network.ProtocolTest do
 
   Application.put_env(:elvengard_network, __MODULE__.MyEndpoint,
     listener_name: :my_endpoint,
-    protocol: __MODULE__.MyProtocol,
+    socket_handler: __MODULE__.MySocketHandler,
     transport_opts: [ip: {127, 0, 0, 1}, port: 0]
   )
 
-  Application.put_env(:elvengard_network, __MODULE__.MyProtocol,
+  Application.put_env(:elvengard_network, __MODULE__.MySocketHandler,
     network_codec: __MODULE__.HaltCodec,
     packet_handler: __MODULE__.HaltHandler
   )
@@ -71,7 +71,7 @@ defmodule ElvenGard.Network.ProtocolTest do
     end
   end
 
-  defmodule HaltProtocol do
+  defmodule HaltSocketHandler do
     use ElvenGard.Network.SocketHandler
 
     @impl true
@@ -100,7 +100,7 @@ defmodule ElvenGard.Network.ProtocolTest do
     use ElvenGard.Network.Endpoint, otp_app: :elvengard_network
   end
 
-  defmodule MyProtocol do
+  defmodule MySocketHandler do
     use ElvenGard.Network.SocketHandler
 
     @impl true
@@ -251,7 +251,7 @@ defmodule ElvenGard.Network.ProtocolTest do
 
     %Ranch.State{
       socket: struct!(socket, attrs),
-      socket_handler: HaltProtocol,
+      socket_handler: HaltSocketHandler,
       packet_handler: HaltHandler
     }
   end

@@ -50,9 +50,7 @@ defmodule ElvenGard.Network.Endpoint.Config do
           ip: {127, 0, 0, 1},
           port: 3000
         ]
-      },
-      protocol: module,
-      protocol_opts: []
+      }
     ]
   end
 

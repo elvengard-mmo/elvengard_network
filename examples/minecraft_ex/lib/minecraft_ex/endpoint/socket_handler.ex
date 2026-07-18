@@ -1,6 +1,6 @@
-defmodule MinecraftEx.Endpoint.Protocol do
+defmodule MinecraftEx.Endpoint.SocketHandler do
   @moduledoc """
-  Documentation for MinecraftEx.Endpoint.Protocol
+  Documentation for MinecraftEx.Endpoint.SocketHandler
   """
 
   use ElvenGard.Network.SocketHandler
