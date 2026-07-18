@@ -23,7 +23,8 @@ config :login_server, LoginServer.Endpoint,
 
 Here's what each configuration option does:
 
-  - `adapter`: selects the module responsible for the listener lifecycle.
+  - `adapter`: selects the module responsible for the listener lifecycle. This
+    option is required.
   - `adapter_options`: provides server-specific options to the selected adapter.
   - `ip`: specifies the local address on which the listener accepts connections.
   - `listener_name`: specifies a unique name for the listener.
@@ -32,6 +33,50 @@ Here's what each configuration option does:
     connections and communication.
   - `transport`: selects `:tcp` or `:ssl` independently from the networking server.
   - `transport_options`: provides options for the underlying socket transport.
+
+### Available adapters
+
+Network servers are optional dependencies. Add the one used by the application
+that owns the endpoint.
+
+For Ranch:
+
+```elixir
+defp deps do
+  [
+    {:elvengard_network, "~> 0.1.1"},
+    {:ranch, "~> 2.2"}
+  ]
+end
+```
+
+Then select its adapter:
+
+```elixir
+adapter: ElvenGard.Network.Endpoint.Adapters.Ranch
+```
+
+For Thousand Island:
+
+```elixir
+defp deps do
+  [
+    {:elvengard_network, "~> 0.1.1"},
+    {:thousand_island, "~> 1.5"}
+  ]
+end
+```
+
+Then select its adapter without changing the socket handler, codec, or packet
+handler:
+
+```elixir
+adapter: ElvenGard.Network.Endpoint.Adapters.ThousandIsland
+```
+
+`adapter_options` is passed to the selected server. The generic `ip`, `port`,
+`transport`, and `transport_options` values keep the same meaning for both
+adapters.
 
 ## Creating an Endpoint
 

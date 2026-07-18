@@ -21,7 +21,8 @@ To add ElvenGard.Network to this application, just add an entry to your mix.exs:
 ```elixir
 defp deps do
   [
-    {:elvengard_network, "~> 0.1.1"}
+    {:elvengard_network, "~> 0.1.1"},
+    {:ranch, "~> 2.2"}
   ]
 end
 ```
@@ -54,7 +55,9 @@ config :login_server, LoginServer.Endpoint.SocketHandler,
 
 This configuration example tells our endpoint to listen on port 3000 of the local address and defines the socket handler, network codec and packet handler to use.
   
-For more details on the configuration of each module, please refer to the [Endpoint](endpoint.html#configuration) and [Socket Handler](socket_handler.html#configuration) guides and [Ranch documentation](https://ninenines.eu/docs/en/ranch/2.2/guide/).
+For more details on the configuration of each module and on selecting Ranch or
+Thousand Island, please refer to the [Endpoint](endpoint.html#configuration) and
+[Socket Handler](socket_handler.html#configuration) guides.
 
 ## Summary
 

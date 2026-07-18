@@ -3,7 +3,8 @@
 In this section, we will learn how to use `ElvenGard.Network.SocketHandler`.
 
 A socket handler defines transport-independent callbacks. The Endpoint runs it
-through its Ranch runtime; application modules do not implement Ranch callbacks.
+through the selected Ranch or Thousand Island runtime; application modules do
+not implement callbacks from either network server.
 
 ## Configuration
 

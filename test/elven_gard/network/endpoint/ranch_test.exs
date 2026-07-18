@@ -6,6 +6,7 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
   alias ElvenGard.Network.Socket.Adapters.Ranch, as: RanchAdapter
 
   Application.put_env(:elvengard_network, __MODULE__.MyEndpoint,
+    adapter: ElvenGard.Network.Endpoint.Adapters.Ranch,
     ip: {127, 0, 0, 1},
     listener_name: :my_endpoint,
     port: 0,

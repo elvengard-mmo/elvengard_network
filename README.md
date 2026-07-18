@@ -16,7 +16,7 @@ This is the goal of this ambitious project: make a toolkit to group together dif
 
 ## What is ElvenGard.Network
 
-[ElvenGard.Network](https://github.com/ImNotAVirus/elvengard_network) is a dedicated toolkit designed to streamline and enhance the network aspect of game server development. Built on top of the "ranch" Erlang library, this powerful toolkit provides developers with a robust foundation for creating multiplayer game servers with ease.
+[ElvenGard.Network](https://github.com/ImNotAVirus/elvengard_network) is a dedicated toolkit designed to streamline and enhance the network aspect of game server development. Its transport-independent API can run on Ranch or Thousand Island, providing developers with a robust foundation for creating multiplayer game servers with ease.
 
 Key Features:
 
@@ -28,21 +28,25 @@ Key Features:
 
 4. **Custom Serialization/Deserialization:** With support for custom data types, ElvenGard.Network enables seamless serialization and deserialization of data. This feature ensures compatibility and efficient data exchange between different components of the game server.
 
-5. **Minimized Latency and Crashes:** By leveraging the "ranch" library, ElvenGard.Network benefits from Erlang's reliability and scalability. This helps minimize latency issues and reduces the risk of crashes, providing a stable networking foundation for multiplayer games.
+5. **Pluggable Network Servers:** Applications can choose Ranch or Thousand Island without coupling socket handlers, codecs, or packet handlers to either server implementation.
 
 With ElvenGard.Network handling the intricate network tasks, game developers can focus on creating captivating gameplay, dynamic worlds, and engaging player experiences. By leveraging this specialized toolkit, the journey from conceptualizing a multiplayer game to deploying a robust server becomes significantly smoother and more efficient.
 
 ## Installation
 
-The package can be installed by adding `elvengard_network` to your list of dependencies in `mix.exs`:
+The package and one network server can be installed by adding them to your list
+of dependencies in `mix.exs`. For example, with Ranch:
 
 ```elixir
 def deps do
   [
-    {:elvengard_network, "~> 0.1.1"}
+    {:elvengard_network, "~> 0.1.1"},
+    {:ranch, "~> 2.2"}
   ]
 end
 ```
+
+Thousand Island `~> 1.5` can be used instead of Ranch.
 
 The docs can be found at [https://hexdocs.pm/elvengard_network](https://hexdocs.pm/elvengard_network).
 

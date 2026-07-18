@@ -22,7 +22,8 @@ defmodule LoginServer.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:elvengard_network, path: "../.."}
+      {:elvengard_network, path: "../.."},
+      {:ranch, "~> 2.2"}
     ]
   end
 end

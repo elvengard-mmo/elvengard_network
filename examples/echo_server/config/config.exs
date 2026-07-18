@@ -7,7 +7,7 @@ config :logger, :console,
   colors: [info: :green]
 
 config :echo_server, EchoServer.Endpoint,
-  adapter: ElvenGard.Network.Endpoint.Adapters.Ranch,
+  adapter: ElvenGard.Network.Endpoint.Adapters.ThousandIsland,
   adapter_options: [],
   ip: "127.0.0.1",
   listener_name: :echo_server,

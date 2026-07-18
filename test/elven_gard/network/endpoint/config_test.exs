@@ -5,6 +5,7 @@ defmodule ElvenGard.Network.Endpoint.ConfigTest do
   alias ElvenGard.Network.Endpoint.Adapters.Ranch
 
   @configured_options [
+    adapter: Ranch,
     adapter_options: [num_acceptors: 10],
     ip: "127.0.0.1",
     listener_name: :endpoint,
@@ -37,10 +38,11 @@ defmodule ElvenGard.Network.Endpoint.ConfigTest do
         Endpoint.Config.config(
           :elvengard_network,
           MyApp.UnconfiguredEndpoint,
+          adapter: Ranch,
           socket_handler: MyApp.SocketHandler
         )
 
-      assert config == [
+      assert Map.new(config) == %{
                otp_app: :elvengard_network,
                adapter: Ranch,
                adapter_options: [],
@@ -50,7 +52,17 @@ defmodule ElvenGard.Network.Endpoint.ConfigTest do
                transport: :tcp,
                transport_options: [],
                socket_handler: MyApp.SocketHandler
-             ]
+             }
+    end
+
+    test "requires an endpoint adapter" do
+      assert_raise KeyError, fn ->
+        Endpoint.Config.config(
+          :elvengard_network,
+          MyApp.Endpoint,
+          socket_handler: MyApp.SocketHandler
+        )
+      end
     end
   end
 end

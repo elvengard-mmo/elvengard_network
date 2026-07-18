@@ -85,15 +85,45 @@ defmodule ElvenGard.Network.EndpointTest do
   end
 
   test "raises if no socket handler is configured" do
-    assert_raise KeyError, fn ->
-      Code.eval_quoted(
-        quote do
-          defmodule EndpointWithNoConfig do
-            use ElvenGard.Network.Endpoint, otp_app: :elvengard_network
+    endpoint = __MODULE__.EndpointWithoutSocketHandler
+
+    Application.put_env(:elvengard_network, endpoint, adapter: DelegatingAdapter)
+
+    on_exit(fn -> Application.delete_env(:elvengard_network, endpoint) end)
+
+    error =
+      assert_raise KeyError, fn ->
+        Code.eval_quoted(
+          quote do
+            defmodule ElvenGard.Network.EndpointTest.EndpointWithoutSocketHandler do
+              use ElvenGard.Network.Endpoint, otp_app: :elvengard_network
+            end
           end
-        end
-      )
-    end
+        )
+      end
+
+    assert error.key == :socket_handler
+  end
+
+  test "raises if no endpoint adapter is configured" do
+    endpoint = __MODULE__.EndpointWithoutAdapter
+
+    Application.put_env(:elvengard_network, endpoint, socket_handler: MyHandler)
+
+    on_exit(fn -> Application.delete_env(:elvengard_network, endpoint) end)
+
+    error =
+      assert_raise KeyError, fn ->
+        Code.eval_quoted(
+          quote do
+            defmodule ElvenGard.Network.EndpointTest.EndpointWithoutAdapter do
+              use ElvenGard.Network.Endpoint, otp_app: :elvengard_network
+            end
+          end
+        )
+      end
+
+    assert error.key == :adapter
   end
 
   test "starts a tcp listener" do

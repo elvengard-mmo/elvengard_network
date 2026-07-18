@@ -46,7 +46,8 @@ defmodule ElvenGard.Network.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ranch, "~> 2.2"},
+      {:ranch, "~> 2.2", optional: true},
+      {:thousand_island, "~> 1.5", optional: true},
       {:ex_doc, "~> 0.40", only: :dev, runtime: false},
       {:excoveralls, "~> 0.18", only: :test, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
@@ -123,6 +124,7 @@ defmodule ElvenGard.Network.MixProject do
         ElvenGard.Network.Endpoint,
         ElvenGard.Network.Endpoint.Adapter,
         ElvenGard.Network.Endpoint.Adapters.Ranch,
+        ElvenGard.Network.Endpoint.Adapters.ThousandIsland,
         ElvenGard.Network.NetworkCodec,
         ElvenGard.Network.PacketHandler,
         ElvenGard.Network.PacketProcessor,

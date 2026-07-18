@@ -13,5 +13,5 @@ defmodule ElvenGard.Network.Socket.Adapter do
   @callback new(options()) :: state()
   @callback send(state(), iodata()) :: :ok | {:error, error_reason()}
   @callback setopts(state(), list()) :: :ok | {:error, error_reason()}
-  @callback close(state()) :: :ok
+  @callback close(state()) :: :ok | {:error, error_reason()}
 end

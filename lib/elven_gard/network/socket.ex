@@ -95,7 +95,7 @@ defmodule ElvenGard.Network.Socket do
   @doc """
   Closes the socket through its transport.
   """
-  @spec close(Socket.t()) :: :ok
+  @spec close(Socket.t()) :: :ok | {:error, Adapter.error_reason()}
   def close(%Socket{} = socket) do
     %Socket{adapter: adapter, adapter_state: adapter_state} = socket
     adapter.close(adapter_state)

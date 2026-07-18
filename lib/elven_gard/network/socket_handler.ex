@@ -11,11 +11,7 @@ defmodule ElvenGard.Network.SocketHandler do
   alias ElvenGard.Network.Socket
 
   @type stop_reason :: any()
-
-  @type init_action ::
-          timeout()
-          | :hibernate
-          | {:continue, any()}
+  @type init_action :: timeout()
 
   @type init_result ::
           {:ok, Socket.t()}
