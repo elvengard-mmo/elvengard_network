@@ -2,6 +2,8 @@ if Code.ensure_loaded?(:ranch) do
   defmodule ElvenGard.Network.Endpoint.Adapters.Ranch do
     @moduledoc """
     Ranch listener adapter for `ElvenGard.Network.Endpoint`.
+
+    Projects using this adapter must add `:ranch` to their dependencies.
     """
 
     alias ElvenGard.Network.Endpoint

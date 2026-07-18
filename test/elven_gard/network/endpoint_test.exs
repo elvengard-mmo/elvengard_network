@@ -154,7 +154,9 @@ defmodule ElvenGard.Network.EndpointTest do
 
     error =
       assert_raise KeyError, fn ->
-        endpoint.child_spec([])
+        # The endpoint module is defined dynamically above, so its call must also be dynamic.
+        # credo:disable-for-next-line Credo.Check.Refactor.Apply
+        apply(endpoint, :child_spec, [[]])
       end
 
     assert error.key == :packet_handler

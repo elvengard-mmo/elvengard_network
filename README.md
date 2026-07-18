@@ -4,8 +4,8 @@
 
 [![Hex.pm version](https://img.shields.io/hexpm/v/elvengard_network.svg?style=flat)](https://hex.pm/packages/elvengard_network)
 [![Hex.pm license](https://img.shields.io/hexpm/l/elvengard_network.svg?style=flat)](https://hex.pm/packages/elvengard_network)
-[![Build Status](https://github.com/ImNotAVirus/elvengard_network/actions/workflows/elixir.yml/badge.svg?branch=main)](https://github.com/ImNotAVirus/elvengard_network/actions/workflows/elixir.yml)
-[![Coverage Status](https://coveralls.io/repos/github/ImNotAVirus/elvengard_network/badge.svg?branch=main)](https://coveralls.io/github/ImNotAVirus/elvengard_network?branch=main)
+[![Build Status](https://github.com/elvengard-mmo/elvengard_network/actions/workflows/elixir.yml/badge.svg?branch=main)](https://github.com/elvengard-mmo/elvengard_network/actions/workflows/elixir.yml)
+[![Coverage Status](https://coveralls.io/repos/github/elvengard-mmo/elvengard_network/badge.svg?branch=main)](https://coveralls.io/github/elvengard-mmo/elvengard_network?branch=main)
 
 ## What is ElvenGard
 
@@ -16,7 +16,7 @@ This is the goal of this ambitious project: make a toolkit to group together dif
 
 ## What is ElvenGard.Network
 
-[ElvenGard.Network](https://github.com/ImNotAVirus/elvengard_network) is a dedicated toolkit designed to streamline and enhance the network aspect of game server development. Its transport-independent API can run on Ranch or Thousand Island, providing developers with a robust foundation for creating multiplayer game servers with ease.
+[ElvenGard.Network](https://github.com/elvengard-mmo/elvengard_network) is a dedicated toolkit designed to streamline and enhance the network aspect of game server development. Its transport-independent API can run on Ranch or Thousand Island, providing developers with a robust foundation for creating multiplayer game servers with ease.
 
 Key Features:
 
@@ -34,8 +34,8 @@ With ElvenGard.Network handling the intricate network tasks, game developers can
 
 ## Installation
 
-The package and one network server can be installed by adding them to your list
-of dependencies in `mix.exs`. For example, with Ranch:
+The package does not impose a network server. Add ElvenGard.Network and the
+adapter used by your application to `mix.exs`. For example, with Ranch:
 
 ```elixir
 def deps do
@@ -46,7 +46,20 @@ def deps do
 end
 ```
 
-Thousand Island `~> 1.5` can be used instead of Ranch.
+Or with Thousand Island:
+
+```elixir
+def deps do
+  [
+    {:elvengard_network, "~> 0.1.1"},
+    {:thousand_island, "~> 1.5"}
+  ]
+end
+```
+
+Both adapters expose the same Endpoint, SocketHandler, NetworkCodec, and
+PacketHandler APIs. They support TCP and TLS, and are selected independently
+for each endpoint through its configuration.
 
 The docs can be found at [https://hexdocs.pm/elvengard_network](https://hexdocs.pm/elvengard_network).
 
@@ -54,7 +67,7 @@ The docs can be found at [https://hexdocs.pm/elvengard_network](https://hexdocs.
 
 ## Projects using ElvenGard
 
-- [MinecraftEx](https://github.com/ImNotAVirus/elvengard_network/tree/main/examples/minecraft_ex): Located in the `examples` folder of the repository, this is the beginning of a [Minecraft](https://www.minecraft.net) server emulator
+- [MinecraftEx](https://github.com/elvengard-mmo/elvengard_network/tree/main/examples/minecraft_ex): Located in the `examples` folder of the repository, this is the beginning of a [Minecraft](https://www.minecraft.net) server emulator
 - [AvantHeim](https://github.com/ImNotAVirus/AvantHeim): Created by the same developer as ElvenGard, this is a [NosTale](https://gameforge.com/en-US/play/nostale) server emulator
 
 ## Contributing

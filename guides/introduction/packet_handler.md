@@ -86,4 +86,4 @@ In this section, we've learned how to handle client packets, create logic around
 the previously created [Views](packet_views.html).
 
 Our application is now ready for use. You can view the whole source code at
-[examples/login_server](https://github.com/ImNotAVirus/elvengard_network/tree/main/examples/login_server).
+[examples/login_server](https://github.com/elvengard-mmo/elvengard_network/tree/main/examples/login_server).

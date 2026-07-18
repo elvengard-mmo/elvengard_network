@@ -18,10 +18,15 @@ config :login_server, LoginServer.Endpoint.SocketHandler,
 
 Here's the explanation for these options:
 
-  - `packet_handler: LoginServer.PacketHandler`: specifies the module responsible for
-    handling packets received from clients.
-  - `network_codec: LoginServer.NetworkCodec`: Specifies the module responsible for 
-    encoding and decoding packets for communication between clients and the server.
+  - `packet_handler: LoginServer.Endpoint.PacketHandler`: specifies the module
+    responsible for handling packets received from clients.
+  - `network_codec: LoginServer.Endpoint.NetworkCodec`: specifies the module
+    responsible for encoding and decoding packets for communication between
+    clients and the server.
+
+These modules are resolved once when the endpoint starts, rather than for every
+connection. If `handle_message/2` always skips packet processing, both values may
+be set to `:unset`.
 
 ## Create a Socket Handler
 
@@ -43,7 +48,7 @@ defmodule LoginServer.Endpoint.SocketHandler do
 
   ## Callbacks
 
-  @impl true
+  @impl ElvenGard.Network.SocketHandler
   def handle_init(%Socket{} = socket) do
     Logger.info("New connection: #{socket.id}")
     :ok = Socket.setopts(socket, packet: :line, reuseaddr: true)
@@ -51,13 +56,13 @@ defmodule LoginServer.Endpoint.SocketHandler do
     {:ok, socket}
   end
 
-  @impl true
+  @impl ElvenGard.Network.SocketHandler
   def handle_message(message, %Socket{} = socket) do
     Logger.debug("New message from #{socket.id}: #{inspect(message)}")
     :ignore
   end
 
-  @impl true
+  @impl ElvenGard.Network.SocketHandler
   def handle_halt(reason, %Socket{} = socket) do
     Logger.info("#{socket.id} is now disconnected (reason: #{inspect(reason)})")
     {:ok, socket}
@@ -67,15 +72,19 @@ end
 
 Once again, creating a socket handler is fairly straightforward.
 
-This example defines 3 callbacks :
+This example defines three callbacks:
 
-  - `handle_init/1`: called when a client connects, it is mainly used to set 
-    [socket options](https://www.erlang.org/doc/man/inet#setopts-2) or 
-    call `ElvenGard.Network.Socket.assign/2` to init assigns.
-  - `handle_message/2`: called when we receive a packet from a client, we can 
-    either ignore it by returning `:ignore`, or choose to decode it and then 
-    handle it by returning `{:ok, socket}`.
-  - `handle_halt/2`: called when a client disconnects.
+  - `handle_init/1`: called when a client connects. It returns `{:ok, socket}`,
+    `{:ok, socket, timeout}`, or `{:stop, reason, socket}`. It is commonly used
+    to set [socket options](https://www.erlang.org/doc/man/inet#setopts-2) and
+    initialize assigns with `ElvenGard.Network.Socket.assign/2`.
+  - `handle_message/2`: called with the current unconsumed bytes followed by the
+    newly received binary. Return `:ignore` or `{:ignore, socket}` to discard
+    those bytes without decoding them, `{:ok, socket}` to run the network codec
+    and packet handler, or `{:stop, reason, socket}` to close the connection.
+  - `handle_halt/2`: called exactly once when the connection halts. Transport
+    reasons are normalized to `:closed`, `:timeout`, or `{:error, reason}`;
+    application code may supply another reason. It must return `{:ok, socket}`.
 
 **NOTE**: you may notice that we define the `packet: :line` option in `handle_init/1`. 
 We use this option because we want to use a line break as a separator for our packets. 

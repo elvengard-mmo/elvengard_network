@@ -5,6 +5,11 @@ defmodule ElvenGard.Network.Endpoint do
   An endpoint owns listener configuration and delegates server-specific operations
   to a module implementing `ElvenGard.Network.Endpoint.Adapter`.
 
+  Ranch and Thousand Island are supported through optional adapters while
+  socket handlers, codecs, and packet handlers remain transport-independent.
+  Connection modules are resolved once when the endpoint child specification is
+  built.
+
   For in-depth information on how to use and configure network endpoints, please
   refer to the [Endpoint documentation](https://hexdocs.pm/elvengard_network/endpoint.html).
   """

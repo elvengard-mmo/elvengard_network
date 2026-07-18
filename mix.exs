@@ -3,7 +3,7 @@ defmodule ElvenGard.Network.MixProject do
 
   @app_name "ElvenGard.Network"
   @version "0.1.1"
-  @github_link "https://github.com/ImNotAVirus/elvengard_network"
+  @github_link "https://github.com/elvengard-mmo/elvengard_network"
 
   def project do
     [
@@ -112,24 +112,25 @@ defmodule ElvenGard.Network.MixProject do
   end
 
   defp groups_for_modules() do
-    # Ungrouped Modules:
-    #
-    # ElvenGard.Network
-    # ElvenGard.Network.Socket
-    # ElvenGard.Network.Type
-    # ElvenGard.Network.View
-
     [
       Endpoint: [
         ElvenGard.Network.Endpoint,
         ElvenGard.Network.Endpoint.Adapter,
         ElvenGard.Network.Endpoint.Adapters.Ranch,
-        ElvenGard.Network.Endpoint.Adapters.ThousandIsland,
+        ElvenGard.Network.Endpoint.Adapters.ThousandIsland
+      ],
+      Connection: [
+        ElvenGard.Network.Socket,
+        ElvenGard.Network.Socket.Adapter,
+        ElvenGard.Network.SocketHandler
+      ],
+      Packets: [
         ElvenGard.Network.NetworkCodec,
         ElvenGard.Network.PacketHandler,
         ElvenGard.Network.PacketProcessor,
         ElvenGard.Network.PacketSerializer,
-        ElvenGard.Network.SocketHandler
+        ElvenGard.Network.Type,
+        ElvenGard.Network.View
       ]
     ]
   end

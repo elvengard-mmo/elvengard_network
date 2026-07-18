@@ -53,7 +53,7 @@ structure returned by our deserializer will be `InitPacket` and if it is `:sync`
 will be `SyncPacket`.
 
 For more information and examples of how to use guards, I recommend you read the code in 
-[examples/minecraft_ex](https://github.com/ImNotAVirus/elvengard_network/tree/main/examples/minecraft_ex).
+[examples/minecraft_ex](https://github.com/elvengard-mmo/elvengard_network/tree/main/examples/minecraft_ex).
 
 **NOTE**: guards are only available for deserialization (client packets).
 

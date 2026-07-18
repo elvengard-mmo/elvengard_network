@@ -5,7 +5,7 @@ defmodule ElvenGard.Network.Socket do
   This module provides functionality for managing a socket in the network protocol.
   A socket is a connection between the server and a client. It maintains various
   socket fields, such as the socket ID, socket assigns, transport information,
-  and the packet network encoder used for sending data.
+  and the network codec used for sending data.
 
   ## Socket fields
 
@@ -15,8 +15,8 @@ defmodule ElvenGard.Network.Socket do
   - `:adapter`: The module implementing `ElvenGard.Network.Socket.Adapter`.
   - `:adapter_state`: The opaque connection state managed exclusively by the adapter.
   - `:remaining`: The remaining bytes after receiving and packet deserialization.
-  - `:encoder`: The `ElvenGard.Network.NetworkCodec` module used to encode packets
-    in the `send/2` function.
+  - `:encoder`: The `ElvenGard.Network.NetworkCodec` module used to encode
+    packets in `send/2`, or `:unset` when sending raw iodata.
 
   """
 
@@ -46,7 +46,7 @@ defmodule ElvenGard.Network.Socket do
   This function initializes a new socket with the given `adapter`, the keyword
   options used by the adapter to create its opaque state, and the `encoder` module.
   """
-  @spec new(module(), Adapter.options(), module()) :: Socket.t()
+  @spec new(module(), Adapter.options(), module() | :unset) :: Socket.t()
   def new(adapter, adapter_options, encoder) do
     adapter_state = adapter.new(adapter_options)
 

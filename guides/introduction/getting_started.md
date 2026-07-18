@@ -1,10 +1,11 @@
 # Getting Started
 
-This guide is an introduction to [ElvenGard.Network](https://github.com/ImNotAVirus/elvengard_network), the Network toolkit for a MMO Game Server toolkit written in Elixir.  
+This guide introduces [ElvenGard.Network](https://github.com/elvengard-mmo/elvengard_network),
+the network toolkit for building MMO game servers in Elixir.
 The purpose of this toolkit is to provide a set of modules and processes to simplify the creation of a game server. It's therefore simple to use and flexible in order to allow you to concentrate on the implementation of your features.
 
 In this guide, we're going to learn some basics about ElvenGard.Network. If you want
-to see the code from this guide, you can view it at [elvengard_network/examples/login_server on GitHub](https://github.com/ImNotAVirus/elvengard_network/tree/main/examples/login_server).
+to see the code from this guide, you can view it at [elvengard_network/examples/login_server on GitHub](https://github.com/elvengard-mmo/elvengard_network/tree/main/examples/login_server).
 
 ## Adding ElvenGard.Network to an application
 
@@ -54,6 +55,11 @@ config :login_server, LoginServer.Endpoint.SocketHandler,
 ```
 
 This configuration example tells our endpoint to listen on port 3000 of the local address and defines the socket handler, network codec and packet handler to use.
+
+Ranch is optional. To use Thousand Island instead, replace the Ranch dependency
+with `{:thousand_island, "~> 1.5"}` and select
+`ElvenGard.Network.Endpoint.Adapters.ThousandIsland`; the application callbacks
+and packet modules do not change.
   
 For more details on the configuration of each module and on selecting Ranch or
 Thousand Island, please refer to the [Endpoint](endpoint.html#configuration) and

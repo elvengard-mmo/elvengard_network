@@ -34,6 +34,15 @@ Here's what each configuration option does:
   - `transport`: selects `:tcp` or `:ssl` independently from the networking server.
   - `transport_options`: provides options for the underlying socket transport.
 
+`adapter` and `socket_handler` are required. The other options default to an
+empty adapter configuration, the endpoint module as listener name,
+`{127, 0, 0, 1}`, port `3000`, TCP, and an empty transport configuration.
+String IP addresses are normalized before they are passed to the network server.
+
+The socket handler configuration is resolved when the endpoint child
+specification is built. Restart the endpoint after changing its socket handler,
+network codec, or packet handler configuration.
+
 ### Available adapters
 
 Network servers are optional dependencies. Add the one used by the application
@@ -78,6 +87,26 @@ adapter: ElvenGard.Network.Endpoint.Adapters.ThousandIsland
 `transport`, and `transport_options` values keep the same meaning for both
 adapters.
 
+### TLS
+
+TLS is selected independently from the adapter:
+
+```elixir
+transport: :ssl,
+transport_options: [certfile: "/path/to/cert.pem", keyfile: "/path/to/key.pem"]
+```
+
+The certificate options are passed to Ranch or Thousand Island through the
+selected adapter.
+
+### Custom adapters
+
+A custom listener backend implements `ElvenGard.Network.Endpoint.Adapter`.
+Its `child_spec/3` callback receives the endpoint module, normalized endpoint
+configuration, and the already resolved `:socket_handler`, `:network_codec`, and
+`:packet_handler` modules. Address and port lookups are implemented through
+`get_addr/2` and `get_port/2`.
+
 ## Creating an Endpoint
 
 Here's a basic example you can use for all your projects:
@@ -95,7 +124,7 @@ defmodule LoginServer.Endpoint do
 
   ## Callbacks
 
-  @impl true
+  @impl ElvenGard.Network.Endpoint
   def handle_start(config) do
     host = Keyword.fetch!(config, :ip)
     port = Keyword.fetch!(config, :port)
@@ -107,7 +136,7 @@ end
 As you can see, creating an endpoint is very simple, you just need to specify the 
 otp app you used in the config and you're done.
 
-It is also possible to define the `c:ElvenGard.Network.Endpoint.handle_start/1` 
+It is also possible to define the `c:ElvenGard.Network.Endpoint.handle_start/1`
 callback. This allows you to, for example, display various information relating 
 to the startup. It receives the endpoint configs as a parameter and must always 
 return `:ok`.
