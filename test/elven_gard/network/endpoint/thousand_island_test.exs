@@ -4,6 +4,9 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
   alias ElvenGard.Network.Endpoint.Protocol.ThousandIsland, as: Protocol
   alias ElvenGard.Network.Socket
 
+  @tls_certfile Path.expand("../../../fixtures/tls/server_cert.pem", __DIR__)
+  @tls_keyfile Path.expand("../../../fixtures/tls/server_key.pem", __DIR__)
+
   Application.put_env(:elvengard_network, __MODULE__.Endpoint,
     adapter: ElvenGard.Network.Endpoint.Adapters.ThousandIsland,
     adapter_options: [num_acceptors: 2],
@@ -33,6 +36,17 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
   Application.put_env(:elvengard_network, __MODULE__.InvalidSocketHandler,
     network_codec: __MODULE__.Codec,
     packet_handler: __MODULE__.PacketHandler
+  )
+
+  Application.put_env(:elvengard_network, __MODULE__.TlsEndpoint,
+    adapter: ElvenGard.Network.Endpoint.Adapters.ThousandIsland,
+    adapter_options: [num_acceptors: 2],
+    ip: "127.0.0.1",
+    listener_name: __MODULE__.TlsListener,
+    port: 0,
+    socket_handler: __MODULE__.SocketHandler,
+    transport: :ssl,
+    transport_options: [certfile: @tls_certfile, keyfile: @tls_keyfile]
   )
 
   defmodule Packet do
@@ -82,6 +96,10 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
   end
 
   defmodule Endpoint do
+    use ElvenGard.Network.Endpoint, otp_app: :elvengard_network
+  end
+
+  defmodule TlsEndpoint do
     use ElvenGard.Network.Endpoint, otp_app: :elvengard_network
   end
 
@@ -159,6 +177,7 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
 
   setup_all do
     start_supervised!(Endpoint)
+    start_supervised!(TlsEndpoint)
     :ok
   end
 
@@ -179,6 +198,21 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
     assert {:ok, "ack:fragmented\n"} = :gen_tcp.recv(socket, 0)
 
     :ok = :gen_tcp.close(socket)
+    assert_receive {:handle_halt, :closed}
+  end
+
+  test "runs the complete fragmented packet pipeline through TLS" do
+    socket = connect_tls()
+    assert_receive :handle_init
+
+    :ok = :ssl.send(socket, "fragment")
+    refute_receive {:handle_packet, _data}, 25
+
+    :ok = :ssl.send(socket, "ed\n")
+    assert_receive {:handle_packet, "fragmented"}
+    assert {:ok, "ack:fragmented\n"} = :ssl.recv(socket, 0)
+
+    :ok = :ssl.close(socket)
     assert_receive {:handle_halt, :closed}
   end
 
@@ -293,6 +327,18 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
       )
 
     :ok = :gen_tcp.send(socket, serialized_self())
+    socket
+  end
+
+  defp connect_tls() do
+    {:ok, socket} =
+      :ssl.connect(
+        {127, 0, 0, 1},
+        TlsEndpoint.get_port(),
+        [:binary, active: false, packet: 0, verify: :verify_none]
+      )
+
+    :ok = :ssl.send(socket, serialized_self())
     socket
   end
 

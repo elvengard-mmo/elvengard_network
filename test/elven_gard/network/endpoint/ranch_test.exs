@@ -5,6 +5,9 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
   alias ElvenGard.Network.Socket
   alias ElvenGard.Network.Socket.Adapters.Ranch, as: RanchAdapter
 
+  @tls_certfile Path.expand("../../../fixtures/tls/server_cert.pem", __DIR__)
+  @tls_keyfile Path.expand("../../../fixtures/tls/server_key.pem", __DIR__)
+
   Application.put_env(:elvengard_network, __MODULE__.MyEndpoint,
     adapter: ElvenGard.Network.Endpoint.Adapters.Ranch,
     ip: {127, 0, 0, 1},
@@ -31,6 +34,16 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
   Application.put_env(:elvengard_network, __MODULE__.InitStopSocketHandler,
     network_codec: __MODULE__.HaltCodec,
     packet_handler: __MODULE__.HaltHandler
+  )
+
+  Application.put_env(:elvengard_network, __MODULE__.TlsEndpoint,
+    adapter: ElvenGard.Network.Endpoint.Adapters.Ranch,
+    ip: "127.0.0.1",
+    listener_name: :ranch_tls_endpoint,
+    port: 0,
+    socket_handler: __MODULE__.MySocketHandler,
+    transport: :ssl,
+    transport_options: [certfile: @tls_certfile, keyfile: @tls_keyfile]
   )
 
   defmodule HaltPacket do
@@ -73,7 +86,19 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
       {:halt, :requested, Socket.assign(socket, :halted, true)}
     end
 
-    def handle_packet(%HaltPacket{}, socket), do: {:cont, socket}
+    def handle_packet(%HaltPacket{data: data}, socket) do
+      %Socket{assigns: assigns} = socket
+
+      case assigns do
+        %{link: link} ->
+          send(link, {:handle_packet, data})
+          :ok = Socket.send(socket, ["ack:", data, "\n"])
+          {:cont, socket}
+
+        _ ->
+          {:cont, socket}
+      end
+    end
   end
 
   defmodule HaltTransport do
@@ -124,6 +149,10 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
     use ElvenGard.Network.Endpoint, otp_app: :elvengard_network
   end
 
+  defmodule TlsEndpoint do
+    use ElvenGard.Network.Endpoint, otp_app: :elvengard_network
+  end
+
   defmodule InitStopSocketHandler do
     use ElvenGard.Network.SocketHandler
 
@@ -167,7 +196,7 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
     def handle_message(message, %{assigns: %{connection_state: :connected}} = socket) do
       %{assigns: %{link: link}} = socket
       send(link, {:handle_message, message})
-      :ignore
+      {:ok, socket}
     end
 
     @impl true
@@ -181,6 +210,7 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
   setup_all do
     start_supervised!(MyEndpoint)
     start_supervised!(InitStopEndpoint)
+    start_supervised!(TlsEndpoint)
     :ok
   end
 
@@ -221,6 +251,23 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
       socket = connect()
       close(socket)
 
+      assert_receive {:handle_halt, :closed}
+    end
+  end
+
+  describe "TLS integration" do
+    test "runs the complete fragmented packet pipeline" do
+      socket = connect_tls()
+      assert_receive :handle_init
+
+      :ok = :ssl.send(socket, "fragment")
+      refute_receive {:handle_packet, _data}, 25
+
+      :ok = :ssl.send(socket, "ed\n")
+      assert_receive {:handle_packet, "fragmented"}
+      assert {:ok, "ack:fragmented\n"} = :ssl.recv(socket, 0)
+
+      :ok = :ssl.close(socket)
       assert_receive {:handle_halt, :closed}
     end
   end
@@ -359,6 +406,18 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
     {:ok, socket} = :gen_tcp.connect(host, port, [:binary, active: true, packet: 0])
     :ok = :gen_tcp.send(socket, serialized_self())
 
+    socket
+  end
+
+  defp connect_tls() do
+    {:ok, socket} =
+      :ssl.connect(
+        {127, 0, 0, 1},
+        TlsEndpoint.get_port(),
+        [:binary, active: false, packet: 0, verify: :verify_none]
+      )
+
+    :ok = :ssl.send(socket, serialized_self())
     socket
   end
 
