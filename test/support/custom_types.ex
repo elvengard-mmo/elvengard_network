@@ -1,5 +1,9 @@
 defmodule ElvenGard.Network.CustomTypes do
+  @moduledoc false
+
   defmodule Boolean do
+    @moduledoc false
+
     use ElvenGard.Network.Type
 
     @type t :: boolean
@@ -27,6 +31,8 @@ defmodule ElvenGard.Network.CustomTypes do
   end
 
   defmodule Str do
+    @moduledoc false
+
     use ElvenGard.Network.Type
 
     @type t :: String.t()
@@ -57,6 +63,8 @@ defmodule ElvenGard.Network.CustomTypes do
   end
 
   defmodule Int do
+    @moduledoc false
+
     use ElvenGard.Network.Type
 
     @type t :: integer
@@ -78,6 +86,8 @@ defmodule ElvenGard.Network.CustomTypes do
   end
 
   defmodule Date do
+    @moduledoc false
+
     use ElvenGard.Network.Type
 
     @type t :: Elixir.Date.t()

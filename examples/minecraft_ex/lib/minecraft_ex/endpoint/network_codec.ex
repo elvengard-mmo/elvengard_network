@@ -15,12 +15,8 @@ defmodule MinecraftEx.Endpoint.NetworkCodec do
     {length, rest} = VarInt.decode(message)
 
     case byte_size(rest) >= length do
-      true ->
-        <<raw::binary-size(length), rest::binary>> = rest
-        {raw, rest}
-
-      false ->
-        {nil, message}
+      true -> :erlang.split_binary(rest, length)
+      false -> {nil, message}
     end
   end
 

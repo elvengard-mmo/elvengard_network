@@ -1,4 +1,6 @@
 defmodule MyApp.View do
+  @moduledoc false
+
   use ElvenGard.Network.View
 
   @impl true

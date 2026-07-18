@@ -9,6 +9,60 @@ defmodule ElvenGard.Network.ProtocolTest do
 
   Application.put_env(:elvengard_network, __MODULE__.MyProtocol, [])
 
+  Application.put_env(:elvengard_network, __MODULE__.HaltProtocol,
+    network_codec: __MODULE__.HaltCodec,
+    packet_handler: __MODULE__.HaltHandler
+  )
+
+  defmodule HaltPacket do
+    defstruct [:data]
+  end
+
+  defmodule HaltCodec do
+    @behaviour ElvenGard.Network.NetworkCodec
+
+    @impl true
+    def next(data, _socket), do: {data, <<>>}
+
+    @impl true
+    def decode(data, _socket), do: %HaltPacket{data: data}
+
+    @impl true
+    def encode(data, _socket), do: data
+  end
+
+  defmodule HaltHandler do
+    @behaviour ElvenGard.Network.PacketHandler
+
+    alias ElvenGard.Network.Socket
+
+    @impl true
+    def handle_packet(%HaltPacket{data: "halt"}, socket) do
+      {:halt, Socket.assign(socket, :halted, true)}
+    end
+
+    def handle_packet(%HaltPacket{}, socket), do: {:cont, socket}
+  end
+
+  defmodule HaltTransport do
+    def close(pid), do: send(pid, :transport_closed)
+    def setopts(pid, opts), do: send(pid, {:transport_opts, opts})
+  end
+
+  defmodule HaltProtocol do
+    use ElvenGard.Network.Endpoint.Protocol
+
+    @impl true
+    def handle_message(_message, %{assigns: %{observer: observer}} = socket) do
+      send(observer, {:remaining_seen_by_callback, socket.remaining})
+      {:ok, socket}
+    end
+
+    def handle_message(_message, %{assigns: %{ignore: true}}), do: :ignore
+
+    def handle_message(_message, socket), do: {:ok, socket}
+  end
+
   defmodule MyEndpoint do
     use ElvenGard.Network.Endpoint, otp_app: :elvengard_network
   end
@@ -75,6 +129,52 @@ defmodule ElvenGard.Network.ProtocolTest do
       close(socket)
 
       assert_receive {:handle_halt, :tcp_closed}
+    end
+
+    test "receives the socket returned by the packet handler" do
+      socket = %ElvenGard.Network.Socket{
+        transport: HaltTransport,
+        transport_pid: self(),
+        encoder: HaltCodec
+      }
+
+      assert {:stop, :normal, %{assigns: %{halted: true}}} =
+               HaltProtocol.handle_info({:tcp, self(), "halt"}, socket)
+
+      assert_received :transport_closed
+    end
+
+    test "clears buffered data when the reconstructed message is ignored" do
+      socket = %ElvenGard.Network.Socket{
+        transport: HaltTransport,
+        transport_pid: self(),
+        remaining: "frag",
+        assigns: %{ignore: true},
+        encoder: HaltCodec
+      }
+
+      assert {:noreply, %{remaining: <<>>}} =
+               HaltProtocol.handle_info({:tcp, self(), "ment"}, socket)
+
+      assert_received {:transport_opts, active: :once}
+      refute_received :transport_closed
+    end
+
+    test "clears buffered data after the reconstructed packet is consumed" do
+      socket = %ElvenGard.Network.Socket{
+        transport: HaltTransport,
+        transport_pid: self(),
+        remaining: "frag",
+        assigns: %{observer: self()},
+        encoder: HaltCodec
+      }
+
+      assert {:noreply, %{remaining: <<>>}} =
+               HaltProtocol.handle_info({:tcp, self(), "ment"}, socket)
+
+      assert_received {:remaining_seen_by_callback, "frag"}
+      assert_received {:transport_opts, active: :once}
+      refute_received :transport_closed
     end
   end
 

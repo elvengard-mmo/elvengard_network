@@ -14,8 +14,8 @@ Here is an example of use :
 
     # On the first terminal
     > iex -S mix
-    Erlang/OTP 25 [erts-13.1.3] [source] [64-bit] [smp:8:8] [ds:8:8:10] [async-threads:1]
-    Interactive Elixir (1.14.3) - press Ctrl+C to exit (type h() ENTER for help)
+    Erlang/OTP 29 [erts-17.0.3] [source] [64-bit] [smp:14:14] [ds:14:14:10] [async-threads:1] [jit:ns]
+    Interactive Elixir (1.20.2) - press Ctrl+C to exit (type h() ENTER for help)
 
     # On the second one
     > nc 127.0.0.1 3333

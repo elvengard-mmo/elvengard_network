@@ -37,7 +37,7 @@ defmodule LoginServer.Endpoint.NetworkCodec do
     |> Enum.intersperse(" ")
     # [["SUCCESS", " ", ["127.0.0.1", ":", "5000"]], "\n"]
     |> then(&[&1 | "\n"])
-    
+
     # This will be serialized into `SUCCESS 127.0.0.1:5000\n`
   end
 end

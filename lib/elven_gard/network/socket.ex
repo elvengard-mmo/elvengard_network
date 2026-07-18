@@ -12,7 +12,7 @@ defmodule ElvenGard.Network.Socket do
   - `:id`: The unique string ID of the socket.
   - `:assigns`: A map of socket assigns, which can be used to store custom data
     associated with the socket. The default value is `%{}`.
-  - `:transport`: The [Ranch transport](https://ninenines.eu/docs/en/ranch/2.0/guide/transports/)
+  - `:transport`: The [Ranch transport](https://ninenines.eu/docs/en/ranch/2.2/guide/transports/)
     used for the socket.
   - `:transport_pid`: The PID (Process ID) of the socket's transport process.
   - `:remaining`: The remaining bytes after receiving and packet deserialization.

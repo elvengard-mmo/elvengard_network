@@ -5,7 +5,7 @@ defmodule MinecraftEx.MixProject do
     [
       app: :minecraft_ex,
       version: "0.1.0",
-      elixir: "~> 1.13",
+      elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -22,8 +22,7 @@ defmodule MinecraftEx.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:elvengard_network, path: "../.."},
-      {:poison, "~> 5.0"}
+      {:elvengard_network, path: "../.."}
     ]
   end
 end

@@ -25,7 +25,7 @@ defmodule ElvenGard.Network.View do
         @impl ElvenGard.Network.View
         def render(:login_response, %{status: status, message: message}) do
           # Encode the `json` field before generating the LoginResponse struct
-          json = Poison.encode!(message)
+          json = JSON.encode!(message)
           %LoginResponse{status: status, json: json}
         end
       end

@@ -1,6 +1,6 @@
 defmodule ElvenGard.Network.Endpoint.Protocol do
   @moduledoc ~S"""
-  Wrapper on top of [Ranch protocols](https://ninenines.eu/docs/en/ranch/2.1/guide/protocols/).
+  Wrapper on top of [Ranch protocols](https://ninenines.eu/docs/en/ranch/2.2/guide/protocols/).
 
   This module defines a protocol behavior to handle incoming connections in the
   ElvenGard.Network library. It provides callbacks for initializing, handling
@@ -84,7 +84,7 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
   ## Private functions
 
   defp defs() do
-    quote location: :keep do
+    quote generated: true, location: :keep do
       @impl :ranch_protocol
       def start_link(ref, transport, opts) do
         {:ok, :proc_lib.spawn_link(__MODULE__, :init, [{ref, transport, opts}])}
@@ -119,7 +119,7 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
 
   # credo:disable-for-next-line
   defp message_callbacks() do
-    quote location: :keep do
+    quote generated: true, location: :keep do
       @impl true
       def handle_info({:tcp, transport_pid, data}, %Socket{} = socket) do
         %Socket{transport: transport, remaining: remaining} = socket
@@ -127,8 +127,8 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
 
         result =
           case handle_message(full_data, socket) do
-            :ignore -> {:noreply, socket}
-            {:ignore, new_socket} -> {:noreply, new_socket}
+            :ignore -> {:noreply, %Socket{socket | remaining: <<>>}}
+            {:ignore, new_socket} -> {:noreply, %Socket{new_socket | remaining: <<>>}}
             {:ok, new_socket} -> packet_loop(full_data, new_socket)
             {:stop, reason, new_socket} -> {:stop, reason, new_socket}
             term -> raise "invalid return value for handle_message/2 (got: #{inspect(term)})"
@@ -145,24 +145,26 @@ defmodule ElvenGard.Network.Endpoint.Protocol do
       defp codec(), do: env_config()[:network_codec]
       defp handlers(), do: env_config()[:packet_handler]
 
-      defp packet_loop(<<>>, socket), do: {:noreply, socket}
+      defp packet_loop(<<>>, %Socket{} = socket) do
+        {:noreply, %Socket{socket | remaining: <<>>}}
+      end
 
-      defp packet_loop(data, socket) do
+      defp packet_loop(data, %Socket{} = socket) do
         with {:next, {raw, rest}} when not is_nil(raw) <- {:next, codec().next(data, socket)},
              struct <- codec().decode(raw, socket),
              {:handle, {:cont, new_socket}} <- {:handle, handlers().handle_packet(struct, socket)} do
           packet_loop(rest, new_socket)
         else
           {:next, {nil, rest}} -> {:noreply, %Socket{socket | remaining: rest}}
-          {:handle, {:halt, new_socket}} -> do_handle_halt(:normal, socket)
-          {:handle, {:halt, reason, new_socket}} -> do_handle_halt(reason, socket)
+          {:handle, {:halt, new_socket}} -> do_handle_halt(:normal, new_socket)
+          {:handle, {:halt, reason, new_socket}} -> do_handle_halt(reason, new_socket)
         end
       end
     end
   end
 
   defp halt_callbacks() do
-    quote location: :keep do
+    quote generated: true, location: :keep do
       @impl true
       def handle_info({:tcp_closed, transport_pid}, %Socket{} = socket) do
         do_handle_halt(:tcp_closed, socket)

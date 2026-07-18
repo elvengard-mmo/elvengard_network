@@ -1,5 +1,3 @@
-Code.require_file("../../fixtures/views.exs", __DIR__)
-
 defmodule ElvenGard.Network.ViewTest do
   use ExUnit.Case, async: true
 

@@ -2,7 +2,7 @@
 
 The first thing to do is define a module using `ElvenGard.Network.Endpoint`.
 
-An Endpoint is simply a [Ranch listener](https://ninenines.eu/docs/en/ranch/2.1/guide/listeners/).
+An Endpoint is simply a [Ranch listener](https://ninenines.eu/docs/en/ranch/2.2/guide/listeners/).
 
 ## Configuration
 

@@ -50,7 +50,7 @@ config :login_server, LoginServer.Endpoint.Protocol,
 
 This configuration example simply tells our endpoint to listen on port 3000 of the local address and defines the protocol, network encoder and packet handler to be used.
   
-For more details on the configuration of each module, please refer to [Endpoint](endpoint.html#configuration) and [Protocol](protocol.html#configuration) guides and [Ranch documentation](https://ninenines.eu/docs/en/ranch/2.1/guide/).
+For more details on the configuration of each module, please refer to [Endpoint](endpoint.html#configuration) and [Protocol](protocol.html#configuration) guides and [Ranch documentation](https://ninenines.eu/docs/en/ranch/2.2/guide/).
 
 ## Summary
 

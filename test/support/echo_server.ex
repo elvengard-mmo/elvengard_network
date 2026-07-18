@@ -1,4 +1,6 @@
 defmodule ElvenGard.Network.EchoServer do
+  @moduledoc false
+
   use GenServer
 
   def start_link(port: port) do

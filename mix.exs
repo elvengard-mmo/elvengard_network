@@ -9,19 +9,26 @@ defmodule ElvenGard.Network.MixProject do
     [
       app: :elvengard_network,
       version: @version,
-      elixir: "~> 1.13",
+      elixir: "~> 1.15",
       name: @app_name,
       description: "Game server toolkit written in Elixir # Network",
       elixirc_paths: elixirc_paths(Mix.env()),
       package: package(),
       docs: docs(),
       deps: deps(),
-      test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: [
+      aliases: aliases(),
+      test_coverage: [tool: ExCoveralls]
+    ]
+  end
+
+  def cli do
+    [
+      preferred_envs: [
         coveralls: :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
-        "coveralls.html": :test
+        "coveralls.html": :test,
+        precommit: :test
       ]
     ]
   end
@@ -39,10 +46,21 @@ defmodule ElvenGard.Network.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ranch, "~> 2.1"},
-      {:ex_doc, "~> 0.34", only: :dev, runtime: false},
+      {:ranch, "~> 2.2"},
+      {:ex_doc, "~> 0.40", only: :dev, runtime: false},
       {:excoveralls, "~> 0.18", only: :test, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp aliases do
+    [
+      precommit: [
+        "format --check-formatted",
+        "compile --force --warnings-as-errors",
+        "credo --strict",
+        "test --warnings-as-errors --cover"
+      ]
     ]
   end
 

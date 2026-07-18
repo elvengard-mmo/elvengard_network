@@ -2,69 +2,165 @@ name: Elixir CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  minimum:
+    name: Minimum / OTP 24.3.4.17 / Elixir 1.15.0
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up minimum Erlang and Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: "24.3.4.17"
+          elixir-version: "1.15.0"
+          version-type: strict
+
+      - name: Restore Mix cache
+        uses: actions/cache@v6
+        with:
+          path: |
+            deps
+            _build/dev
+            _build/test
+          key: ${{ runner.os }}-mix-min-v1-otp-24.3.4.17-elixir-1.15.0-${{ hashFiles('mix.exs', 'mix.lock') }}
+
+      - name: Fetch dependencies
+        run: mix deps.get --check-locked
+
+      - name: Check lockfile
+        run: mix deps.unlock --check-unused
+
+      - name: Compile dependencies
+        run: mix deps.compile
+
+      - name: Compile project
+        run: mix compile --warnings-as-errors
+
+      - name: Generate documentation
+        run: mix docs --warnings-as-errors
+
+      - name: Run tests
+        run: mix test --warnings-as-errors
+
   tests:
-    name: Run Tests
-
+    name: Current / OTP 29.0.3 / Elixir 1.20.2
     runs-on: ubuntu-latest
-    container: elixir:${{ matrix.elixir_version }}-slim
-
-    strategy:
-      matrix:
-        elixir_version: ["1.13", "1.17"]
+    timeout-minutes: 15
 
     env:
       MIX_ENV: test
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Install packages
-        run: |
-          apt-get update
-          # Needed for coveralls
-          apt-get install -y git
-
       - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Get deps cache
-        uses: actions/cache@v3
-        id: mix-cache
+        uses: actions/checkout@v7
         with:
-         path: |
-          _build/test
-          deps
-         key: ${{ runner.os }}-${{ matrix.elixir_version }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+          persist-credentials: false
 
-      - name: Install Mix tools
-        run: |
-          mix local.hex --force
-          mix local.rebar --force
+      - name: Set up Erlang and Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          version-file: .tool-versions
+          version-type: strict
 
-      - name: Install Dependencies
-        if: steps.mix-cache.outputs.cache-hit != 'true'
-        run: |
-          mix deps.get
-          mix compile
+      - name: Restore Mix cache
+        uses: actions/cache@v6
+        with:
+          path: |
+            deps
+            _build/test
+          key: ${{ runner.os }}-mix-v1-${{ hashFiles('.tool-versions', 'mix.exs', 'mix.lock') }}
 
-      - name: Run Tests
-        run: mix test --trace
+      - name: Fetch dependencies
+        run: mix deps.get --check-locked
 
-      - name: Check Formatting
-        run: mix format --dry-run --check-formatted
+      - name: Check lockfile
+        run: mix deps.unlock --check-unused
+
+      - name: Compile dependencies
+        run: mix deps.compile
+
+      - name: Compile project
+        run: mix compile --warnings-as-errors
+
+      - name: Check formatting
+        run: mix format --check-formatted
 
       - name: Run Credo
         run: mix credo --strict
 
-      - name: Post Coverage
-        run: mix coveralls.github
-        if: matrix.elixir_version == '1.17'
+      # coveralls.github already runs the test suite on pushes, avoiding a duplicate test run.
+      - name: Run tests
+        if: github.event_name == 'pull_request'
+        run: mix test --warnings-as-errors
+
+      - name: Run tests and post coverage
+        if: github.event_name == 'push'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: mix coveralls.github --warnings-as-errors
+
+  examples:
+    name: Compile example / ${{ matrix.example }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        example: [echo_server, login_server, minecraft_ex]
+
+    defaults:
+      run:
+        working-directory: examples/${{ matrix.example }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Erlang and Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          version-file: .tool-versions
+          version-type: strict
+
+      - name: Restore Mix cache
+        uses: actions/cache@v6
+        with:
+          path: |
+            examples/${{ matrix.example }}/deps
+            examples/${{ matrix.example }}/_build/dev
+          key: ${{ runner.os }}-mix-example-${{ matrix.example }}-v1-${{ hashFiles('.tool-versions', 'mix.exs', 'mix.lock', 'examples/**/mix.exs', 'examples/**/mix.lock') }}
+
+      - name: Fetch dependencies
+        run: mix deps.get --check-locked
+
+      - name: Check lockfile
+        run: mix deps.unlock --check-unused
+
+      - name: Compile dependencies
+        run: mix deps.compile
+
+      - name: Compile example
+        run: mix compile --warnings-as-errors
+
+      - name: Check formatting
+        run: mix format --check-formatted
