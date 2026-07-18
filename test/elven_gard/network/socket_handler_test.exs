@@ -21,8 +21,8 @@ defmodule ElvenGard.Network.SocketHandlerTest do
     end
 
     @impl true
-    def handle_halt(reason, %Socket{} = socket) do
-      {:ok, reason, Socket.assign(socket, :halted, true)}
+    def handle_halt(_reason, %Socket{} = socket) do
+      {:ok, Socket.assign(socket, :halted, true)}
     end
   end
 
@@ -43,7 +43,7 @@ defmodule ElvenGard.Network.SocketHandlerTest do
     assert {:ignore, %Socket{assigns: %{message: "data"}}} =
              CustomHandler.handle_message("data", socket)
 
-    assert {:ok, :requested, %Socket{assigns: %{halted: true}}} =
+    assert {:ok, %Socket{assigns: %{halted: true}}} =
              CustomHandler.handle_halt(:requested, socket)
   end
 end

@@ -4,7 +4,7 @@ if Code.ensure_loaded?(:ranch) do
 
     use GenServer
 
-    alias ElvenGard.Network.Endpoint.MessageProcessor
+    alias ElvenGard.Network.Endpoint.Connection
     alias ElvenGard.Network.Socket
     alias ElvenGard.Network.Socket.Adapters.Ranch, as: RanchAdapter
 
@@ -57,22 +57,15 @@ if Code.ensure_loaded?(:ranch) do
         packet_handler: packet_handler
       }
 
-      init_error =
-        "handle_init/1 must return `{:ok, socket}`, `{:ok, socket, timeout}` " <>
-          "or `{:stop, reason, new_socket}`"
-
-      case socket_handler.handle_init(socket) do
-        {:ok, %Socket{} = new_socket} ->
+      case Connection.init(socket, socket_handler) do
+        {:cont, new_socket} ->
           do_enter_loop(%State{state | socket: new_socket})
 
-        {:ok, %Socket{} = new_socket, timeout} ->
+        {:cont, new_socket, timeout} ->
           do_enter_loop(%State{state | socket: new_socket}, timeout)
 
-        {:stop, reason, %Socket{} = new_socket} ->
-          {:stop, reason, %State{state | socket: new_socket}}
-
-        _ ->
-          raise init_error
+        {:halt, reason, new_socket} ->
+          do_handle_halt(reason, new_socket, state)
       end
     end
 
@@ -86,7 +79,7 @@ if Code.ensure_loaded?(:ranch) do
       } = state
 
       result =
-        case MessageProcessor.process(data, socket, socket_handler, packet_handler) do
+        case Connection.process(data, socket, socket_handler, packet_handler) do
           {:cont, new_socket} -> {:noreply, %State{state | socket: new_socket}}
           {:halt, reason, new_socket} -> do_handle_halt(reason, new_socket, state)
         end
@@ -137,17 +130,9 @@ if Code.ensure_loaded?(:ranch) do
     defp do_handle_halt(reason, socket, %State{} = state) do
       %State{socket_handler: socket_handler} = state
       Socket.close(socket)
+      new_socket = Connection.halt(reason, socket, socket_handler)
 
-      case socket_handler.handle_halt(reason, socket) do
-        {:ok, %Socket{} = new_socket} ->
-          {:stop, :normal, %State{state | socket: new_socket}}
-
-        {:ok, stop_reason, %Socket{} = new_socket} ->
-          {:stop, stop_reason, %State{state | socket: new_socket}}
-
-        _ ->
-          raise "handle_halt/2 must return `{:ok, socket}` or `{:ok, stop_reason, socket}`"
-      end
+      {:stop, :normal, %State{state | socket: new_socket}}
     end
   end
 end

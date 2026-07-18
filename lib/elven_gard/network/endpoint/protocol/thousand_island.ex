@@ -4,7 +4,7 @@ if Code.ensure_loaded?(ThousandIsland.Handler) do
 
     use ThousandIsland.Handler
 
-    alias ElvenGard.Network.Endpoint.MessageProcessor
+    alias ElvenGard.Network.Endpoint.Connection
     alias ElvenGard.Network.Socket
     alias ElvenGard.Network.Socket.Adapters.ThousandIsland, as: ThousandIslandAdapter
 
@@ -43,19 +43,15 @@ if Code.ensure_loaded?(ThousandIsland.Handler) do
         packet_handler: packet_handler
       }
 
-      case socket_handler.handle_init(socket) do
-        {:ok, %Socket{} = new_socket} ->
+      case Connection.init(socket, socket_handler) do
+        {:cont, new_socket} ->
           {:continue, %State{state | socket: new_socket}}
 
-        {:ok, %Socket{} = new_socket, timeout} ->
+        {:cont, new_socket, timeout} ->
           {:continue, %State{state | socket: new_socket}, timeout}
 
-        {:stop, reason, %Socket{} = new_socket} ->
+        {:halt, reason, new_socket} ->
           close(reason, new_socket, state)
-
-        _ ->
-          raise "handle_init/1 must return `{:ok, socket}`, `{:ok, socket, timeout}` " <>
-                  "or `{:stop, reason, new_socket}`"
       end
     end
 
@@ -69,7 +65,7 @@ if Code.ensure_loaded?(ThousandIsland.Handler) do
 
       socket = %Socket{socket | adapter_state: transport_socket}
 
-      case MessageProcessor.process(data, socket, socket_handler, packet_handler) do
+      case Connection.process(data, socket, socket_handler, packet_handler) do
         {:cont, new_socket} -> {:continue, %State{state | socket: new_socket}}
         {:halt, reason, new_socket} -> close(reason, new_socket, state)
       end
@@ -111,17 +107,8 @@ if Code.ensure_loaded?(ThousandIsland.Handler) do
 
     defp handle_halt(reason, socket, %State{} = state) do
       %State{socket_handler: socket_handler} = state
-
-      case socket_handler.handle_halt(reason, socket) do
-        {:ok, %Socket{}} ->
-          :ok
-
-        {:ok, _stop_reason, %Socket{}} ->
-          :ok
-
-        _ ->
-          raise "handle_halt/2 must return `{:ok, socket}` or `{:ok, stop_reason, socket}`"
-      end
+      _socket = Connection.halt(reason, socket, socket_handler)
+      :ok
     end
   end
 end

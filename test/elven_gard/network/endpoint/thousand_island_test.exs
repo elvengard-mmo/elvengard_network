@@ -116,12 +116,6 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
     def handle_message(_message, socket), do: {:ok, socket}
 
     @impl true
-    def handle_halt(reason, %{assigns: %{halt_stop_reason: stop_reason}} = socket) do
-      %{assigns: %{observer: observer}} = socket
-      send(observer, {:handle_halt, reason})
-      {:ok, stop_reason, socket}
-    end
-
     def handle_halt(reason, %{assigns: %{observer: observer}} = socket) do
       send(observer, {:handle_halt, reason})
       {:ok, socket}
@@ -146,6 +140,12 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
 
     @impl true
     def handle_init(socket), do: {:stop, :requested, socket}
+
+    @impl true
+    def handle_halt(reason, socket) do
+      send(self(), {:init_stop_halt, reason})
+      {:ok, socket}
+    end
   end
 
   defmodule InvalidSocketHandler do
@@ -212,12 +212,17 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
                socket_handler: TimeoutSocketHandler
              )
 
-    assert {:close, %Protocol.State{halt_reason: :requested}} =
+    assert {:close, %Protocol.State{halt_reason: :requested} = state} =
              Protocol.handle_connection(
                :transport_socket,
                otp_app: :elvengard_network,
                socket_handler: StopSocketHandler
              )
+
+    refute_received {:init_stop_halt, :requested}
+    assert :ok = Protocol.handle_close(:transport_socket, state)
+    assert_received {:init_stop_halt, :requested}
+    refute_received {:init_stop_halt, :requested}
   end
 
   test "rejects an invalid socket handler init result" do
@@ -241,13 +246,6 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
 
     assert :ok = Protocol.handle_shutdown(:current_transport_socket, state)
     assert_receive {:handle_halt, :closed}
-  end
-
-  test "accepts a custom runtime stop reason from halt cleanup" do
-    state = runtime_state(assigns: %{halt_stop_reason: :shutdown})
-
-    assert :ok = Protocol.handle_timeout(:current_transport_socket, state)
-    assert_receive {:handle_halt, :timeout}
   end
 
   test "clears buffered data when raw message handling ignores it" do

@@ -4,6 +4,7 @@
 
 - Add a Thousand Island endpoint adapter and transport-independent socket runtime.
 - Make Ranch and Thousand Island optional dependencies selected explicitly per endpoint.
+- Normalize connection lifecycle callbacks and require `handle_halt/2` to return `{:ok, socket}`.
 
 ## 0.1.1
 

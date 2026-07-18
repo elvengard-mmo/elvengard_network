@@ -24,9 +24,7 @@ defmodule ElvenGard.Network.SocketHandler do
           | {:ok, Socket.t()}
           | {:stop, stop_reason(), Socket.t()}
 
-  @type halt_result ::
-          {:ok, Socket.t()}
-          | {:ok, stop_reason(), Socket.t()}
+  @type halt_result :: {:ok, Socket.t()}
 
   ## Callbacks
 

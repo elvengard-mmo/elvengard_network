@@ -19,6 +19,20 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
     packet_handler: __MODULE__.HaltHandler
   )
 
+  Application.put_env(:elvengard_network, __MODULE__.InitStopEndpoint,
+    adapter: ElvenGard.Network.Endpoint.Adapters.Ranch,
+    ip: {127, 0, 0, 1},
+    listener_name: :ranch_init_stop_endpoint,
+    port: 0,
+    socket_handler: __MODULE__.InitStopSocketHandler,
+    transport: :tcp
+  )
+
+  Application.put_env(:elvengard_network, __MODULE__.InitStopSocketHandler,
+    network_codec: __MODULE__.HaltCodec,
+    packet_handler: __MODULE__.HaltHandler
+  )
+
   defmodule HaltPacket do
     defstruct [:data]
   end
@@ -96,16 +110,36 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
     def handle_message(_message, socket), do: {:ok, socket}
 
     @impl true
-    def handle_halt(reason, %{assigns: %{stop: true}} = socket) do
+    def handle_halt(reason, socket) do
       send(self(), {:socket_handler_halt, reason})
-      {:ok, reason, socket}
+      {:ok, socket}
     end
-
-    def handle_halt(reason, socket), do: {:ok, reason, socket}
   end
 
   defmodule MyEndpoint do
     use ElvenGard.Network.Endpoint, otp_app: :elvengard_network
+  end
+
+  defmodule InitStopEndpoint do
+    use ElvenGard.Network.Endpoint, otp_app: :elvengard_network
+  end
+
+  defmodule InitStopSocketHandler do
+    use ElvenGard.Network.SocketHandler
+
+    ## SocketHandler callbacks
+
+    @impl true
+    def handle_init(socket) do
+      send(Process.whereis(__MODULE__.Observer), :init_stop)
+      {:stop, :requested, socket}
+    end
+
+    @impl true
+    def handle_halt(reason, socket) do
+      send(Process.whereis(__MODULE__.Observer), {:init_stop_halt, reason})
+      {:ok, socket}
+    end
   end
 
   defmodule MySocketHandler do
@@ -146,6 +180,7 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
 
   setup_all do
     start_supervised!(MyEndpoint)
+    start_supervised!(InitStopEndpoint)
     :ok
   end
 
@@ -153,6 +188,22 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
     test "is called" do
       _socket = connect()
       assert_receive :handle_init
+    end
+
+    test "closes and runs halt cleanup when initialization stops" do
+      Process.register(self(), InitStopSocketHandler.Observer)
+
+      {:ok, socket} =
+        :gen_tcp.connect(
+          {127, 0, 0, 1},
+          InitStopEndpoint.get_port(),
+          [:binary, active: false]
+        )
+
+      assert_receive :init_stop
+      assert_receive {:init_stop_halt, :requested}
+      assert {:error, :closed} = :gen_tcp.recv(socket, 0)
+      refute_received {:init_stop_halt, :requested}
     end
   end
 
@@ -181,6 +232,7 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
       assert {:stop, :normal, %Ranch.State{socket: %Socket{assigns: %{halted: true}}}} =
                Ranch.handle_info({:tcp, self(), "halt\n"}, state)
 
+      assert_received {:socket_handler_halt, :normal}
       assert_received :transport_closed
       refute_received {:transport_opts, active: :once}
     end
@@ -229,7 +281,7 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
     test "closes and runs halt cleanup after handle_message/2 stops" do
       state = halt_state(assigns: %{stop: true})
 
-      assert {:stop, :requested, ^state} =
+      assert {:stop, :normal, ^state} =
                Ranch.handle_info({:tcp, self(), "stop"}, state)
 
       assert_received {:socket_handler_halt, :requested}
@@ -242,9 +294,10 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
     test "passes the packet handler halt reason without rearming the transport" do
       state = halt_state()
 
-      assert {:stop, :requested, %Ranch.State{socket: %Socket{assigns: %{halted: true}}}} =
+      assert {:stop, :normal, %Ranch.State{socket: %Socket{assigns: %{halted: true}}}} =
                Ranch.handle_info({:tcp, self(), "halt:reason\n"}, state)
 
+      assert_received {:socket_handler_halt, :requested}
       assert_received :transport_closed
       refute_received {:transport_opts, active: :once}
     end
@@ -262,9 +315,10 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
     test "normalizes a closed SSL connection" do
       state = halt_state()
 
-      assert {:stop, :closed, ^state} =
+      assert {:stop, :normal, ^state} =
                Ranch.handle_info({:ssl_closed, self()}, state)
 
+      assert_received {:socket_handler_halt, :closed}
       assert_received :transport_closed
       refute_received {:transport_opts, active: :once}
     end
@@ -272,9 +326,10 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
     test "normalizes transport errors" do
       state = halt_state()
 
-      assert {:stop, {:error, :econnreset}, ^state} =
+      assert {:stop, :normal, ^state} =
                Ranch.handle_info({:tcp_error, self(), :econnreset}, state)
 
+      assert_received {:socket_handler_halt, {:error, :econnreset}}
       assert_received :transport_closed
       refute_received {:transport_opts, active: :once}
     end
