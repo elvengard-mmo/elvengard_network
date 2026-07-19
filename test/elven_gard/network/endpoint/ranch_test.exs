@@ -100,6 +100,12 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
       {:halt, :requested, Socket.assign(socket, :halted, true)}
     end
 
+    def handle_packet(%HaltPacket{data: "connection_pid"}, socket) do
+      %Socket{assigns: %{link: link}} = socket
+      send(link, {:connection_pid, self()})
+      {:cont, socket}
+    end
+
     def handle_packet(%HaltPacket{data: data}, socket) do
       %Socket{assigns: assigns} = socket
 
@@ -147,6 +153,13 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
     end
 
     def handle_message(_message, socket), do: {:ok, socket}
+
+    @impl true
+    def handle_info({:assign, key, value}, socket) do
+      {:ok, Socket.assign(socket, key, value)}
+    end
+
+    def handle_info(:stop, socket), do: {:stop, :requested, socket}
 
     @impl true
     def handle_halt(reason, socket) do
@@ -214,6 +227,12 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
     def handle_message(message, %{assigns: %{connection_state: :connected}} = socket) do
       %{assigns: %{link: link}} = socket
       send(link, {:handle_message, message})
+      {:ok, socket}
+    end
+
+    @impl true
+    def handle_info({:send_packet, packet}, socket) do
+      :ok = Socket.send(socket, packet)
       {:ok, socket}
     end
 
@@ -288,6 +307,20 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
       close(socket)
 
       assert_receive {:handle_halt, :closed}
+    end
+  end
+
+  describe "c:handle_info/2" do
+    test "sends data from an external process through the connection process" do
+      socket = connect()
+      assert_receive :handle_init
+      :ok = :inet.setopts(socket, active: false)
+      :ok = :gen_tcp.send(socket, "connection_pid\n")
+      assert_receive {:connection_pid, connection_pid}
+
+      send(connection_pid, {:send_packet, "async\n"})
+
+      assert {:ok, "async\n"} = :gen_tcp.recv(socket, 0)
     end
   end
 
@@ -435,6 +468,26 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
                Ranch.handle_info({:tcp_error, self(), :econnreset}, state)
 
       assert_received {:socket_handler_halt, {:error, :econnreset}}
+      assert_received :transport_closed
+      refute_received {:transport_opts, active: :once}
+    end
+
+    test "delegates application messages to the socket handler" do
+      state = halt_state()
+
+      assert {:noreply, %Ranch.State{socket: %Socket{assigns: %{custom: true}}}} =
+               Ranch.handle_info({:assign, :custom, true}, state)
+
+      refute_received {:transport_opts, active: :once}
+      refute_received :transport_closed
+    end
+
+    test "closes and runs halt cleanup when handle_info/2 stops" do
+      state = halt_state()
+
+      assert {:stop, :normal, ^state} = Ranch.handle_info(:stop, state)
+
+      assert_received {:socket_handler_halt, :requested}
       assert_received :transport_closed
       refute_received {:transport_opts, active: :once}
     end

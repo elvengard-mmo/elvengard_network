@@ -81,6 +81,18 @@ defmodule ElvenGard.Network.Endpoint.ConnectionTest do
     end
 
     @impl true
+    def handle_info(message, %Socket{} = socket) do
+      %Socket{assigns: assigns} = socket
+      send(assigns.observer, {:info, message})
+
+      case Map.get(assigns, :info_action, :continue) do
+        :continue -> {:ok, Socket.assign(socket, :info, message)}
+        :stop -> {:stop, :info_stop, Socket.assign(socket, :info_stopped, true)}
+        :invalid -> :invalid
+      end
+    end
+
+    @impl true
     def handle_halt(reason, %Socket{} = socket) do
       %Socket{assigns: assigns} = socket
       send(assigns.observer, {:connection_halt, reason})
@@ -165,6 +177,30 @@ defmodule ElvenGard.Network.Endpoint.ConnectionTest do
 
     assert_raise RuntimeError, ~r/invalid return value for handle_message\/2/, fn ->
       Connection.process("invalid", socket, SocketHandler, PacketHandler)
+    end
+  end
+
+  test "normalizes socket handler info messages" do
+    assert {:cont, %Socket{assigns: %{info: :event}}} =
+             Connection.info(:event, socket(), SocketHandler)
+
+    assert_received {:info, :event}
+
+    assert {:halt, :info_stop, %Socket{assigns: %{info_stopped: true}}} =
+             Connection.info(
+               :event,
+               socket(assigns: %{info_action: :stop}),
+               SocketHandler
+             )
+  end
+
+  test "rejects an invalid socket handler info result" do
+    assert_raise RuntimeError, ~r/handle_info\/2 must return/, fn ->
+      Connection.info(
+        :event,
+        socket(assigns: %{info_action: :invalid}),
+        SocketHandler
+      )
     end
   end
 

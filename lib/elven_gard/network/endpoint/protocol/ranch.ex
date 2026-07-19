@@ -106,6 +106,15 @@ if Code.ensure_loaded?(:ranch) do
       do_handle_halt(:timeout, socket, state)
     end
 
+    def handle_info(message, %State{} = state) do
+      %State{socket: socket, socket_handler: socket_handler} = state
+
+      case Connection.info(message, socket, socket_handler) do
+        {:cont, new_socket} -> {:noreply, %State{state | socket: new_socket}}
+        {:halt, reason, new_socket} -> do_handle_halt(reason, new_socket, state)
+      end
+    end
+
     @impl GenServer
     def terminate(reason, %State{} = state) do
       case reason do

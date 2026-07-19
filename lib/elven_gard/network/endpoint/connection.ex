@@ -29,6 +29,20 @@ defmodule ElvenGard.Network.Endpoint.Connection do
     end
   end
 
+  @spec info(any(), Socket.t(), module()) :: result()
+  def info(message, %Socket{} = socket, socket_handler) do
+    case socket_handler.handle_info(message, socket) do
+      {:ok, %Socket{} = new_socket} ->
+        {:cont, new_socket}
+
+      {:stop, reason, %Socket{} = new_socket} ->
+        {:halt, reason, new_socket}
+
+      _ ->
+        raise "handle_info/2 must return `{:ok, socket}` or `{:stop, reason, socket}`"
+    end
+  end
+
   @spec process(binary(), Socket.t(), module(), module()) :: result()
   def process(data, %Socket{} = socket, socket_handler, packet_handler) do
     %Socket{remaining: remaining} = socket

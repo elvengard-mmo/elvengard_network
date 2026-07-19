@@ -21,6 +21,11 @@ defmodule ElvenGard.Network.SocketHandlerTest do
     end
 
     @impl true
+    def handle_info(message, %Socket{} = socket) do
+      {:ok, Socket.assign(socket, :info, message)}
+    end
+
+    @impl true
     def handle_halt(_reason, %Socket{} = socket) do
       {:ok, Socket.assign(socket, :halted, true)}
     end
@@ -31,6 +36,7 @@ defmodule ElvenGard.Network.SocketHandlerTest do
 
     assert {:ok, ^socket} = DefaultHandler.handle_init(socket)
     assert {:ok, ^socket} = DefaultHandler.handle_message("data", socket)
+    assert {:ok, ^socket} = DefaultHandler.handle_info(:event, socket)
     assert {:ok, ^socket} = DefaultHandler.handle_halt(:normal, socket)
   end
 
@@ -42,6 +48,9 @@ defmodule ElvenGard.Network.SocketHandlerTest do
 
     assert {:ignore, %Socket{assigns: %{message: "data"}}} =
              CustomHandler.handle_message("data", socket)
+
+    assert {:ok, %Socket{assigns: %{info: :event}}} =
+             CustomHandler.handle_info(:event, socket)
 
     assert {:ok, %Socket{assigns: %{halted: true}}} =
              CustomHandler.handle_halt(:requested, socket)

@@ -97,6 +97,24 @@ if Code.ensure_loaded?(ThousandIsland.Handler) do
       handle_halt(:timeout, socket, state)
     end
 
+    ## GenServer callbacks
+
+    @impl GenServer
+    def handle_info(message, {%ThousandIsland.Socket{} = transport_socket, %State{} = state}) do
+      %State{socket: %Socket{} = socket, socket_handler: socket_handler} = state
+      socket = %Socket{socket | adapter_state: transport_socket}
+
+      case Connection.info(message, socket, socket_handler) do
+        {:cont, new_socket} ->
+          new_state = %State{state | socket: new_socket}
+          {:noreply, {transport_socket, new_state}}
+
+        {:halt, reason, new_socket} ->
+          new_state = %State{state | socket: new_socket, halt_reason: reason}
+          {:stop, {:shutdown, reason}, {transport_socket, new_state}}
+      end
+    end
+
     ## Private function
 
     defp close(reason, socket, %State{} = state) do

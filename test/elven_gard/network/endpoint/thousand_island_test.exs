@@ -88,6 +88,12 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
       {:halt, socket}
     end
 
+    def handle_packet(%Packet{data: "connection_pid"}, socket) do
+      %Socket{assigns: %{observer: observer}} = socket
+      send(observer, {:connection_pid, self()})
+      {:cont, socket}
+    end
+
     def handle_packet(%Packet{data: data}, socket) do
       %Socket{assigns: %{observer: observer}} = socket
       send(observer, {:handle_packet, data})
@@ -137,6 +143,14 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
     end
 
     def handle_message(_message, socket), do: {:ok, socket}
+
+    @impl true
+    def handle_info({:send_packet, packet}, socket) do
+      :ok = Socket.send(socket, packet)
+      {:ok, socket}
+    end
+
+    def handle_info(:stop, socket), do: {:stop, :requested, socket}
 
     @impl true
     def handle_halt(reason, %{assigns: %{observer: observer}} = socket) do
@@ -237,6 +251,29 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
 
     :ok = :ssl.close(socket)
     assert_receive {:handle_halt, :closed}
+  end
+
+  test "sends data from an external process through the connection process" do
+    socket = connect()
+    assert_receive :handle_init
+    :ok = :gen_tcp.send(socket, "connection_pid\n")
+    assert_receive {:connection_pid, connection_pid}
+
+    send(connection_pid, {:send_packet, %Packet{data: "async"}})
+
+    assert {:ok, "async\n"} = :gen_tcp.recv(socket, 0)
+  end
+
+  test "closes and runs halt cleanup when an application message stops the connection" do
+    socket = connect()
+    assert_receive :handle_init
+    :ok = :gen_tcp.send(socket, "connection_pid\n")
+    assert_receive {:connection_pid, connection_pid}
+
+    send(connection_pid, :stop)
+
+    assert_receive {:handle_halt, :requested}
+    assert {:error, :closed} = :gen_tcp.recv(socket, 0)
   end
 
   test "closes active connections and runs halt cleanup when the listener shuts down" do

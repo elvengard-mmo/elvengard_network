@@ -63,6 +63,12 @@ defmodule LoginServer.Endpoint.SocketHandler do
   end
 
   @impl ElvenGard.Network.SocketHandler
+  def handle_info({:send_packet, packet}, %Socket{} = socket) do
+    :ok = Socket.send(socket, packet)
+    {:ok, socket}
+  end
+
+  @impl ElvenGard.Network.SocketHandler
   def handle_halt(reason, %Socket{} = socket) do
     Logger.info("#{socket.id} is now disconnected (reason: #{inspect(reason)})")
     {:ok, socket}
@@ -72,7 +78,7 @@ end
 
 Once again, creating a socket handler is fairly straightforward.
 
-This example defines three callbacks:
+This example defines four callbacks:
 
   - `handle_init/1`: called when a client connects. It returns `{:ok, socket}`,
     `{:ok, socket, timeout}`, or `{:stop, reason, socket}`. It is commonly used
@@ -82,6 +88,11 @@ This example defines three callbacks:
     newly received binary. Return `:ignore` or `{:ignore, socket}` to discard
     those bytes without decoding them, `{:ok, socket}` to run the network codec
     and packet handler, or `{:stop, reason, socket}` to close the connection.
+  - `handle_info/2`: called when the connection process receives an application
+    message. It runs inside the process owning the connection, so packet encoding
+    and socket assigns remain serialized with incoming traffic. Return
+    `{:ok, socket}` to continue or `{:stop, reason, socket}` to close the
+    connection.
   - `handle_halt/2`: called exactly once when the connection halts. Transport
     reasons are normalized to `:closed`, `:timeout`, or `{:error, reason}`;
     application code may supply another reason. It must return `{:ok, socket}`.

@@ -24,6 +24,10 @@ defmodule ElvenGard.Network.SocketHandler do
           | {:ok, Socket.t()}
           | {:stop, stop_reason(), Socket.t()}
 
+  @type info_result ::
+          {:ok, Socket.t()}
+          | {:stop, stop_reason(), Socket.t()}
+
   @type halt_result :: {:ok, Socket.t()}
 
   ## Callbacks
@@ -43,6 +47,14 @@ defmodule ElvenGard.Network.SocketHandler do
   @callback handle_message(message :: binary(), socket :: Socket.t()) :: message_result()
 
   @doc """
+  Handles an application message received by the connection process.
+
+  This callback runs inside the process that owns the connection, so it may
+  safely call `ElvenGard.Network.Socket.send/2` and update socket assigns.
+  """
+  @callback handle_info(message :: any(), socket :: Socket.t()) :: info_result()
+
+  @doc """
   Performs cleanup after the endpoint halts the connection.
 
   Transport lifecycle reasons are normalized to `:closed`, `:timeout`, or
@@ -52,6 +64,7 @@ defmodule ElvenGard.Network.SocketHandler do
 
   @optional_callbacks handle_init: 1,
                       handle_message: 2,
+                      handle_info: 2,
                       handle_halt: 2
 
   ## Public API
@@ -69,10 +82,14 @@ defmodule ElvenGard.Network.SocketHandler do
       def handle_message(_message, socket), do: {:ok, socket}
 
       @impl ElvenGard.Network.SocketHandler
+      def handle_info(_message, socket), do: {:ok, socket}
+
+      @impl ElvenGard.Network.SocketHandler
       def handle_halt(_reason, socket), do: {:ok, socket}
 
       defoverridable handle_init: 1,
                      handle_message: 2,
+                     handle_info: 2,
                      handle_halt: 2
     end
   end
