@@ -102,6 +102,15 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
     end
   end
 
+  defmodule TerminationTransport do
+    def getstat(_observer), do: {:error, :unsupported}
+
+    def close(observer) do
+      send(observer, :transport_closed)
+      :ok
+    end
+  end
+
   defmodule Endpoint do
     use ElvenGard.Network.Endpoint, otp_app: :elvengard_network
   end
@@ -359,6 +368,16 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
     assert_receive {:handle_halt, :closed}
   end
 
+  test "closes and runs halt cleanup after unexpected termination" do
+    state = runtime_state()
+    transport_socket = termination_transport_socket()
+    error = {%RuntimeError{message: "packet processing crashed"}, []}
+
+    assert :ok = Protocol.terminate(error, {transport_socket, state})
+    assert_receive {:handle_halt, {:error, ^error}}
+    assert_receive :transport_closed
+  end
+
   test "clears buffered data when raw message handling ignores it" do
     state = runtime_state(remaining: "stale", assigns: %{ignore: true})
 
@@ -400,6 +419,23 @@ defmodule ElvenGard.Network.Endpoint.ThousandIslandTest do
       socket: socket,
       socket_handler: SocketHandler,
       packet_handler: PacketHandler
+    }
+  end
+
+  defp termination_transport_socket() do
+    span =
+      ThousandIsland.Telemetry.start_span(
+        :connection,
+        %{},
+        %{handler: Protocol}
+      )
+
+    %ThousandIsland.Socket{
+      socket: self(),
+      transport_module: TerminationTransport,
+      read_timeout: :infinity,
+      silent_terminate_on_error: false,
+      span: span
     }
   end
 

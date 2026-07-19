@@ -364,6 +364,15 @@ defmodule ElvenGard.Network.Endpoint.RanchTest do
   end
 
   describe "message processing" do
+    test "closes and runs halt cleanup after unexpected termination" do
+      state = halt_state()
+      error = {%RuntimeError{message: "packet processing crashed"}, []}
+
+      assert :ok = Ranch.terminate(error, state)
+      assert_received {:socket_handler_halt, {:error, ^error}}
+      assert_received :transport_closed
+    end
+
     test "receives the socket returned by the packet handler" do
       state = halt_state()
 

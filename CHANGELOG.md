@@ -32,6 +32,7 @@
   endpoint starts, then pass them explicitly to `Endpoint.Adapter.child_spec/3`.
 - Run halt cleanup when either listener implementation shuts down active
   connections.
+- Run Ranch halt cleanup when a connection process terminates unexpectedly.
 
 ## 0.1.1
 

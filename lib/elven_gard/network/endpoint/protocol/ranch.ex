@@ -118,8 +118,17 @@ if Code.ensure_loaded?(:ranch) do
     @impl GenServer
     def terminate(reason, %State{} = state) do
       case reason do
-        :shutdown -> halt_on_shutdown(state)
-        _reason -> :ok
+        :normal ->
+          :ok
+
+        :shutdown ->
+          halt_after_termination(:closed, state)
+
+        {:shutdown, _reason} ->
+          halt_after_termination(:closed, state)
+
+        error ->
+          halt_after_termination({:error, error}, state)
       end
     end
 
@@ -150,9 +159,9 @@ if Code.ensure_loaded?(:ranch) do
       {:stop, :normal, %State{state | socket: new_socket}}
     end
 
-    defp halt_on_shutdown(%State{} = state) do
+    defp halt_after_termination(reason, %State{} = state) do
       %State{socket: socket, socket_handler: socket_handler} = state
-      _socket = halt_connection(:closed, socket, socket_handler)
+      _socket = halt_connection(reason, socket, socket_handler)
       :ok
     end
 
